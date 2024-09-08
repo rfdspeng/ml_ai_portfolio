@@ -1,0 +1,98 @@
+lr_init = 1e-3 # from paper
+optimizer = Adam(model.parameters(), lr = lr_init)
+lr_scheduler = StepLR(optimizer, step_size=1, gamma=0.91, last_epoch=-1) # from paper
+max_epochs = 100 # from paper
+earlystop = EarlyStopping(patience=15, delta=0.01, lowerisbetter=False)
+early stop on AUC; manual AUC calculation
+
+
+WeightedRandomSampler is with replacement
+
+
+augment4 means using model4's augmentation
+
+
+
+model0 - ResNet-18
+model1 - ResNet-18, random horizontal/vertical flips p=0.5
+model3 - ResNet-18, random rotation p=0.5
+model4 - ResNet-18, random horizontal/vertical flips p=0.5, random rotation p=0.5
+model5 - ResNet-18, random perspective p=0.5
+model6 - ResNet-18, random affine p=0.5
+model7 - ResNet-18, random horizontal/vertical flips p=0.5, random (rotation/perspective/affine) p=0.5
+
+
+
+model20 - ResNet-18, WeightedRandomSampler
+model21 - ResNet-18, weighted BCE loss 0.71/0.29
+*model22 - ResNet-18, remove very hard images
+
+switched to earlystop f1 for these
+model35 - ResNet-18, remove 4s, augment4 all
+model36 - ResNet-18, remove 4s
+model37 - ResNet-18, remove 3s
+model38 - ResNet-18, remove 3/4s
+model40 - ResNet-18, RandomOverSampler
+model41 - ResNet-18, RandomOverSampler augment4 all
+model42 - ResNet-18, TomekLinks (remove 3s), RandomOverSampler augment4 all
+model43 - ResNet-18, remove 3/4s, RandomOverSampler augment4 all
+model44 - ResNet-18, SMOTE
+model45 - ResNet-18, TomekLinks (remove 3s), SMOTE
+model46 - ResNet-18, remove 3/4s, SMOTE
+model47 - ResNet-18, ADASYN
+model48 - ResNet-18, ADASYN augment4 all
+model49 - ResNet-18, TomekLinks (remove 3s), ADASYN augment4 all
+model50 - ResNet-18, remove 3/4s, ADASYN augment4 all
+model51 - ResNet-18, remove 4s, RandomOverSampler augment4 all
+model52 - ResNet-18, remove 4s, ADASYN augment4 all
+model53 - ResNet-18, remove 3/4s, RandomOverSampler augment7 all
+
+model80 - ResNet-18, random horizontal/vertical flips p=0.5, random rotation p=0.5, WeightedRandomSampler
+*model81 - ResNet-18, random horizontal/vertical flips p=0.5, random rotation p=0.5, weighted BCE loss 0.71/0.29
+model82 - ResNet-18, remove 3/4s, random horizontal/vertical flips p=0.5, random rotation p=0.5
+
+
+
+
+
+
+
+model100 - resnet-18, pretrained
+model101 - ResNet-18, pretrained, random horizontal/vertical flips p=0.5
+model103 - ResNet-18, pretrained, random rotation p=0.5
+model104 - ResNet-18, pretrained, random horizontal/vertical flips p=0.5, random rotation p=0.5
+
+
+
+
+model120 - ResNet-18, pretrained, WeightedRandomSampler
+*model121 - ResNet-18, pretrained, weighted BCE loss 0.71/0.29
+model122 - ResNet-18, pretrained, remove very hard images
+
+
+switched to earlystop f1 for these
+model140 - ResNet-18, pretrained, RandomOverSampler
+model141 - ResNet-18, pretrained, RandomOverSampler augment4 all                                     -----------------
+model142 - ResNet-18, pretrained, TomekLinks (remove 3s), RandomOverSampler augment4 all
+model143 - ResNet-18, pretrained, remove 3/4s, RandomOverSampler augment4 all
+model144 - ResNet-18, pretrained, SMOTE
+model145 - ResNet-18, pretrained, TomekLinks (remove 3s), SMOTE
+model146 - ResNet-18, pretrained, remove 3/4s, SMOTE
+model147 - ResNet-18, pretrained, ADASYN
+model148 - ResNet-18, pretrained, ADASYN augment4 all
+model149 - ResNet-18, pretrained, TomekLinks (remove 3s), ADASYN augment4 all
+model150 - ResNet-18, pretrained, remove 3/4s, ADASYN augment4 all
+model153 - ResNet-18, pretrained, remove 3/4s, RandomOverSampler augment7 all
+
+
+model180 - ResNet-18, pretrained, random horizontal/vertical flips p=0.5, random rotation p=0.5, WeightedRandomSampler
+*model181 - ResNet-18, pretrained, random horizontal/vertical flips p=0.5, random rotation p=0.5, weighted BCE loss 0.71/0.29
+model182 - ResNet-18, pretrained, remove 3/4s, random horizontal/vertical flips p=0.5, random rotation p=0.5
+
+
+
+
+
+
+apply some kind of weighting and also remove images
+WeightedRandomSampler without replacement (set num_samples equal to 2x the number of minority class samples)

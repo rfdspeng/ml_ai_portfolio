@@ -1,0 +1,7 @@
+# Notes on the paper
+* Written in 2018 - at the time, enc-dec architectures with RNNs were SOTA. Paper uses CNN instead - says CNN is better for capturing long-range dependencies.
+* At the time, most summarization strategies were extractive instead of abstractive, so they curated this dataset to have single-sentence summaries, which are not suitable for extractive summarization. Abstractive summarization is "more faithful to the actual summarization task."
+
+# Notes on the dataset (from the paper)
+* BBC articles. Each article is prefaced with an introductory sentence that is professionally written, typically by the author of the article. They use this as the summary.
+* XSum is less biased towards extractive methods of summarization.

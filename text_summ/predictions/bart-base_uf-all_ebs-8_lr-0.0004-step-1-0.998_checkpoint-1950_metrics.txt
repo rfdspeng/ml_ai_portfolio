@@ -1,0 +1,19 @@
+{
+"train_loss": 0.02128872089087963,
+"train_bertscore_precision": 0.9948678056781108,
+"train_bertscore_recall": 0.991899069570578,
+"train_bertscore_f1": 0.9933224644225377,
+"train_rouge1": 0.987164467024134,
+"train_rouge2": 0.981280931722824,
+"train_rougeL": 0.9852215585065514,
+"train_rougeLsum": 0.9866219789469716
+}{
+"val_loss": 1.7630760669708252,
+"val_bertscore_precision": 0.9085654133197033,
+"val_bertscore_recall": 0.888549570332874,
+"val_bertscore_f1": 0.8971202134182958,
+"val_rouge1": 0.646626306018607,
+"val_rouge2": 0.5213150537965938,
+"val_rougeL": 0.6046004029924524,
+"val_rougeLsum": 0.6284474159920066
+}

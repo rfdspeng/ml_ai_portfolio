@@ -1,4 +1,4 @@
-name: env_dl_cv_transformer_sentpiece
+name: env_ml_ai
 channels:
   - pytorch
   - huggingface
@@ -408,7 +408,8 @@ dependencies:
       - nltk==3.9.1
       - peft==0.13.1
       - rouge-score==0.1.2
+      - sentence-transformers==3.2.1
       - sentencepiece==0.2.0
       - torchaudio==2.2.2
       - torchvision==0.17.2
-prefix: C:\ProgramData\anaconda3\envs\env_dl_cv_transformer_sentpiece
+prefix: C:\ProgramData\anaconda3\envs\env_ml_ai

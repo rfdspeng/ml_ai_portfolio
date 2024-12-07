@@ -6,11 +6,11 @@ import sys
 
 
 class BookRetriever:
-    def __init__(self, collection_name, top_k=5):
-        self.llm_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    def __init__(self, credentials, collection_name, top_k=5):
+        self.llm_client = OpenAI(api_key=credentials["OPENAI_API_KEY"])
         self.vectordb_client = QdrantClient(
-            url=os.environ["QDRANT_URL"],
-            api_key=os.environ["QDRANT_API_KEY"],
+            url=credentials["QDRANT_URL"],
+            api_key=credentials["QDRANT_API_KEY"],
         )
         self.collection_name = collection_name
         self.top_k = top_k # number of entries to retrieve
@@ -31,8 +31,8 @@ class BookRetriever:
         return self.search_results
 
 class BookAssistant:
-    def __init__(self, system_message="You are a bookstore assistant assisting customers with finding a book to read that fits their preferences.", model="gpt-3.5-turbo"):
-        self.llm_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    def __init__(self, llm_api_key, system_message="You are a bookstore assistant assisting customers with finding a book to read that fits their preferences.", model="gpt-3.5-turbo"):
+        self.llm_client = OpenAI(api_key=llm_api_key)
         self.messages_list = [{"role": "system", "content": system_message}]
         self.model = model
     
@@ -62,7 +62,7 @@ class BookAssistant:
         context = "\n".join(hits)
         return context
 
-    def respond(self, user_query="", search_results=[]):
+    def respond(self, user_query="", search_results=[], stream=False):
         if search_results != []: # if search results aren't empty, append them to the user query
             self.search_results = search_results
             context = self._search_results_to_context_(search_results)
@@ -83,12 +83,25 @@ class BookAssistant:
         response = self.llm_client.chat.completions.create(
             messages = self.messages_list,
             model = self.model,
+            stream = stream,
         )
 
-        output = response.choices[0].message.content
-        self.messages_list.append({"role": "assistant", "content": output})
+        if not stream:
+            output = response.choices[0].message.content
+            self.messages_list.append({"role": "assistant", "content": output})
+            return output
+        else:
+            output = ""
+            for chunk in response:
+                if chunk.choices[0].delta.content is not None:
+                    output = output + chunk.choices[0].delta.content
+            self.messages_list.append({"role": "assistant", "content": output})
+            return response
 
-        return output
+        # output = response.choices[0].message.content
+        # self.messages_list.append({"role": "assistant", "content": output})
+
+        # return output
 
 def main(collection_name):
     retriever = BookRetriever(collection_name)

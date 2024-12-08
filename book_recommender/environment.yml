@@ -8,26 +8,15 @@ channels:
   - https://repo.anaconda.com/pkgs/main
   - https://repo.anaconda.com/pkgs/r
 dependencies:
-  - datasets
-  - faiss
   - ipywidgets
   - jupyter
   - jupyterlab
-  - langchain
-  - langchain-community
   - matplotlib
   - numpy
   - openai
   - pandas
   - pip
-  - pypdf
-  - pypdf2
   - python=3.12.6
-  - pytorch
   - qdrant-client
-  - scikit-learn
-  - scipy
-  - sentence-transformers
-  - transformers
   - streamlit
 prefix: /home/ryanwtsai/repos/ml_ai_portfolio/book_recommender/env

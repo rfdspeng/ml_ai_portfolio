@@ -91,17 +91,12 @@ class BookAssistant:
             self.messages_list.append({"role": "assistant", "content": output})
             return output
         else:
-            output = ""
-            for chunk in response:
-                if chunk.choices[0].delta.content is not None:
-                    output = output + chunk.choices[0].delta.content
-            self.messages_list.append({"role": "assistant", "content": output})
+            # output = ""
+            # for chunk in response:
+            #     if chunk.choices[0].delta.content is not None:
+            #         output = output + chunk.choices[0].delta.content
+            # self.messages_list.append({"role": "assistant", "content": output})
             return response
-
-        # output = response.choices[0].message.content
-        # self.messages_list.append({"role": "assistant", "content": output})
-
-        # return output
 
 def main(collection_name):
     retriever = BookRetriever(collection_name)

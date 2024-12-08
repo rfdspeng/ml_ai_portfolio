@@ -166,3 +166,7 @@ events.out.tfevents*
 
 # Model checkpoints
 output/
+
+# Streamlit
+.streamlit/
+secrets.toml

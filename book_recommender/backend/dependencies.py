@@ -1,20 +1,13 @@
 from fastapi import Depends, Request
 from typing import Annotated
-from backend.models.retriever import BookRetriever
-from backend.routers.chat import UserQuery
+from backend.models import BookRetriever, UserQuery
 from qdrant_client.models import ScoredPoint
 
+# 1 instance of BookRetriever per application, defined in app lifespan and stored in app.state.bookretriever
 async def get_bookretriever(request: Request) -> BookRetriever:
     return request.app.state.bookretriever
 
+# Apparently UserQuery = Depends() signals to FastAPI that it should look at the dependent function for UserQuery object
 async def retrieve(retriever: Annotated[BookRetriever, Depends(get_bookretriever)], query: UserQuery = Depends()) -> list[ScoredPoint]:
-    search_results = retriever.retrieve(query)
+    search_results = await retriever.retrieve(query.message)
     return search_results
-
-# async def retrieve(query: str, retriever: Annotated[BookRetriever, Depends(get_bookretriever)]) -> list[ScoredPoint]:
-#     search_results = retriever.retrieve(query)
-#     return search_results
-
-# async def retrieve(query: UserQuery = Depends(), retriever: Annotated[BookRetriever, Depends(get_bookretriever)]) -> list[ScoredPoint]:
-#     search_results = retriever.retrieve(query)
-#     return search_results

@@ -3,22 +3,20 @@ from fastapi import APIRouter, Depends
 from asyncio import Lock
 from typing import Annotated
 from pydantic import BaseModel
-from backend.models.assistant import BookAssistant
+from backend.models import BookAssistant, UserQuery
 from backend.dependencies import retrieve
 from qdrant_client.models import ScoredPoint
-
-class UserQuery(BaseModel):
-    userid: int
-    message: str
+from dotenv import dotenv_values
 
 router = APIRouter()
 
 bookassistants = {}
 assistant_locks = {}
 
-async def get_or_create_assistant(userid: int) -> BookAssistant:
+def get_or_create_assistant(userid: int) -> BookAssistant:
     if userid not in bookassistants:
-        bookassistants[userid] = await BookAssistant(llm_api_key)
+        llm_api_key = dict(dotenv_values(".env"))["OPENAI_API_KEY"]
+        bookassistants[userid] = BookAssistant(llm_api_key)
     return bookassistants[userid]
 
 @router.post("/")
@@ -28,38 +26,18 @@ async def chat(query: UserQuery, search_results: Annotated[list[ScoredPoint], De
 
     # If multiple requests for the same userid come in, this can create a race condition for bookassistants and bookassistants[userid]
     # We want to lock down these resources so only one request has access at any given time
-    async with assistant_locks.setdefault(userid, Lock()): # create a new lock for this userid if it doesn't exist
-        bookassistants[userid] = await get_or_create_assistant(userid)
-        response = await bookassistants[userid].respond(user_query=message, search_results=search_results, stream=False)
-
-    return {"response", response}
-
-async def get_or_create_assistant(userid: int) -> BookAssistant:
-    if userid not in bookassistants:
-        bookassistants[userid] = BookAssistant(llm_api_key)
-    return bookassistants[userid]
-
-@router.post("/")
-async def chat(query: UserQuery, search_results: Annotated[list[ScoredPoint], Depends(retrieve)]) -> dict[str, str]:
-    userid = query.userid
-    message = query.message
-
-    # Ensure a lock exists for this userid
-    lock = assistant_locks.setdefault(userid, Lock())
-
-    # Lock the entire critical section for this userid
-    async with lock:
-        # Get or create the assistant
-        assistant = await get_or_create_assistant(userid)
-
-        # Generate a response (assistant state is modified here)
-        response = await assistant.respond(
-            user_query=message,
-            search_results=search_results,
-            stream=False
-        )
+    async with assistant_locks.setdefault(userid, Lock()): # create a new lock for this userid if it doesn't exist and store in assistant_locks
+        bookassistants[userid] = get_or_create_assistant(userid)
+        response = await bookassistants[userid].respond(user_query=message, search_results=search_results, stream=False) # asynchronous chat completion
 
     return {"response": response}
+
+# @router.post("/")
+# async def chat(query: UserQuery) -> dict[str, str]:
+#     userid = query.userid
+#     message = query.message
+
+#     return {f"{userid}": message}
 
 """
 async def get_or_create_assistant(userid: int) -> BookAssistant:

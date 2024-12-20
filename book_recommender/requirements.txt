@@ -1,0 +1,7 @@
+numpy
+pandas
+openai
+qdrant-client
+streamlit
+fastapi
+fastapi[standard]

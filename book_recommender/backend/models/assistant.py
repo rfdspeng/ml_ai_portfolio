@@ -32,8 +32,8 @@ class BookAssistant:
         context = "\n".join(hits)
         return context
 
-    async def respond(self, user_query: str="", search_results: list=[], stream: bool=False):
-        if search_results != []: # if search results aren't empty, append them to the user query
+    async def respond(self, user_query: str="", search_results: list | None = None, stream: bool=False):
+        if search_results is not None: # if search results aren't empty, append them to the user query
             self.search_results = search_results
             context = self._search_results_to_context_(search_results)
             content = (

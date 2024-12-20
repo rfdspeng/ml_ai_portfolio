@@ -20,7 +20,7 @@ def get_or_create_assistant(userid: int) -> BookAssistant:
     return bookassistants[userid]
 
 @router.post("/")
-async def chat(query: UserQuery, search_results: Annotated[list[ScoredPoint], Depends(retrieve)]) -> dict[str, str]:
+async def chat(query: UserQuery, search_results: Annotated[list[ScoredPoint] | None, Depends(retrieve)]) -> dict[str, str]:
     userid = query.userid
     message = query.message
 

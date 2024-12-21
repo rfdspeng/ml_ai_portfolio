@@ -3,12 +3,13 @@ import httpx
 import json
 import asyncio
 from uuid import uuid4
+import os
 
 stream = False
 
 async def get_assistant_response(userquery: dict[str, str]) -> str:
     async with httpx.AsyncClient() as client:
-        response = await client.post("http://localhost:8000/chat/", json=userquery)
+        response = await client.post(os.getenv("BACKEND_ENDPOINT", "http://localhost:8000/chat/"), json=userquery)
         response.raise_for_status()
         return response.json()["response"]
 

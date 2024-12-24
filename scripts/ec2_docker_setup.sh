@@ -1,4 +1,4 @@
-sudo apt update && sudo apt upgrade -y && sudo apt install -y docker.io && sudo apt install -y unzip
+sudo apt update && sudo apt upgrade -y && sudo apt install -y docker.io && sudo apt install -y unzip && sudo apt install -y docker-compose
 sudo systemctl start docker
 sudo systemctl enable docker
 

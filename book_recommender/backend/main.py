@@ -7,14 +7,12 @@ from dotenv import dotenv_values
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     credentials = dict(dotenv_values(".env"))
-    # print(f"Credentials dict: {credentials}")
     app.state.bookretriever = BookRetriever(credentials, collection_name="best-book-ever", top_k=5)
     yield
     app.state.bookretriever.close()
 
 app = FastAPI(lifespan=lifespan)
 
-# app.include_router(retrieve.router, prefix="/retrieve", tags=["retrieve"])
 app.include_router(chat.router, prefix="/chat", tags=["chat"])
 
 @app.get("/")

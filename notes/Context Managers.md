@@ -1,4 +1,9 @@
 # <u>Context managers</u>
+
+Notes are based on this tutorial: https://book.pythontips.com/en/latest/context_managers.html
+
+To read more, see [PEP343](https://peps.python.org/pep-0343/) for context managers and [PEP492](https://peps.python.org/pep-0492/#asynchronous-context-managers-and-async-with) for asynchronous context managers.
+
 Use a context manager to acquire and release resources, e.g. opening and closing a file, locking and unlocking access to a mutable variable, opening and closing a database connection, creating and cleaning up temporary directories. Context managers are important for making sure that the resources are properly acquired and released even if exceptions occur in the intervening code block (acquire resource -> intervening code block -> release resource).
 
 The `with` statement is the most popular way to use context managers.
@@ -86,3 +91,47 @@ with open_file("sample.txt") as file:
 ```
 
 Everything before `yield` is executed as the `__enter__` method; everything after `yield` is executed as the `__exit__` method.
+
+## <u>Asynchronous context managers</u>
+
+See [PEP492](https://peps.python.org/pep-0492/#asynchronous-context-managers-and-async-with).
+
+An asynchronous context manager simply extends context manager functionality to asynchronous code. Instead of `__enter__` and `__exit__`, an async context manager defines `__aenter__` and `__aexit__` methods that are awaitable - that is, can suspend their execution and resume later.
+
+Example asynchronoux context manager:
+```python
+class AsyncContextManager:
+    async def __aenter__(self):
+        await log('entering context')
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await log('exiting context')
+```
+
+This is the syntax for entering and exiting an asynchronous context manager:
+```python
+async with EXPR as VAR:
+    BLOCK
+```
+Which is semantically equivalent to
+```python
+mgr = (EXPR) # parentheses are optional. EXPR must return an async context manager.
+aexit = type(mgr).__aexit__ # aexit class method
+aenter = type(mgr).__aenter__ # aenter class method
+
+# Call aenter method on the async context manager
+# VAR assignment is optional
+VAR = await aenter(mgr) 
+try:
+    BLOCK
+except:
+    # If the async context manager's aexit method does not properly execute, re-raise the exception caught by except
+    if not await aexit(mgr, *sys.exc_info()):
+        raise
+else:
+    await aexit(mgr, None, None, None)
+```
+
+As with regular `with` statements, you can specify multiple asynchronous context managers in a single `async with` statement.
+
+`async with` can only be used within an `async def` function.

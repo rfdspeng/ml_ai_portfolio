@@ -52,11 +52,14 @@ You can push and pull Docker images to and from ECR.
 Using the command line,
 * `aws ecr get-login-password --region <region>`: this gets an authentication token (basically a long random password)
 * `docker login`: when prompted, use AWS for the username and the authentication token from the previous step for the password
-* `aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>amazonaws.com`: this combines the two previous steps into one easy command. Your authentication token will be saved under `~/.docker/config.json`. This is also known as the ECR registry entry.
+* `aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com`: this combines the two previous steps into one easy command. Your authentication token will be saved under `~/.docker/config.json`. This is also known as the ECR registry entry.
 * `docker tag <local-image-name:tag> <account-id>.dkr.ecr.<region>.amazonaws.com/<repo-name>:<tag>`: to push, you need to re-tag your image with the ECR repo name. For example, `docker tag my-app:latest <account-id>.dkr.ecr.<region>.amazonaws.com/all-apps/my-app:v1`.
 * `docker push <account-id>.dkr.ecr.<region>.amazonaws.com/<repo-name>:<tag>`: push to repo
 * `docker pull <account-id>.dkr.ecr.<region>.amazonaws.com/<repo-name>:<tag>`: pull from repo
 
 When you push and pull, Docker looks for your configuration file (`config.json`), but it may not find the right one. When you run the Docker daemon using `sudo`, this gives you root user permissions, which means Docker is running as `root`. If you're not actually the root user, Docker may look in the wrong place and incorrectly determine that you do not have credentials to push and pull.
 
-To fix this, you can set the `DOCKER_CONFIG` environmental variable to point to the correct directory, e.g. `~/.docker`.
+Recipe:
+* Use `sudo` for all commands, including authentication. When authenticating, use `sudo`: `sudo aws ecr get-login-password --region <region> | sudo docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com`. There will be an output message that tells you where the token is saved (it should be `/root/.docker/config.json`).
+* Set the environmental variable `export DOCKER_CONFIG=/root/.docker`
+* Push or pull

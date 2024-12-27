@@ -1,6 +1,6 @@
 services:
   backend:
-    image: book-rec-backend:v1
+    image: book-rec-backend:v2
     container_name: backend
     networks:
       - app-network

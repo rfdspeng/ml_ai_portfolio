@@ -15,17 +15,16 @@ class BookRetriever:
     async def _embed_(self, user_query: str) -> list:
         response = await self.llm_client.embeddings.create(input=user_query, model="text-embedding-ada-002")
         return response.data[0].embedding
-
-    async def retrieve(self, user_query: str) -> list[ScoredPoint]:
-        self.user_query = user_query
-        self.query_vector = await self._embed_(user_query)
-
-        self.search_results = await self.vectordb_client.search( # await
-            collection_name = self.collection_name,
-            query_vector = self.query_vector,
-            limit = self.top_k,
-        )
-        return self.search_results
     
-    def close(self) -> None:
-        self.vectordb_client.close()
+    async def retrieve(self, user_query: str) -> list[ScoredPoint]:
+        query_vector = await self._embed_(user_query)
+
+        search_results = await self.vectordb_client.search(
+            collection_name=self.collection_name,
+            query_vector=query_vector,
+            limit=self.top_k,
+        )
+        return search_results
+    
+    async def close(self) -> None:
+        await self.vectordb_client.close()

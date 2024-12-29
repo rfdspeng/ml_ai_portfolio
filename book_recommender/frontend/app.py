@@ -1,17 +1,16 @@
 import streamlit as st
 import httpx
 import json
-import asyncio
+import requests
 from uuid import uuid4
 import os
 
 stream = False
 
-async def get_assistant_response(userquery: dict[str, str]) -> str:
-    async with httpx.AsyncClient() as client:
-        response = await client.post(os.getenv("BACKEND_ENDPOINT", "http://localhost:8000/chat/"), json=userquery)
-        response.raise_for_status()
-        return response.json()["response"]
+def get_assistant_response(userquery: dict[str, str]) -> str:
+    response = requests.post(os.getenv("BACKEND_ENDPOINT", "http://localhost:8000/chat/"), json=userquery)
+    response.raise_for_status()
+    return response.json()["response"]
 
 st.title("Welcome to the bookstore!")
 
@@ -29,7 +28,7 @@ for message in st.session_state["messages"]:
 if st.session_state.messages == []:
     with st.spinner("..."):
         userquery = {"userid": st.session_state.userid, "message": ""}
-        response = asyncio.run(get_assistant_response(userquery))
+        response = get_assistant_response(userquery)
 
     with st.chat_message("assistant"):
         if not stream:
@@ -48,7 +47,7 @@ if prompt := st.chat_input("Your turn"):
     
     with st.spinner("..."):
         userquery = {"userid": st.session_state.userid, "message": prompt}
-        response = asyncio.run(get_assistant_response(userquery))
+        response = get_assistant_response(userquery)
 
     with st.chat_message("assistant"):
         if not stream:

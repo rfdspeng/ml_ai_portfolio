@@ -1,0 +1,5 @@
+numpy==2.2.0
+pandas==2.2.3
+openai==1.58.1
+qdrant-client==1.12.1
+fastapi[standard]==0.115.6

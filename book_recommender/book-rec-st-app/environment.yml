@@ -8,21 +8,8 @@ channels:
   - https://repo.anaconda.com/pkgs/main
   - https://repo.anaconda.com/pkgs/r
 dependencies:
-  - datasets
-  - ipywidgets
-  - jupyter
-  - jupyterlab
-  - matplotlib
-  - numpy
-  - pandas
-  - pip
-  - pytorch
-  - scikit-learn
-  - scipy
-  - transformers
   - openai
   - python=3.12.6
   - qdrant-client
   - streamlit
-  - fastapi
 prefix: /home/ryanwtsai/repos/ml_ai_portfolio/book_recommender/env

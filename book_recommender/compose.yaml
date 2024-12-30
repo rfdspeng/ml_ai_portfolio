@@ -1,0 +1,22 @@
+services:
+  backend:
+    image: book-rec-backend:v2
+    container_name: backend
+    networks:
+      - app-network
+  
+  frontend:
+    image: book-rec-frontend:v2
+    container_name: frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_ENDPOINT=http://backend:8000/chat/
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+networks:
+  app-network:
+    driver: bridge

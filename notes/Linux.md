@@ -454,7 +454,7 @@ Create a new directory. `mkdir -p a/b/c/d` to create directory `d` with all of t
 * `ps -a`: list processes running in the terminal
 * `ps -aux`: list processes with information
 * `ps -aux | grep str`: look for processes that contain `str`, e.g. "python" to check for Python processes
-	* `|` (aka pipe)): send the output of `ps -aux` to the next command
+	* `|` (aka pipe): send the output of `ps -aux` to the next command
 	* `grep` is a regex-type program
 * `kill`
 

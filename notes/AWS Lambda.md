@@ -1,6 +1,49 @@
-Serverless function: a piece of code that is triggered on events.
+A **serverless function** is a piece of code that triggers on certain events, events that you define. It is serverless because you do not provision or manage the server that the code will run on; the cloud provider does it for you. AWS Lambda is Amazon's implementation of serverless functions.
 
-AWS Lambda (functions) is Amazon's implementation.
+The name of the top-level function is `lambda_handler`, and it takes an `event` as argument. `event` is a dictionary-like data structure. Example:
+```python
+import json
+
+print('Loading function')
+
+
+def lambda_handler(event, context):
+    #print("Received event: " + json.dumps(event, indent=2))
+    print("value1 = " + event['key1'])
+    print("value2 = " + event['key2'])
+    print("value3 = " + event['key3'])
+    return event['key1']  # Echo back the first key value
+    #raise Exception('Something went wrong')
+```
+
+Project directory structure:
+* Top-level folder has the name of your function
+* Within this folder, there is a `lambda_function.py`
+* Within `lambda_function.py`, there is a `lambda_handler` function
+
+For a web application, the trigger of your Lambda function is the API Gateway.
+
+The output of your Lambda function can be managed via "Add destination". You can send the output of your Lambda function to another Lambda function; this is useful in time-intensive applications since Lambda functions can only run for maximum 15 minutes. AWS provides something called Step Functions to make this process of chaining Lambda functions easier.
+
+You can create a Lambda function via a SAM (AWS Serverless Application Model) template
+* Properties
+    * MemorySize: X MBs (RAM)
+    * Timeout: X seconds
+    * EphemeralStorage: X MBs (disk)
+    * Policies: permissions attached to the role associatd with this function
+
+Runtime dependencies:
+* You can specify environment variables
+* You can upload your project directory as a zip file from local or from S3 (with the necessary packages installed, like numpy)
+
+AWS CLI:
+* `aws iam create-role --role-name <role-name> --assume-role-policy-document 'something-here'`
+* `aws iam attach-role-policy --role-name <role-name> --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole`
+* `aws lambda create-function --function-name <function-name> --zip-file <zip-file-name> --handler lambda_function.lambda_handler --runtime python3.10 --role <role-arn>`
+
+
+
+
 
 Function ARN = function endpoint?
 
@@ -12,7 +55,7 @@ There are a few ways to create a Lambda function, including writing the code you
 
 You need to define a role for your function, which manages what your function has access to. For example, does your function need access to other AWS services?
 
-The name of the top-level function is `lambda_handler`, and it takes an `event` as argument. `event` is a dictionary-like data structure. 
+
 
 Can Lambda support an interactive web application?
 

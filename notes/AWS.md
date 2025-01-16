@@ -39,6 +39,27 @@ Useful commands:
 }
 ```
 
+# <u>IAM roles</u>
+
+You can attach roles to AWS services, like when you start an EC2 instance or create a Lambda function. These are like profiles or permissions for these services (like an IAM user) that allow them to access other AWS services. For example, if you create an EC2 instance, and you need to pull an image from ECR, you can give your EC2 instance a role that allows access to ECR. This is useful because then you don't need to sign in and use your own IAM user credentials - you use the credentials of the role attached to the EC2 instance. This is more secure and compartmentalized.
+
+# <u>Simple Storage Service (S3)</u>
+
+Make a bucket named `bucket-name`: `aws s3 mb s3://bucket-name`
+
+Note: S3 bucket names must be globally unique, among ALL users, not just within your account.
+
+```bash
+aws s3api create-bucket \
+    --bucket amzn-s3-demo-bucket1$(uuidgen | tr -d - | tr '[:upper:]' '[:lower:]' ) \
+    --region us-west-1 \
+    --create-bucket-configuration LocationConstraint=us-west-1
+```
+
+`aws s3 cp <file-to-upload> s3://bucket-name`
+
+boto3 is installed on AWS lambda by default.
+
 # <u>Elastic Compute Cloud (EC2)</u>
 
 
@@ -60,6 +81,10 @@ Using the command line,
 When you push and pull, Docker looks for your configuration file (`config.json`), but it may not find the right one. When you run the Docker daemon using `sudo`, this gives you root user permissions, which means Docker is running as `root`. If you're not actually the root user, Docker may look in the wrong place and incorrectly determine that you do not have credentials to push and pull.
 
 Recipe:
-* Use `sudo` for all commands, including authentication. When authenticating, use `sudo`: `sudo aws ecr get-login-password --region <region> | sudo docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com`. There will be an output message that tells you where the token is saved (it should be `/root/.docker/config.json`).
+* Always use `sudo` for `docker` commands: `aws ecr get-login-password --region <region> | sudo docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com`. There will be an output message that tells you where the token is saved (it should be `/root/.docker/config.json`).
 * Set the environmental variable `export DOCKER_CONFIG=/root/.docker`
 * Push or pull
+
+`aws ecr create-repository --repository-name <repo-name> --image-scanning-configuration scanOnPush=true --image-tag-mutability MUTABLE`
+
+image tag mutable means that whenever we push a new image, it'll be tagged as latest

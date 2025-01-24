@@ -151,9 +151,11 @@ EXPOSE 8501
 ENTRYPOINT ["bash", "-c", "source activate myenv && streamlit run book_rec_app.py"]
 ```
 
-To build the image, use the command `docker build -t image_name:tag_name Dockerfile_dir`. 
+To build the image, use the command `docker build -t image_name:tag_name <context>`. 
 * `image_name:tag_name` gives a name to your image; `tag_name` is optional and will default to `latest`. Usually `tag_name` is used for versioning, e.g. `v1` or `1.0.0` or whatever you want. 
-* `Dockerfile_dir` is the directory where the Dockerfile resides. Generally, this will be `.` for current directory.
+* `<context>` is the directory where the Dockerfile resides. This will commonly be `.` for current directory.
+
+By default, `build` looks for a file named `Dockerfile`. However, sometimes you may need to maintain multiple Dockerfiles. In this case, a common convention is to name these `<something>.Dockerfile`, and you can specify the Dockerfile using `docker build -f <Dockerfile-name> -t image-name:tag <context>`.
 
 To re-tag the image after building, use `docker tag image_name:tag_name image_name_new:tag_name_new`. You will see both images when you run `docker images`, and they will have the same Image ID.
 

@@ -170,3 +170,5 @@ output/
 # Streamlit
 .streamlit/
 secrets.toml
+
+*Zone.Identifier

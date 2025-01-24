@@ -12,6 +12,6 @@ RUN python -m pip install --upgrade pip \
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY models ./models
-COPY ["__init__.py", "lambda_function.py", ".env", "./"]
+COPY ["__init__.py", "lambda_function.py", "lambda_function_local_testing.py", ".env", "./"]
 
-CMD [ "lambda_function.lambda_handler" ]
+CMD [ "lambda_function_local_testing.lambda_handler" ]

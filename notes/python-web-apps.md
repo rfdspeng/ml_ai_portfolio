@@ -47,8 +47,8 @@ ASGI - Asynchronous Server Gateway Interface - is the successor to WSGI. The sta
 **<u>ASGI vs. WSGI:</u>**
 |Feature|WSGI|ASGI|
 |-------|----|----|
-|Default Mode|Synchronous|Asynchronous|
-|Concurrency|Threading/Multiprocessing|Event Loop (async/await)|
-|Framework Examples|Flask, Django|FastAPI, Starlette|
-|Server Examples|Gunicorn, uWSGI|Uvicorn, Hypercorn|
-|Features Supported|HTTP requests and responses|HTTP + WebSockets, background tasks, server-sent events, etc.|
+|**Default Mode**|Synchronous|Asynchronous|
+|**Concurrency**|Threading/Multiprocessing|Event Loop (async/await)|
+|**Framework Examples**|Flask, Django|FastAPI, Starlette|
+|**Server Examples**|Gunicorn, uWSGI|Uvicorn, Hypercorn|
+|**Features Supported**|HTTP requests and responses|HTTP + WebSockets, background tasks, server-sent events, etc.|

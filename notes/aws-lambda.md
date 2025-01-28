@@ -32,7 +32,7 @@ When you create a Lambda function, you need to specify some configuration variab
 * EphemeralStorage: this is your hard disk size (`/tmp`). If your function needs to store anything, this is where it's stored.
 * Policies: permissions attached to the role associated with this function (if your function needs to access other AWS services)
 
-## <u>Runtime dependencies / creating a Lambda function from a zip file</u>
+# <u>Runtime dependencies / creating a Lambda function from a zip file</u>
 
 At its simplest, the only file you need to create a Lambda function is `lambda_function.py` (with `lambda_handler`). If you need to include Python packages, you can create a Lambda function from a **zip file**. For example,
 * Navigate to `venv/lib/python3.x/site_packages/` and run the command `zip -r9 <dest-folder/dest-file.zip> .`. `-r9` is the highest level of compression.
@@ -40,7 +40,7 @@ At its simplest, the only file you need to create a Lambda function is `lambda_f
 
 You can also specify environment variables for your function.
 
-## <u>Creating a Lambda function from a Docker image</u>
+# <u>Creating a Lambda function from a Docker image</u>
 
 Dockerfile format:
 ```python
@@ -67,7 +67,7 @@ CMD [ "lambda_function.lambda_handler" ]
 
 Once you build your image, you can push it to AWS ECR and create a Lambda function from the image.
 
-### <u>Locally testing your containerized Lambda function</u>
+## <u>Locally testing your containerized Lambda function</u>
 
 https://aws.amazon.com/blogs/architecture/field-notes-three-steps-to-port-your-containerized-application-to-aws-lambda/
 
@@ -92,55 +92,76 @@ def lambda_handler(event, context):
     return asyncio.run(async_lambda_handler(event, context))
 ```
 
+## <u>Modifying your Lambda function to work with API Gateway</u>
+
+![AWS API Gateway](./assets/aws_api_gateway.png)
+
+Lambda is your application logic, and API Gateway acts as the "web server" by routing HTTP requests to Lambda functions. API Gateway is equivalent to Nginx or the WSGI/ASGI server in server-based architectures. By default, API Gateway calls Lambda functions synchronously, but you can enable asynchronous execution (which requires `async def lambda_handler`).
+
+**<u>Comparing server-based and serverless architectures:</u>**
+|Aspect|WSGI/ASGI Stack|Serverless (Lambda + API Gateway)|
+|------|---------------|---------------------------------|
+|**Compute Execution**|Persistent servers handle requests|Stateless functions are triggered on demand|
+|**Concurrency Handling**|Threading, multiprocessing, or async event loops|AWS automatically scales by running multiple Lambda instances in parallel|
+|**Web Server**|Nginx, Apache|API Gateway acts as the web interface|
+|**Startup Time**|Always running, ready to handle requests|May experience "cold starts" if Lambda is not pre-warmed|
+|**Pricing Model**|Pay for server uptime/resources|Pay only for execution time and number of requests|
+|**Use Cases**|Long-running apps, real-time WebSockets|Event-driven, API backends, bursty workloads|
+
+API Gateway generates an "Invoke URL", also known as the default endpoint, that can be used to receive HTTP requests. You define the API endpoints that your Lambda function will support.
+
+Let's say your Invoke URL is `https://rand-alphanum.execute-api.us-west-1.amazonaws.com`, and you define a `/chat` endpoint. When `https://rand-alphanum.execute-api.us-west-1.amazonaws.com/chat` is invoked with a request body, API Gateway receives the request and passes `event` to your Lambda function. The endpoint is passed under `event["rawPath"]` and the body is passed under `event["body"]` in JSON format. For example, if the original request body is 
+```python
+{
+    "userid": "adam1",
+    "message": "Hello!"
+}
+```
+
+Then the `event` passed to the Lambda function is
+```python
+{
+    "rawPath": "/chat",
+    "body": "{\"userid\": \"adam1\", \"message\": \"Hello!\"}"
+}
+```
+
+So your Lambda function will look like this:
+```python
+if event["rawPath"] == "/chat":
+    # Decode request
+    try:
+        decodedEvent = json.loads(event["body"])
+        userid = decodedEvent["userid"]
+        message = decodedEvent["message"]
+    except (KeyError, json.JSONDecodeError) as e:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error": "Invalid request body", "details": str(e)})
+        }
+```
+
+When you locally test your containerized modified Lambda function, you need to change the request data (since there's no API Gateway), e.g.
+```bash
+curl -X POST \
+    http://localhost:8080/2015-03-31/functions/function/invocations \
+    -H "Content-Type: application/json" \
+    -d '{"rawPath":"/chat", "body": "{\"userid\": \"adam1\", \"message\": \"Hello!\"}"}' 
+```
+
+But when you invoke the API Gateway URL, you can use the normal request: 
+```bash
+curl -X POST \
+    https://rand-alphanum.execute-api.us-west-1.amazonaws.com/chat \
+    -H "Content-Type: application/json" \
+    -d '{"userid": "adam1", "message": "Hello!"}'
+```
+
 ## <u>Triggers and destinations</u>
 
 The output of your Lambda function can be managed via "Add destination". You can send the output of your Lambda function to another Lambda function; this is useful in time-intensive applications since Lambda functions can only run for maximum 15 minutes. AWS provides something called Step Functions to make this process of chaining Lambda functions easier.
 
 You need to define which events trigger your Lambda function and also where to send the output of your Lambda function (which can be another Lambda function). Lambda functions can only run for 15 minutes, so you may need to chain functions. You can also take a look at AWS Step Functions for this.
-
-### <u>Using API Gateway and local testing</u>
-
-https://aws.amazon.com/blogs/architecture/field-notes-three-steps-to-port-your-containerized-application-to-aws-lambda/
-
-![AWS API Gateway](./assets/aws_api_gateway.png)
-
-Before, we used nginx and uvicorn to respond to client requests posted to our API endpoint. But we don't have that anymore, so we need the API Gateway. 
-
-For a web application, the trigger of your Lambda function is the API Gateway.
-
-API Gateway with Lambda provides a serverless RESTful web API
-
-rawPath, body, headers
-
-HTTP API, integrate with Lambda
-Configure routes: POST, resource path = /chat, integration target = your lambda func
-After creation, go to Deploy - Stages - $default - Invoke URL
-
-https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-integration-async.html
-
-
-AWS CLI:
-* `aws iam create-role --role-name <role-name> --assume-role-policy-document 'something-here'`
-* `aws iam attach-role-policy --role-name <role-name> --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole`
-* `aws lambda create-function --function-name <function-name> --zip-file <zip-file-name> --handler lambda_function.lambda_handler --runtime python3.10 --role <role-arn>`
-* Create Lambda function from ECR image: `aws lambda create-function --function-name <function-name> --package-type Image --code ImageUri=<ecr-image-uri> --role <lambda-role-name>`
-* Update Lambda function with new version of ECR image: `aws lambda update-function-code --function-name <lambda-function-name> --region <region> --image-uri <ecr-image-uri>`
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # <u>Using the AWS CLI</u>
 
@@ -150,15 +171,13 @@ AWS CLI:
 * `aws s3 mb s3://lambda-demo`
 * `aws s3 cp resize-image.zip s3://lambda-demo`
 * `aws lambda invoke --function demo-math-function --cli-binary-format raw-in-base64-out --payload '{"action": "square, "number": 3}' output.txt`
-* `aws 
 
-# <u>AWS API Gateway</u>
-
-You need to define different endpoints in `lambda_function.py`. E.g., you need to define `PREDICT_PATH = /predict` in the file, and the event handling syntax changes: `event['rawPath'] == PREDICT_PATH`.
-
-We'll use HTTP API. Integration with Lambda; pick the Lambda function.
-
-You get an Invoke URL for which you can send your HTTP requests.
+AWS CLI:
+* `aws iam create-role --role-name <role-name> --assume-role-policy-document 'something-here'`
+* `aws iam attach-role-policy --role-name <role-name> --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole`
+* `aws lambda create-function --function-name <function-name> --zip-file <zip-file-name> --handler lambda_function.lambda_handler --runtime python3.10 --role <role-arn>`
+* Create Lambda function from ECR image: `aws lambda create-function --function-name <function-name> --package-type Image --code ImageUri=<ecr-image-uri> --role <lambda-role-name>`
+* Update Lambda function with new version of ECR image: `aws lambda update-function-code --function-name <lambda-function-name> --region <region> --image-uri <ecr-image-uri>`
 
 # <u>DynamoDB</u>
 

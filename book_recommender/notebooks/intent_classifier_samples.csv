@@ -1,0 +1,240 @@
+Query,Label,Notes,Category
+Do you have Harry Potter?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Do you have the Broken Earth series?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Do you have All Quiet on the Western Front?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Do you have anything by Kazuo Ishiguro?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I'm looking for books by Celeste Ng.,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+What do you have in stock written by Madeline Miller?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I prefer nonfiction.,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I love science fiction books.,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Do you have a historical fiction section?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+What are some classic books that everyone should read?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+What are your most popular books?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+What are your most beloved books?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+What books do you have in French?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Do you have any Spanish-language books?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I'm looking for books in Italian.,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+"I'm doing research for an essay, and I'm looking for best-selling history books about the American Civil War.",0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Do you have any popular young adult fantasy series?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Do you have any memoirs by French authors?,0,Real,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Can you recommend any books by Neil Gaiman?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I'm interested in exploring the mystery genre. What titles do you recommend?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Are there any highly-rated fantasy series you could suggest?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Do you carry any popular novels by female authors?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Could you point me towards some award-winning science fiction books?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I'm searching for historical novels set in ancient Rome. Any recommendations?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+What are the top-rated literature classics of all time?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I'm curious about books that have been translated into multiple languages. Any suggestions?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Looking for a gripping thriller series to dive into. Any recommendations?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Do you have any humorous novels that will make me laugh out loud?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I'm in the mood for a thought-provoking philosophy read. Any recommendations?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Can you recommend a biography about a prominent historical figure?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I'm interested in exploring horror novels. What are some popular titles?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I'm looking for children's books that promote diversity and inclusion. Any suggestions?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Are there any highly acclaimed memoirs written by authors of color?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Could you recommend a short story collection that showcases diverse voices?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I'm intrigued by religious literature. What titles do you have in that genre?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+What are the top-rated historical fiction novels of the past decade?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+Do you have any humorous crime fiction novels in stock?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I'm on the hunt for thought-provoking teen reads. Any recommendations?,0,Synthetic,"Direct book queries that request by title, series, author, genre, rating, popularity, language"
+I really liked Circe (by Madeline Miller). Do you have any books like Circe?,1,Real,Direct book queries that ask for a similar book
+Can you recommend a book similar to The Night Circus by Erin Morgenstern?,1,Synthetic,Direct book queries that ask for a similar book
+I enjoyed reading The Great Alone by Kristin Hannah. Any suggestions for books with a similar vibe?,1,Synthetic,Direct book queries that ask for a similar book
+Looking for a book that captures the same essence as The Alchemist by Paulo Coelho. Any recommendations?,1,Synthetic,Direct book queries that ask for a similar book
+"After finishing The Silent Patient by Alex Michaelides, I'm craving another gripping psychological thriller. Any ideas?",1,Synthetic,Direct book queries that ask for a similar book
+I devoured Where the Crawdads Sing by Delia Owens. Any books that evoke the same emotions and beauty?,1,Synthetic,Direct book queries that ask for a similar book
+Just finished Educated by Tara Westover. Any recommendations for books that are equally inspiring and thought-provoking?,1,Synthetic,Direct book queries that ask for a similar book
+I'm in search of a book similar to The Goldfinch by Donna Tartt. Any suggestions for a captivating read?,1,Synthetic,Direct book queries that ask for a similar book
+Can you suggest a book that resonates with the themes in The Kite Runner by Khaled Hosseini?,1,Synthetic,Direct book queries that ask for a similar book
+"After enjoying The Girl on the Train by Paula Hawkins, I'm on the lookout for another gripping mystery novel. Any recommendations?",1,Synthetic,Direct book queries that ask for a similar book
+I'm looking for a book that captures the same magic as Harry Potter by J.K. Rowling. Any suggestions for a similar fantasy read?,1,Synthetic,Direct book queries that ask for a similar book
+Just finished reading Little Fires Everywhere by Celeste Ng. Any recommendations for books that delve into complex family dynamics like this one?,1,Synthetic,Direct book queries that ask for a similar book
+I loved reading Big Little Lies by Liane Moriarty. Any suggestions for books with a similar blend of mystery and humor?,1,Synthetic,Direct book queries that ask for a similar book
+Can you recommend a book that explores themes of love and loss like The Light Between Oceans by M.L. Stedman?,1,Synthetic,Direct book queries that ask for a similar book
+I'm searching for a book that has the same impact as The Book Thief by Markus Zusak. Any recommendations for a moving historical fiction read?,1,Synthetic,Direct book queries that ask for a similar book
+"After devouring The Martian by Andy Weir, I'm eager to find another captivating science fiction novel. Any suggestions?",1,Synthetic,Direct book queries that ask for a similar book
+Just finished reading The Nightingale by Kristin Hannah. Any recommendations for books that capture the same emotional depth and historical backdrop?,1,Synthetic,Direct book queries that ask for a similar book
+I enjoyed the fast-paced action in Ready Player One by Ernest Cline. Any suggestions for books with a similar thrilling adventure?,1,Synthetic,Direct book queries that ask for a similar book
+Can you recommend a book that delves into complex moral dilemmas like The Road by Cormac McCarthy?,1,Synthetic,Direct book queries that ask for a similar book
+"After finishing The Hate U Give by Angie Thomas, I'm looking for books that address important social issues in a similar impactful way. Any recommendations?",1,Synthetic,Direct book queries that ask for a similar book
+"Good morning, I was wondering if you could help me.",2,Real,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+Hello! I'm looking for a book.,2,Real,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+Can you recommend something?,2,Real,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+I'm in the mood for something light and funny.,2,Real,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hi there, I need some book recommendations. Can you assist me with that?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hey, I'm feeling like reading a good book. Any suggestions?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Excuse me, could you point me towards a great book to read?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hey, I'm on the hunt for a new book. Can you recommend something interesting?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+Good afternoon! I'm looking for a new read. Can you help me out?,2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hi, I'm hoping you can recommend a book that will capture my interest.",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+Hey! I'm craving a good book. Any ideas on what I should read next?,2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+Good day! I'm in the mood for a book. Any suggestions on what I should pick up?,2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hello, I'm searching for a new book to dive into. Any recommendations?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hey there, I'm looking for a book that will keep me hooked. Can you suggest something?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hi, I'm in need of a good book to read. Can you guide me in the right direction?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+Good evening! I'm on the lookout for a book to enjoy. Any recommendations for me?,2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hi, I'm interested in starting a new book. Can you recommend one to me?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hey, I'm itching to read a captivating book. Any suggestions for me?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+Good morning! I want to delve into a new book. Can you recommend something engaging?,2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hello, I'm in the mood for a good read. Can you suggest a book for me?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hi there, I'm looking for a book that will captivate me. Any recommendations?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hey, I'm eager to start a new book. Can you help me find one?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+Good day! I'm searching for a book to immerse myself in. Any suggestions?,2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+"Hello, I need a new book to read. Can you recommend something that will grab my attention?",2,Synthetic,Ambiguous queries that will prompt the book recommender chatbot to ask for clarification or additional information
+I've read all those fantasy series. Can you recommend any others?,3,Real,Follow-up requests to previous queries
+Do you have any other suggestions for memoirs?,3,Real,Follow-up requests to previous queries
+What about books similar to the thrillers you recommended?,3,Real,Follow-up requests to previous queries
+Can you suggest more novels with complex characters like the ones you mentioned before?,3,Synthetic,Follow-up requests to previous queries
+I finished the historical fiction book you recommended. What should I read next in that genre?,3,Synthetic,Follow-up requests to previous queries
+I enjoyed the science fiction series you suggested. Any similar books I should check out?,3,Synthetic,Follow-up requests to previous queries
+Are there any more humorous novels you think I would enjoy based on my previous picks?,3,Synthetic,Follow-up requests to previous queries
+"After reading that thriller you recommended, I'm craving more suspense. Any suggestions?",3,Synthetic,Follow-up requests to previous queries
+I loved the fantasy book you suggested. Can you recommend another series with strong world-building?,3,Synthetic,Follow-up requests to previous queries
+I'm in the mood for a gripping mystery novel. Any recommendations following the ones you gave me?,3,Synthetic,Follow-up requests to previous queries
+I've read all the classics you recommended. What lesser-known works do you suggest next?,3,Synthetic,Follow-up requests to previous queries
+What other historical novels should I explore after finishing the ones you recommended?,3,Synthetic,Follow-up requests to previous queries
+Can you suggest any more thought-provoking philosophy books similar to the ones we discussed before?,3,Synthetic,Follow-up requests to previous queries
+I devoured the romance novels you suggested. What other love stories should I dive into?,3,Synthetic,Follow-up requests to previous queries
+"After reading the biography you recommended, I'm interested in exploring more nonfiction. Any recommendations?",3,Synthetic,Follow-up requests to previous queries
+I enjoyed the humor in the last book you suggested. Any more lighthearted reads like that?,3,Synthetic,Follow-up requests to previous queries
+What about books similar to the historical romances you recommended last time?,3,Synthetic,Follow-up requests to previous queries
+I'm looking for more young adult novels after enjoying the ones you suggested. Any ideas?,3,Synthetic,Follow-up requests to previous queries
+Can you recommend any contemporary novels that are similar to the ones we discussed previously?,3,Synthetic,Follow-up requests to previous queries
+I'm intrigued by the memoir you recommended. Any other personal stories I should read?,3,Synthetic,Follow-up requests to previous queries
+What other science books should I consider after reading the ones you suggested before?,3,Synthetic,Follow-up requests to previous queries
+I'm curious about exploring more horror novels after enjoying the ones you recommended. Any suggestions?,3,Synthetic,Follow-up requests to previous queries
+I've read all the thrillers you suggested. Can you recommend some fast-paced adventure books next?,3,Synthetic,Follow-up requests to previous queries
+Can you remind me what you've recommended so far?,4,Real,Conversation history queries that don't require database retrieval
+How about we recap the books we've talked about previously?,4,Synthetic,Conversation history queries that don't require database retrieval
+"I can't remember, what books have we discussed already?",4,Synthetic,Conversation history queries that don't require database retrieval
+Could you refresh my memory on the book recommendations we've covered?,4,Synthetic,Conversation history queries that don't require database retrieval
+Let's go over the books you've suggested before.,4,Synthetic,Conversation history queries that don't require database retrieval
+Can you update me on the books we've chatted about?,4,Synthetic,Conversation history queries that don't require database retrieval
+What were the titles of the books we've already gone through?,4,Synthetic,Conversation history queries that don't require database retrieval
+"I'm drawing a blank, can you list the books we've touched on?",4,Synthetic,Conversation history queries that don't require database retrieval
+Can you give me a quick rundown of the books we've mentioned?,4,Synthetic,Conversation history queries that don't require database retrieval
+"I need a refresher, what books have we talked about?",4,Synthetic,Conversation history queries that don't require database retrieval
+Let's review the books we've chatted about so far.,4,Synthetic,Conversation history queries that don't require database retrieval
+Help me recall the books you've recommended previously.,4,Synthetic,Conversation history queries that don't require database retrieval
+What's the book history from our past conversations?,4,Synthetic,Conversation history queries that don't require database retrieval
+Can you summarize the books we've discussed in the past?,4,Synthetic,Conversation history queries that don't require database retrieval
+"I'm lost, could you remind me of the books we've covered?",4,Synthetic,Conversation history queries that don't require database retrieval
+Can you fill me in on the books we've already discussed?,4,Synthetic,Conversation history queries that don't require database retrieval
+Let's revisit the books we've previously talked about.,4,Synthetic,Conversation history queries that don't require database retrieval
+Do you mind recapping the books we've mentioned before?,4,Synthetic,Conversation history queries that don't require database retrieval
+"I'm a bit fuzzy, what were the book recommendations from before?",4,Synthetic,Conversation history queries that don't require database retrieval
+Can you give me a rundown of the books we've gone over?,4,Synthetic,Conversation history queries that don't require database retrieval
+How about we go through the books we've previously chatted about?,4,Synthetic,Conversation history queries that don't require database retrieval
+"Hello, what's the weather today?",5,Real,Irrelevant queries
+"Hello, how's it going?",5,Real,Irrelevant queries
+Can you remind me to buy milk later?,5,Synthetic,Irrelevant queries
+How do I get to the nearest coffee shop from here?,5,Synthetic,Irrelevant queries
+What time does the library close today?,5,Synthetic,Irrelevant queries
+Can you recommend a good restaurant for dinner?,5,Synthetic,Irrelevant queries
+Have you seen my keys anywhere?,5,Synthetic,Irrelevant queries
+Do you know when the next bus is coming?,5,Synthetic,Irrelevant queries
+Is there a good movie playing in theaters right now?,5,Synthetic,Irrelevant queries
+What's your favorite type of music?,5,Synthetic,Irrelevant queries
+Do you think I should buy a new phone?,5,Synthetic,Irrelevant queries
+Can you help me find a gift for my friend's birthday?,5,Synthetic,Irrelevant queries
+"I'm thinking of redecorating my living room, any ideas?",5,Synthetic,Irrelevant queries
+Have you tried that new ice cream flavor yet?,5,Synthetic,Irrelevant queries
+Do you believe in aliens?,5,Synthetic,Irrelevant queries
+How do I make the perfect cup of coffee at home?,5,Synthetic,Irrelevant queries
+What's your opinion on pineapple on pizza?,5,Synthetic,Irrelevant queries
+Should I start learning a new language?,5,Synthetic,Irrelevant queries
+Do you prefer cats or dogs?,5,Synthetic,Irrelevant queries
+What's the best way to relax after a long day?,5,Synthetic,Irrelevant queries
+Do you think time travel will ever be possible?,5,Synthetic,Irrelevant queries
+Can you share a random fun fact with me?,5,Synthetic,Irrelevant queries
+I don't need any recommendations right now.,6,Real,Negative intent queries
+"No, thank you, I'm just browsing.",6,Real,Negative intent queries
+"Sorry, but I'm not interested in any book suggestions at the moment.",6,Synthetic,Negative intent queries
+"I'm good on book recommendations for now, thanks.",6,Synthetic,Negative intent queries
+"Not looking for any reading recommendations currently, but thanks.",6,Synthetic,Negative intent queries
+I'll pass on any book recommendations for the time being.,6,Synthetic,Negative intent queries
+Currently not in the mood for any new book suggestions.,6,Synthetic,Negative intent queries
+"I'm just exploring on my own, so no need for recommendations.",6,Synthetic,Negative intent queries
+"Thanks, but I'm not in the market for book recommendations right now.",6,Synthetic,Negative intent queries
+"I'm all set in the book department, no need for suggestions.",6,Synthetic,Negative intent queries
+I'll have to decline any book suggestions at this time.,6,Synthetic,Negative intent queries
+"Not interested in any book recommendations at the moment, thank you.",6,Synthetic,Negative intent queries
+"I'm currently not seeking any book recommendations, but I appreciate it.",6,Synthetic,Negative intent queries
+"I'm content with my reading list, so no new suggestions needed.",6,Synthetic,Negative intent queries
+"No thanks, I'm not looking to receive any book recommendations.",6,Synthetic,Negative intent queries
+"I'm fine without any book recommendations for now, thanks.",6,Synthetic,Negative intent queries
+"I'm taking a break from book suggestions, so no need to share.",6,Synthetic,Negative intent queries
+I'm just browsing and not in the mood for book recommendations.,6,Synthetic,Negative intent queries
+"Appreciate the offer, but I'm not up for any book recommendations.",6,Synthetic,Negative intent queries
+"I'm not open to new book suggestions at this time, thank you.",6,Synthetic,Negative intent queries
+"I'm just window shopping for books, so no need for recommendations.",6,Synthetic,Negative intent queries
+"No book suggestions necessary right now, but I'll keep it in mind.",6,Synthetic,Negative intent queries
+How do your recommendations work?,7,Real,System queries about the book recommender application
+What kind of backend application framework are you using?,7,Real,System queries about the book recommender application
+Are you calling any APIs?,7,Real,System queries about the book recommender application
+Do you use any ML models?,7,Real,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+#NAME?,7,Synthetic,System queries about the book recommender application
+Can you explain the algorithm behind your book recommendations?,7,Synthetic,System queries about the book recommender application
+How does your system determine which books to recommend to users?,7,Synthetic,System queries about the book recommender application
+Could you walk me through the technology stack powering your recommendation engine?,7,Synthetic,System queries about the book recommender application
+Are there any specific criteria your application uses to suggest books?,7,Synthetic,System queries about the book recommender application
+What data sources does your recommender system rely on?,7,Synthetic,System queries about the book recommender application
+Do you take user preferences into account when making book suggestions?,7,Synthetic,System queries about the book recommender application
+Can users provide feedback to improve the accuracy of your recommendations?,7,Synthetic,System queries about the book recommender application
+How often are the recommendations updated in your system?,7,Synthetic,System queries about the book recommender application
+Is there a personalized aspect to the book recommendations you provide?,7,Synthetic,System queries about the book recommender application
+What features differentiate your book recommendation system from others in the market?,7,Synthetic,System queries about the book recommender application
+Do you have any plans to incorporate more genres into your recommendation engine?,7,Synthetic,System queries about the book recommender application
+How do you handle new book releases in your recommendation algorithm?,7,Synthetic,System queries about the book recommender application
+What role does user engagement play in refining the book suggestions?,7,Synthetic,System queries about the book recommender application
+Are there any external factors that influence the recommendations generated by your system?,7,Synthetic,System queries about the book recommender application
+Can users customize the criteria used for book recommendations?,7,Synthetic,System queries about the book recommender application
+How do you ensure diversity and inclusivity in the books that are recommended?,7,Synthetic,System queries about the book recommender application
+Are there any privacy measures in place to protect user data in your recommendation system?,7,Synthetic,System queries about the book recommender application
+How do you handle outliers or unique preferences when suggesting books?,7,Synthetic,System queries about the book recommender application
+What metrics do you use to evaluate the effectiveness of your recommendation system?,7,Synthetic,System queries about the book recommender application
+Can you share any success stories or user testimonials related to your book recommendations?,7,Synthetic,System queries about the book recommender application
+Do you have books in other languages?,8,Real,Queries about the dataset that require SQL or pandas to answer
+What are your top 10 most popular books?,8,Real,Queries about the dataset that require SQL or pandas to answer
+Which genre do you have the most books of?,8,Real,Queries about the dataset that require SQL or pandas to answer
+Which series has the most books?,8,Real,Queries about the dataset that require SQL or pandas to answer
+What are your most popular authors?,8,Real,Queries about the dataset that require SQL or pandas to answer
+Can you provide a breakdown of book genres in your dataset?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+How many books are authored by female writers in your collection?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Show me the average rating for each genre in your database.,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Could you list the top 5 longest books in terms of page count?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+I'm curious about the distribution of publication years in your dataset.,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Which author has the highest average rating for their books?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Are there any book series with more than 10 installments in your database?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Show me the number of books published before the year 2000.,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Can you identify any trends in book ratings over time?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+How many books have won literary awards in your collection?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Which genre has the highest average rating from readers?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Could you provide insights into the diversity of authors in your dataset?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Show me the distribution of book prices across different genres.,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+What is the average word count for books in the Nonfiction category?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Are there any correlations between author nationality and book popularity?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Can you identify any patterns in reader reviews for Science Fiction novels?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Show me the top 3 most reviewed books in your dataset.,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+How many books are written by authors who have also won Pulitzer Prizes?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Which genre has the highest percentage of translated works?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer
+Can you provide a list of books that have been adapted into movies in your dataset?,8,Synthetic,Queries about the dataset that require SQL or pandas to answer

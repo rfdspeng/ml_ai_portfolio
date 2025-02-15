@@ -1,0 +1,1 @@
+https://learn.deeplearning.ai/courses/chatgpt-prompt-eng/lesson/zi9lz/guidelines

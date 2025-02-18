@@ -170,3 +170,8 @@ output/
 # Streamlit
 .streamlit/
 secrets.toml
+
+*Zone.Identifier
+
+# MLflow
+mlruns/

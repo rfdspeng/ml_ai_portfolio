@@ -1,0 +1,153 @@
+You probably want to make sure this dataset works for both intent and NER.
+
+---
+
+Direct book queries - get metadata (if any), filter (what happens if your filter returns nothing? E.g. what if they misspell something. Is there some library that can fix misspellings, or should I let the chatbot do that? Should I prompt the user to fix?), and retrieve search results. Perhaps filter by title, series, author, etc. for each piece of metadata just to make sure you don't miss something.
+* Title or series
+	* Do you have Harry Potter?
+	* Do you have the Broken Earth series?
+	* Do you have All Quiet on the Western Front?
+* Author
+	* Do you have anything by Kazuo Ishiguro?
+	* I'm looking for books by Celeste Ng.
+	* What do you have in stock written by Madeline Miller?
+* Genre (list the possible genres)
+	* I prefer nonfiction.
+	* I love sci-fi books.
+	* Do you have a historical fiction section?
+	* What are some classic books that everyone should read?
+* Number of ratings / ratings
+	* What are your most popular books?
+	* What are your most beloved books?
+	* What are some classic books that everyone should read?
+* Language
+	* What books do you have in French?
+	* Do you have any Spanish-language books?
+	* I'm looking for books in Italian.
+* Mix and match
+	* I'm doing research for an essay, and I'm looking for best-selling history books about the American Civil War.
+	* Do you have any popular young adult fantasy series?
+	* Do you have any memoirs by French authors?
+* Liked %
+* BBE score
+* BBE votes
+* Number of pages
+* Awards
+* Publish date
+
+1. Can you recommend any books by Neil Gaiman?
+2. I'm interested in exploring the mystery genre. What titles do you recommend?
+3. Are there any highly-rated fantasy series you could suggest?
+4. Do you carry any popular novels by female authors?
+5. Could you point me towards some award-winning science fiction books?
+6. I'm searching for historical novels set in ancient Rome. Any recommendations?
+7. What are the top-rated literature classics of all time?
+8. I'm curious about books that have been translated into multiple languages. Any suggestions?
+9. Looking for a gripping thriller series to dive into. Any recommendations?
+10. Do you have any humorous novels that will make me laugh out loud?
+11. I'm in the mood for a thought-provoking philosophy read. Any recommendations?
+12. Can you recommend a biography about a prominent historical figure?
+13. I'm interested in exploring horror novels. What are some popular titles?
+14. I'm looking for children's books that promote diversity and inclusion. Any suggestions?
+15. Are there any highly acclaimed memoirs written by authors of color?
+16. Could you recommend a short story collection that showcases diverse voices?
+17. I'm intrigued by religious literature. What titles do you have in that genre?
+18. What are the top-rated historical fiction novels of the past decade?
+19. Do you have any humorous crime fiction novels in stock?
+20. I'm on the hunt for thought-provoking teen reads. Any recommendations?
+
+---
+
+Direct book queries that ask for something similar to something else - look up the reference, retrieve metadata, filter, and retrieve search results
+* I really liked Circe (by Madeline Miller). Do you have any books like Circe?
+
+---
+
+Ambiguous queries - chatbot asks for clarification or additional info. Give chatbot dataset information (like genres, top 10 most popular, etc.)
+* Good morning, I was wondering if you could help me.
+* Hello! I'm looking for a book.
+* Can you recommend something?
+* I'm in the mood for something light and funny.
+
+---
+
+Follow-up book queries
+* I've read all those fantasy series. Can you recommend any others?
+* Do you have any other suggestions for memoirs?
+* What about books similar to the thrillers you recommended?
+
+---
+
+Conversation history queries that don't require retrieval
+* Can you remind me what you've recommended so far?
+
+---
+
+Irrelevant queries
+* Hello, what's the weather today?
+* Hello, how's it going?
+
+---
+
+Negative intent queries
+* I don't need any recommendations right now.
+* No, thank you, I'm just browsing.
+
+---
+
+System queries
+* How do your recommendations work?
+* 
+
+---
+
+Dataset queries - maybe provide some precomputed dataset information, but then also include agentic functions (like pandas) for the LLM
+* Do you have books in other languages?
+
+---
+
+
+Synthetic samples
+* Start with as many real samples as possible per category
+* Use API to generate synthetic samples (check for bad synthetic samples) - maybe around 500 - 1000 total per category
+	* Use prompt engineering
+* Data augmentation
+	* Paraphrasing
+	* Slang
+	* Introduce typos and misspellings (check random or textattack library)
+	* Translate to different language and back?
+	* Add support for more languages later
+* Use batch API to practice
+
+
+Alternative phrasing, typos, slang
+
+Handling follow-up queries to not retrieve the same books as in the original query:
+1. Maintain a session or user history of previously recommended books (e.g. book IDs or titles) and filter these books out during retrieval process.
+2. Some others that aren't immediately obvious how to work.
+
+Metadata query (e.g. Do you have books in other languages?) - precompute the metadata and store it in JSON, SQLite, or a structured format. Route detected metadata queries to a simple lookup function rather than a full retrieval step.
+
+System-related queries (e.g. How do your recommendations work?) - 
+* Hardcode a small FAQ response set and route to a predefined response.
+* Store common system-related FAQs in a small database (even JSON file is fine). Perform a similarity search on the FAQ database rather than book retrieval.
+
+Outdated information (e.g. What are some best-selling books of the year?)
+* Explicitly state the dataset's last update - metadata retrieval/FAQ
+* Retrieve the most recent books available
+* Integrate an API to get external data when needed
+
+System flow
+1. Intent classification: classify the query as (retrieval needed, metadata query, system query, outdated query, etc.)
+2. Decision layer
+	* If retrieval needed, proceed with standard retrieval
+	* If metadata/system query, route to predefined responses or FAQ
+	* If outdated, provide best available data but acknowledge the limitation
+3. Chatbot
+
+
+
+
+
+
+Popularity: bestselling, best-selling, bestseller, best-seller

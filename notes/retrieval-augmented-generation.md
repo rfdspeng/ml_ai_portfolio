@@ -143,3 +143,30 @@ Generally speaking, the LLM will be fine-tuned (and most likely instruction-tune
 
 
 RAG + fine-tuning: In a RAG pipeline, there are two blocks with parameters, the query embedder and the LLM. The search is non-parametric. If you can compare the LLM output against a target, you can backprop through both LLM and query embedder to fine-tune the entire pipeline. What's interesting here is that you can't really update the embeddings in the vector database even though the vector DB embeddings and the query embedding are typically generated using the same embedder.
+
+# <u>Meetup</u>
+
+Get slides, get notebooks
+
+* linkedin.com/in/satyam-sm
+* github.com/05satyam
+* arxiv.org/pdf/2312.10997
+* PydanticAI - very easy framework for agentic AI
+* Useful case for RAG: query research papers for the latest stuff. I think he said LangChain has access to arxiv?
+
+To optimize RAG:
+* Indexing: data preprocessing, chunking strategies
+* Pre-retrieval: query transformation, query optimization, query routing
+* Retrieval: metadata filtering, excluding vector search outliers, hybrid search, embedding model fine-tuning
+* Post-retrieval: re-ranking, context post-processing, prompt engineering, LLM fine-tuning
+
+When documents are updated:
+* Amazon Bedrock can handle updated documents
+* (Syncing mechanism)
+* Rebuilding the entire index is costly
+
+Questions:
+* Importance of chunk overlap?
+* RAG evaluation?
+
+* Reduce hallucations - provide documents, prompt engineering

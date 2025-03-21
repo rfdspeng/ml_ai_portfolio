@@ -178,3 +178,146 @@ Data exploration is a broad term for very basic analysis of data. The focus is t
 
 EDA, proposed by John Tukey, is deeper exploration. The focus is to identify relationships, distributions, and trends; detect potential problems like outliers, multicollinearity, or skewness; and generating hypotheses or guiding feature engineering for ML models. Techniques include advanced stat methods (correlations, hypothesis testing); sophisticated plots (boxplots, pair plots, heatmaps); dimension reduction techniques like PCA for multivariate analysis; and creating derived features for better understanding. EDA is often iterative.
 
+# <u>Data analysis techniques</u>
+
+https://builtin.com/data-science/types-of-data-analysis
+
+Sort from simple to complex.
+
+**Descriptive analysis** generates a simple summary or visualization of the data
+* Mean, median, mode, standard deviation, variance, range
+* Histograms, scatter plots, box plots, bar charts
+
+**Diagnostic analysis** seeks to answer the question "Why did this happen?"
+* Typically comes after descriptive analysis when we want to investigate why certain patterns appear in the data (e.g. to explain anomalies)
+* May involve analyzing related data sources (e.g. analyzing past data to explain current trends)
+* Example: a footwear store finds that its website traffic surged in June (descriptive). To investigate, they further break down the data by footwear type and find that the additional traffic in June is caused by views of sandals.
+
+**Exploratory data analysis (EDA)** is examining the data to find relationships between variables.
+* Useful for formulating hypotheses, e.g. "X has this effect on Y". To be clear, however, this analysis only shows correlation, not causation.
+* Drives data collection because it helps answer the question "What data do we need to test our hypothesis?"
+* Example: if you look at the increase in human industrial activity and the increase in global temperatures, you will find a positive correlation.
+
+https://www.geeksforgeeks.org/what-is-inferential-statistics/
+
+**Inferential statistics/analysis** uses a small sample of data to make inferences about a larger population of data. It allows us to
+* **Generalize insights** from a sample to the population
+* **Test hypotheses** to validate assumptions or claims about the data
+* **Quantify uncertainty** by calculating confidence intervals and p-values
+* **Make predictions** using statistical models
+
+_In essence, inferential statistics provides the tools to go beyond the data you have and make informed decisions about the data you don't._
+
+
+
+```
+* Hypothesis testing: determines if there's enough evidence to reject a hypothesis. Examples: T-tests, Z-tests, chi-square tests, ANOVA
+* Regression analysis: examines the relationship between a dependent variable and one or more independent variables. Examples: linear regression, logistic regression
+* Time series analysis: analyzes data points collected over time to identify trends, seasonality, and patterns
+* Bayesian inference: uses prior knowledge and observed data to update beliefs or probabilities
+```
+
+**Predictive analysis** trains statistical models to make predictions (supervised learning like classification and regression).
+* Using a feature to predict a label does not imply a causal relationship
+* Example: training a prediction model on historical polling data, trends, and current polling data to predict the winner of an election
+
+**Causal analysis** like randomized control trials to test the effect of a drug.
+
+**Mechanistic analysis** is used to understand the mechanisms that cause a change in one variable to propagate to changes in other variables.
+
+**Prescriptive analysis** takes the results of predictive analysis (and other analyses) to prescribe some course of action to achieve a desired outcome. Example: on platforms like TikTok and Instagram, algorithms can apply prescriptive analysis to review past content a user has engaged with and the kinds of behaviors they exhibited with specific posts and recommend similar content.
+
+
+
+
+
+Other important techniques:
+* Exploratory data analysis (EDA):
+* Predictive analysis
+* Causal or diag analysis
+* Prescriptive analysis
+* Correlation analysis
+
+Descriptive: what happened
+Diagnostic: why did it happen
+Predictive: what is likely to happen (statistical modeling)
+Prescriptive: what should we do?
+
+# <u>Statistical modeling vs. machine learning</u>
+
+Statistical modeling is things like regression, classification. I think the difference between statistical modeling and ML is that SM prioritizes model interpretability. For example, when you construct a linear regression model, you can easily see how much each feature contributes to the overall prediction. That's also why feature engineering goes hand-in-hand with statistical modeling, because you need to consider the features carefully.
+
+ML is more brute force. You keep increasing the number of parameters and let the training figure out the features/derived features. You have no idea what the features mean or what any of the numbers inside the ML model mean (black box).
+
+# <u>Data engineering</u>
+
+https://www.mongodb.com/resources/basics/data-engineering
+
+Key elements of data engineering:
+* Data extraction/collection: creating systems to extract data of varying formats from multiple sources. Examples of sources:
+    * Structured customer data in relational databases and data warehouses
+    * Semi-structured data like email and website content stored on a server
+    * Unstructured data like video, audio, and text files stored in a data lake
+* Data ingestion: data source identification, data validation, indexing, cataloguing, and formatting.
+* Data storage: designing storage solutions to house ingested data, e.g. picking the types of databases and the schemas. I would lump data modeling here.
+* Data transformation: cleaning, enriching, and integrating raw data with other sources, and loading the processed data into data analytics systems to be used by data analysts and data scientists.
+* Data modeling, scaling, performance
+* Data quality and governance
+
+What's in a data pipeline?
+
+What is the flow of data in a pipeline?
+
+How does ETL fit into this? Is ETL = collection + ingestion + transformation + storage?
+
+Technical skills:
+* Data warehousing: database design, query optimization, schema modeling
+* Data pipeline orchestration: orchestrating and scheduling data pipelines
+
+Data lake vs. warehouse vs. lakehouse
+
+SQL vs. NoSQL
+
+## Data pipelines according to Snowflake
+https://www.snowflake.com/guides/data-pipeline/
+
+A data pipeline moves data from a source to a destination while simultaneously optimizing and transforming the data. The data arrives at the destination ready to be used by data analysts and data scientists.
+
+A pipeline includes aggregating, organizing, and moving data. Typically, this includes loading raw data into a staging table for interim storage, changing it, and inserting it into the destination reporting tables.
+
+Your organization may have a massive amount of data that resides in multiple locations. To use it all, you need a way to pipe that data into one location.
+
+Data pipeline elements:
+1. Sources: where the data comes from. Databases, CRMs, ERPs, IoT device sensors, etc.
+2. Processing steps: manipulating and changing the data. Transformation, augmentation, filtering, grouping, aggregation.
+3. Destination: where the data is deposited. Data lakes, warehouses, and lakehouses.
+
+ETL systems are a kind of data pipeline: they move data from a source, transform it, and then load it into a destination. ETL usually exists as a subprocess of a data pipeline, but not all data pipelines will have ETL.
+
+## <u>Data pipelines according to IBM</u>
+https://www.ibm.com/think/topics/data-pipeline
+
+### <u>Ingestion, processing, storage</u>
+
+A data pipeline ingests raw data from various data sources, transforms the data, and then ports it to a data store for analysis.
+
+Pipelines act as the "piping" for data science projects or BI dashboards. Data can be sourced through a wide variety of places - APIs, SQL and NoSQL databases, files, etc. Usually, that data isn't ready for immediate use. Data needs to be processed (which includes transformations) to make sure it matches the format required by the destination storage. This is especially important when the storage is a relational database, which stores data in tables with specific columns and data types.
+
+During sourcing, data lineage is tracked - where the data comes from, how it's changed, and its ultimate destination within the pipeline.
+
+Data preparation/processing usually falls on data scientists or data engineers. Data scientists determine the required processing through a mix of EDA and defined business requirements, while data engineers spin up the infrastructure necessary to automate the processing for huge amounts of data.
+
+Once processed and stored into the final data store, the data is ready for use in data projects like data analysis, data visualization, and machine learning.
+
+### <u>Types of data pipelines</u>
+
+
+
+### <u>Data pipeline architecture</u>
+
+
+
+### <u>Data pipeline vs. ETL pipeline</u>
+
+
+

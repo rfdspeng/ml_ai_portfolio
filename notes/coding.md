@@ -42,13 +42,6 @@ def twoSum(self, nums: list[int], target: int) -> list[int]:
 
 **Space complexity:** since this doesn't need any additional data structures, the space complexity is $O(1)$.
 
-
-
-
-
-
-
-
 # Random stuff
 
 `zip`

@@ -1,3 +1,5 @@
+https://zilliz.com/learn 
+
 # <u>Motivation for RAG:</u>
 * Models hallucinate because they don't know the answer to a question. The knowledge they have depends on their training data; if they don't see it or haven't seen much of it (obscure/rare topics), then they will make stuff up. They are probabilistic models that simply predict the next token; they have no ability to check for factual accuracy.
 * Models have a cutoff date (the date they are trained; the model knows nothing about anything that happens after).
@@ -49,11 +51,54 @@ Retrieval steps:
             * Quantization: By reducing the precision of the embedding vectors, we reduce the database size and also increase search speed because the distance computation requires fewer operations.
                 * Scalar quantization (SQ): Multiply high-precision floating-point vectors with a scalar and then cast the product to the nearest integer (e.g. converting from float64 to int8 reduces vector size by a factor of 8)
                 * Product quantization (PQ): Split vectors into equally-sized subvectors, and replace each subvector with a centroid. This is similar to dictionary compression.
-            * Hierarchical navigable small worlds (HNSW): Builds a multi-layer graph where closer vectors are more densely connected, enabling fast search with logarithmic complexity.
+            * Hierarchical navigable small worlds (HNSW): graph-based method
             * LSH
 * Return the `top_k` most similar documents
 
+### <u>Hierarchical navigable small worlds (HNSW)</u>
 
+https://zilliz.com/learn/hierarchical-navigable-small-worlds-HNSW
+https://www.pinecone.io/learn/series/faiss/hnsw/ 
+
+HNSW consists of multiple single-layer graphs that are stacked to form a "hierarchical" graph. The bottom layer holds all of the vectors and their proximity links, with each subsequent higher layer containing a smaller subset of vectors and longer proximity links, i.e. the graphs become sparser as you go up.
+
+**<u>General concepts</u>**
+* Traversing the graph is done via **greedy search**, which means you only check nodes that are directly connected to your current node, i.e. one edge away, and you move to the directly connected neighbor that is closest to the query point. You repeat this process until no neighbor is closer than the current node (a local minimum in your current layer).
+* A priority queue (max heap or min heap, depending on the metric) is used to keep track of the candidates for nearest neighbors to the query point. This is used in graph construction to find and link the $M$ nearest neighbors to each inserted node and to retrieve the top $k$ most relevant entities during search.
+
+**<u>Searching HNSW</u>**
+* Starting from the entry point on the top layer (a node that is designated during graph construction), greedily traverse the top layer until you reach the nearest neighbor.
+* Move to the next lower layer. Using the nearest neighbor from the top layer as the entry point, traverse the graph until you find the nearest neighbor on this layer.
+* Repeat until you find the nearest neighbor on the bottom layer.
+
+To retrieve the top $k$ most relevant entities,
+* Initialize a priority queue at the beginning of search.
+* Add the best candidates found during greedy traversal to the queue.
+* After finding the nearest neighbor on the bottom layer - which is the best overall candidate - use beam search to fill out the rest of the queue (maximum number of candidates is given by $efSearch$).
+    * Pop the closest node from the queue.
+    * Examine its directly connected neighbors.
+    * Add 
+* Return the top $k$ candidates from the priority queue.
+
+**<u>Constructing HNSW</u>**  
+Insert nodes (vectors) one by one. For each node,
+* Randomly assign a maximum layer based on an exponential probability distribution (probability decreases as layer increases). The node exists in all layers $\leq$ its maximum layer. Call this node $X$.
+* If $X$ is the first node in a layer that is higher than the current entry point, $X$ becomes the new entry point.
+* Starting from the current entry point, greedily traverse until you reach $X$'s nearest neighbor, then descend to the next layer. Do this for each layer.
+* For each layer $\leq$ maximum layer, find $X$'s $M$ nearest neighbors and connect them to $X$. To find the nearest neighbors,
+    * Start from the nearest neighbor on the layer and iteratively explore its neighbors, adding them to a priority queue (max heap or min heap) of candidates, ordered by distance to $X$.
+    * Stop once the queue reaches $efConstruction$ candidates.
+    * Take the $M$ closest nodes and connect them to $X$.
+
+$efConstruction$ controls how many candidates you consider when searching for the nearest neighbors, and $M$ controls how many connections you actually keep for $X$. $efConstruction$ should be significantly larger than $M$, typically $2\times M$ to $10\times M$.
+
+https://www.pinecone.io/learn/series/faiss/hnsw/
+
+heap, skip-list, linked list
+
+How to retrieve more than 1 nearest neighbor
+
+HNSW search params
     
 * ANN (approximate nearest neighbors). Reduces search space to speed up search. Construct ANN tree. Split vector space into two, and keep splitting. Then you can search the entire dataset in log time, since the height of the tree is log2(total number of data points). Simply traverse the tree until you hit a leaf, and all vectors in that leaf are the neighbors.
             * You can have multiple trees, e.g. forest of trees. You can aggregate the neighbors from all the trees to get a larger sample size of relevant documents. Then you run cosine similarity on the neighbors against the query.
@@ -98,3 +143,30 @@ Generally speaking, the LLM will be fine-tuned (and most likely instruction-tune
 
 
 RAG + fine-tuning: In a RAG pipeline, there are two blocks with parameters, the query embedder and the LLM. The search is non-parametric. If you can compare the LLM output against a target, you can backprop through both LLM and query embedder to fine-tune the entire pipeline. What's interesting here is that you can't really update the embeddings in the vector database even though the vector DB embeddings and the query embedding are typically generated using the same embedder.
+
+# <u>Meetup</u>
+
+Get slides, get notebooks
+
+* linkedin.com/in/satyam-sm
+* github.com/05satyam
+* arxiv.org/pdf/2312.10997
+* PydanticAI - very easy framework for agentic AI
+* Useful case for RAG: query research papers for the latest stuff. I think he said LangChain has access to arxiv?
+
+To optimize RAG:
+* Indexing: data preprocessing, chunking strategies
+* Pre-retrieval: query transformation, query optimization, query routing
+* Retrieval: metadata filtering, excluding vector search outliers, hybrid search, embedding model fine-tuning
+* Post-retrieval: re-ranking, context post-processing, prompt engineering, LLM fine-tuning
+
+When documents are updated:
+* Amazon Bedrock can handle updated documents
+* (Syncing mechanism)
+* Rebuilding the entire index is costly
+
+Questions:
+* Importance of chunk overlap?
+* RAG evaluation?
+
+* Reduce hallucations - provide documents, prompt engineering

@@ -62,9 +62,6 @@ class Solution:
     """
 
     def reverse (self, x: int) -> int:
-        # if x < -2**31 or x >= 2**31:
-        #     raise Exception(f"Input {x} is out of bounds")
-
         INT_MAX = 2**31
 
         is_neg = x < 0
@@ -73,6 +70,7 @@ class Solution:
         while x > 0:
             digit = x % 10
 
+            # If adding the next digit exceeds INT_MAX (overflow), return 0
             if digit > INT_MAX - 10*xr - 1*(not is_neg):
                 return 0
             

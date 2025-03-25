@@ -1,6 +1,12 @@
 # <u>RAG Book Recommendation Chatbot</u>
 
-For the third and final module (MLOps) of my bootcamp, I created a RAG book recommendation chatbot. The user posts a message to the application, the message is embedded and used to retrieve books from a vector database, and the message and retrieved books are passed to the chat completion model, which generates a response that is sent back to the user.
+Retrieval-augmented generation (RAG) is one of the most useful and popular applications of large language models. LLMs often hallucinate, but RAG, along with prompt engineering, is a powerful way to improve the accuracy of an LLM's responses.
+
+I like to read books, and I found a [books dataset](https://github.com/scostap/goodreads_bbe_dataset) scraped from Goodreads. Using that dataset, I created a very simple RAG chatbot that recommends books to users.
+
+The backend is developed with FastAPI and the frontend with Streamlit. Backend and frontend are deployed to separate containers and communicate via a virtual Docker network - the backend is only accessible to the frontend, and the frontend is exposed via an EC2 instance.
+
+I used OpenAI's `text-embedding-ada-002` model to embed the book descriptions and indexed the embeddings and relevant metadata into Qdrant. The frontend posts user messages to the backend, and the backend embeds the message and retrieves the top 5 most similar books from Qdrant. The book titles, authors, descriptions, and genres are passed to OpenAI's chat completion API, and the chat completion is passed back to the frontend and added to the conversation history maintained in both backend and frontend.
 
 **Tools, libraries, and APIs:**
 * FastAPI (backend)
@@ -49,7 +55,7 @@ For the third and final module (MLOps) of my bootcamp, I created a RAG book reco
 
 ## <u>Backend</u>
 
-The backend is implemented using the **FastAPI** framework and provides a single endpoint, `/chat/`, to handle user messages. 
+The backend is developed with FastAPI and provides a single endpoint, `/chat/`, to handle user messages. 
 
 **Key components:**
 * Models
@@ -85,7 +91,7 @@ The backend is implemented using the **FastAPI** framework and provides a single
 
 ## <u>Frontend</u>
 
-The frontend is implemented using **Streamlit**. The frontend is responsible for the UI, for generating unique user IDs, and for sending HTTP POST requests to the backend.
+The frontend is developed with **Streamlit**. The frontend is responsible for the UI, for generating unique user IDs, and for sending HTTP POST requests to the backend.
 
 ## <u>Containerization and networking</u>
 

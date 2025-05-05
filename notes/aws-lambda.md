@@ -1,3 +1,7 @@
+# <u>Links</u>
+
+* [Lambda best practices](https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html)
+
 # <u>Lambda functions</u>
 
 A **serverless function** is a piece of code that triggers on certain events (events that you define). For example, uploading data to cloud storage could trigger a serverless function to process that data. It is serverless because you do not provision or manage the server that the code will run on; the cloud provider does it for you. AWS Lambda is Amazon's implementation of serverless functions.
@@ -71,7 +75,7 @@ Once you build your image, you can push it to AWS ECR and create a Lambda functi
 
 https://aws.amazon.com/blogs/architecture/field-notes-three-steps-to-port-your-containerized-application-to-aws-lambda/
 
-The runtime interface client expects requests from the Lambda Runtime API, but we don't run the Lambda service when testing locally. We need a way to proxy the Runtime API for local testing, and AWS provides the Lambda runtime interface emulator for this purpose:
+The runtime interface client expects requests from the Lambda Runtime API, but we don't run the Lambda service when testing locally. We need a way to proxy the Runtime API for local testing, and AWS provides the Lambda runtime interface emulator for this purpose:  
 ![AWS Runtime Interface Emulator](./assets/aws_lambda_runtime_interface_emulator.png)
 
 The emulator is a lightweight web server running on **port 8080** that converts HTTP requests to Lambda-compatible JSON events.
@@ -91,6 +95,26 @@ async def async_lambda_handler(event, context):
 def lambda_handler(event, context):
     return asyncio.run(async_lambda_handler(event, context))
 ```
+
+## <u>Triggering Lambda on S3 event notifications</u>
+
+Links:
+* [S3 event notifications](https://docs.aws.amazon.com/AmazonS3/latest/userguide/EventNotifications.html)
+* [S3 bucket configuration options](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingBucket.html#bucket-config-options-intro)
+* [Processing S3 event notifications with Lambda](https://docs.aws.amazon.com/lambda/latest/dg/with-s3.html)
+* [Resource-based IAM policies in Lambda](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html)
+* [Lambda execution role](https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html)
+* [S3-triggered Lambda tutorial](https://docs.aws.amazon.com/lambda/latest/dg/with-s3-example.html)
+
+Create a configuration in the notification subresource that's associated with the bucket. This configuration identifies the events you want S3 to publish and the destinations (identified by their ARNs) you want S3 to send the notifications.
+
+_Important_: S3 event notifications are designed to be delivered at least once, typically in seconds but can sometimes take a minute or longer.
+
+_Warning_: be careful writing to the same bucket that triggers the notification, as you could accidentally end up in an infinite loop (write object triggers notification -> Lambda writes to bucket -> triggers notification -> Lambda -> ...). Either use two buckets or configure the trigger to only apply to a prefix used for incoming objects.
+
+In the Lambda function's resource-based permissions policy (also known as its execution role), grant S3 permission to invoke the function.
+
+S3 invokes the function asynchronously with an [event](https://docs.aws.amazon.com/lambda/latest/dg/with-s3.html) (a JSON object) that contains details about the objects.
 
 ## <u>Modifying your Lambda function to work with API Gateway</u>
 
@@ -164,6 +188,12 @@ The output of your Lambda function can be managed via "Add destination". You can
 You need to define which events trigger your Lambda function and also where to send the output of your Lambda function (which can be another Lambda function). Lambda functions can only run for 15 minutes, so you may need to chain functions. You can also take a look at AWS Step Functions for this.
 
 # <u>Using the AWS CLI</u>
+
+https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html
+
+https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AWSLambdaBasicExecutionRole.html
+
+https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonS3ReadOnlyAccess.html
 
 * `aws iam create-role --role-name lambda-ex-3 --assume-role-policy-document ...`
 * `aws iam attach-role-policy --role-name lambda-ex-3 --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole`

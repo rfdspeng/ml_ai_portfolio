@@ -1,3 +1,7 @@
+https://en.wikipedia.org/wiki/Cursor_(databases)  
+https://en.wikipedia.org/wiki/Database_transaction  
+
+
 # <u>Introduction to databases</u>
 
 https://www.digitalocean.com/community/conceptual-articles/an-introduction-to-databases

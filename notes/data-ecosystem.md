@@ -225,9 +225,10 @@ _In essence, inferential statistics provides the tools to go beyond the data you
 
 **Mechanistic analysis** is used to understand the mechanisms that cause a change in one variable to propagate to changes in other variables.
 
-**Prescriptive analysis** takes the results of predictive analysis (and other analyses) to prescribe some course of action to achieve a desired outcome. Example: on platforms like TikTok and Instagram, algorithms can apply prescriptive analysis to review past content a user has engaged with and the kinds of behaviors they exhibited with specific posts and recommend similar content.
+**Prescriptive analysis** takes the results of predictive analysis (and other analyses) to prescribe some course of action to achieve a desired outcome. Example: on platforms like TikTok and Instagram, algorithms can apply prescriptive analysis to review past content a user has engaged with and the kinds of behaviors they exhibited with specific posts and recommend similar content. What are some prescriptive ML models?
 
 
+ML is a subset of both AI and data science.
 
 
 

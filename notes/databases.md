@@ -19,8 +19,11 @@ The fundamental elements in the relational model are relations, also known as ta
 
 
 
-
-
+How to set up MySQL:
+* https://documentation.ubuntu.com/server/how-to/databases/install-mysql/index.html 
+* https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql
+* https://www.digitalocean.com/community/tutorials/introduction-to-queries-mysql
+* https://dev.mysql.com/doc/refman/8.4/en/sql-statements.html
 
 
 SQLite tutorial: https://www.digitalocean.com/community/tutorials/how-to-install-and-use-sqlite-on-ubuntu-20-04

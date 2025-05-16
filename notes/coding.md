@@ -1,3 +1,12 @@
+# Python
+
+* `set`
+* `map`
+* Unpacking/packing
+* print with unpacking, sep, end
+* list methods
+* string methods
+
 # Data structures
 
 ## Hash tables - add two-sum problem

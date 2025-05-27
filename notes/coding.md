@@ -1,11 +1,38 @@
 # Python
 
+* Understanding what Python is
+* How do programming languages work to control the underlying hardware? Scripting language, compiled language, etc.
+* Review all Python data structures (list, tuple, set, dict)
+    * collections library adds more data structures
+* Review all built-in Python functions, like `sorted`, `len`, `sum`, `print` (with unpacking), `isinstance`, `zip`, `input`, `eval`, `any`, `all`
+* Review all Python keywords, like `in`, `and`, `or`
+* Review Python data types
 * `set`
-* `map`
+* `map`, `reduce`, `filter`
 * Unpacking/packing
 * print with unpacking, sep, end
 * list methods
 * string methods
+* list and string slicing
+* dictionary methods
+* set methods
+* Generators - like a list comprehension but (x for x in y) instead of [x for x in y]
+* classes
+* bound vs. unbound class methods
+* `in` - strings vs lists vs else
+* `zip`
+* list, dictionary comprehensions
+* `yield`
+* `nonlocal`, `global`
+* Generators, iterators
+* `itertools.groupby`
+* lambda functions
+* `getattr`
+* `__sub__` and other dunder methods. Instance method can return another instance of class? Yes.
+    * operator overloading
+* regex
+
+Chuking a string into equal-length chunks: `zip(*[iter(string)] * k)`
 
 # Data structures
 

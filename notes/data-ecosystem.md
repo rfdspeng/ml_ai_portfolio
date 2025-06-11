@@ -211,6 +211,7 @@ _In essence, inferential statistics provides the tools to go beyond the data you
 
 
 ```
+* A/B testing
 * Hypothesis testing: determines if there's enough evidence to reject a hypothesis. Examples: T-tests, Z-tests, chi-square tests, ANOVA
 * Regression analysis: examines the relationship between a dependent variable and one or more independent variables. Examples: linear regression, logistic regression
 * Time series analysis: analyzes data points collected over time to identify trends, seasonality, and patterns

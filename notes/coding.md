@@ -31,8 +31,15 @@
 * `__sub__` and other dunder methods. Instance method can return another instance of class? Yes.
     * operator overloading
 * regex
+* Objects - attributes, methods, properties
 
-Chuking a string into equal-length chunks: `zip(*[iter(string)] * k)`
+Chunking a string into equal-length chunks: `zip(*[iter(string)] * k)`
+
+## Multi-line code
+
+## Standard operators
+
+## Slice objects
 
 # Data structures
 

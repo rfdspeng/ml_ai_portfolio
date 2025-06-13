@@ -1,9 +1,13 @@
 # Look up/quick notes
 https://medium.com/data-science/a-data-scientists-essential-guide-to-exploratory-data-analysis-25637eee0cf6
 
+https://www.youtube.com/watch?v=xi0vhXFPegw
+
 data smell, code smell
 
 For correlated features or features that are linear combinations of other features (linear algebra) - can you use linear algebra to scrap dependent features? Is correlation coefficient enough? How are these related?
+
+Using linear algebra for EDA
 
 # Data types in data science
 
@@ -25,19 +29,75 @@ The process is different for different types of datasets:
 * Time series
 * Text, image, video
 
-For tabular:
+Approach every dataset with suspicion. DO NOT TRUST THE DATASET.
+
+What are the questions we should be asking of the dataset?
+
+For tabular data:
 ```python
-# Dataset Overview
-df.head() # preview a sample
-df.shape  # number of observations and features
+"Preview the dataset"
+pd.set_option(display.max_columns, 200)
+df.head()
+df.tail()
+df.sample()
+
+"""
+Understand the dataset
+* How many observations (samples)? How many features?
+* What are the names of our features?
+* What are the data types of our features?
+* Quick statistical overview of our features
+"""
+df.shape # (num samples, num features)
+df.size # num samples * num features (total entries)
+df.columns # feature names
 df.dtypes # data types
-df[df.duplicated()] # check duplicated rows
-df.isna().sum() # missing values per feature
-df.isna().sum().sum() # number of missing cells
+df.info()
+df.describe() # numerical stats
+df.describe(include="object") # categorical stats
+
+"""
+Preparing the data
+* Do we need all of the features? Drop the features we don't need.
+* Are the features the correct data type? Do we need to convert any data types?
+* Are there any missing values? How do we handle missing values?
+* Are there any duplicate samples? Which features should we check for duplicates? Do we want to remove them?
+"""
+df_new = df.drop([columns], axis=1) # returns a copy with columns dropped
+df_new = df[[columns]].copy() # equivalent using subsetting
+infer_objects
+pd.to_numeric(series)
+pd.to_datetime(series)
+pd.to_timedelta()
+convert_dtypes
+astype
+df.isna() # DataFrame with True/False 
+df.isna().sum() # Series; number of missing entries per column
+df.isna().sum().sum() # Total number of missing entries
 round(df.isna().sum().sum() / df.size * 100, 1) # percentage of missing cells
-df.describe() # numerical only
-df.describe(include="object") # for categorical data types
+
+dropna
+fillna
+
+
+
+df.loc[df.duplicated()] # check duplicated rows
+df.loc[df.duplicated(subset=[columns])] # check for duplicates for a subset of columns
+df_new = df.loc[~df.duplicated(subset=[columns])] # retain non-duplicates
+
 ```
+
+Handling missing values - either
+* Omission (remove samples w/missing values). Use when
+    * Small number missing
+    * Missing values are completely at random (MCAR) so that removing them won't change the feature distribution. If you identify patterns of missing data, then this is information you should not remove.
+    * If feature is missing most of its values, them remove it entirely
+* Imputation (infer missing values)
+    * Fill with default values, which depends on dtype, e.g. for numerical, mean/median; for categorical, default choice
+    * For numerical data that is taken over time or over geographic region, you can interpolate
+    * Train a supervised model to fill missing values based on other features
+    * 
+
 
 
 
@@ -69,6 +129,22 @@ Small disjuncts may have consequences for bias and fairness.
 
 We should consider performing data augmentation conditioned on the underrepresented categories and consider fairness-aware metrics for model evaluation.
 
+For tabular data:
+```python
+"""
+Running simple descriptive statistics to understand our data distribution
+What kinds of questions should we be asking? Look for outliers, skew, ?
+* Numerical stats, categorical stats
+"""
+df[col].value_counts()
+ax = df[col].value_counts().head(10).plot(kind="bar", title="title")
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+plot(kind="hist", bins=n, title="title")
+plot(kind="kde") # density plot (normalized and smoothed hist?)
+plot(kind="barh")
+```
+
 ## Multivariate analysis
 
 Interactions: visually explore how each pair of features behaves. They may exhibit positive or negative relationships. Essentially a 2D scatter plot.
@@ -84,6 +160,27 @@ Remove redundant features if possible.
 
 Knowing the most correlated features to our target class helps us identify the most discriminative features and find possible data leakers.
 
+```python
+"""
+What are the relationships between our features?
+* Use scatter plots
+* Calculate correlations between features
+"""
+df.plot(kind="scatter", x=col1, y=col2)
+plt.show() # for cleaning notebook output (do not want to display object)
+sns.scatterplot(x=col1, y=col2, hue=col3, data=df) # color the dots based on col3; adds a third dimension to the plot
+sns.pairplot(data=df, vars, x_vars, y_vars, hue=hue_col, kind="scatter") # 2D plots for multiple pairs of features
+df_corr = df.corr() # correlation matrix
+sns.heatmap(df_corr, annot=True) # heatmap of correlation matrix
+
+
+```
+
+Ask a question about the data. Try to answer the question using plots and statistics.
+```python
+df.query().groupby()[col].agg([]).query().sort_values(sort_col).plot()
+```
+
 ## Discriminative features
 
 ## Data leakage
@@ -97,5 +194,7 @@ Data quality issues: Missing data, imbalanced data, constant values, duplicates,
 Read more: https://towardsdatascience.com/data-quality-issues-that-kill-your-machine-learning-models-961591340b40/
 
 Errors may occur during data collection or processing.
+
+
 
 ## Data leakers

@@ -2,6 +2,7 @@
 * Kaggle pandas tutorial
 * pandas API reference
 * https://www.youtube.com/watch?v=DkjCaAMBGWM
+* https://www.youtube.com/watch?v=_gaAoJBMJ_Q
 
 # Quick tips
 * `pd.set_option('display.max_columns', 500)`
@@ -15,6 +16,39 @@
 * `df.shape`
 * `df.select_dtypes(data type)` - select columns with data type
 * `df/series.copy()` - make a copy so you don't corrupt the original
+* `df.to_csv(fname, index=False)` - do not save index if it's not useful
+* `df.read_csv(fname, parse_dates=[column])` - read in from CSV with correct dtype
+* Save to different file types - CSV is very slow, and other file types retain dtype. `to_parquet`, `to_feather`, `to_pickle`.
+* Do not use column names with spaces - cannot access columns via dot syntax, harder to `query` columns
+* `query` is a powerful way to filter DataFrames (over using conditional indexing)
+* In `query`, use the syntax `@var_name` to access external variables
+* Do not use use the inplace option
+* Do not use loops to iterate over columns - use vectorized operations
+* Do not use `apply` or `map` if you can use vectorized operations
+* A slice of a DataFrame does not create a copy - use `copy` to create a deep copy of a slice
+* Use method chaining instead of temporary variables
+    * Wrap code in parentheses for readability, e.g.
+    ```python
+    df_agg = (
+        df
+        .groupby()
+        .min()
+        .reset_index()
+        .fillna(0)
+        .sort_values()
+    )
+    ```
+* Use pandas built-in plotting methods
+* Use pandas built-in string methods: `series.str.<string-command>`
+* `series.pct_change()` - calculate percentage change from entry to entry
+* `series.diff()` - calculate diff of entries
+* Pandas has built-in conditional formatting (like Excel) using `df.style` attribute, e.g. `df.style.background_gradient`, `df.style.format`
+* Store categorical variables as categorical dtype using `series.astype('category')` - smaller memory and faster operations
+
+
+# Supported data types
+
+
 
 # DataFrames and Series
 
@@ -156,7 +190,12 @@ If you have a DataFrame or Series with a MultiIndex, you can reset it with `df.r
 
 ## Setting index using columns
 
-Use `df.set_index()` when you want to create a new index based on a column in `df`. 
+Use `df.set_index()` when you want to create a new index based on a column in `df`.
+
+## All index modifications
+
+set_index
+reset_index
 
 # Summary functions
 
@@ -297,11 +336,20 @@ df.rename_axis("row_axis_name", axis="rows")
 df.rename_axis("column_axis_name", axis="columns")
 ```
 
-`pd.concat([df1, df2, ...], axis=0 or 1)` - if `axis=0`, stack vertically (join DataFrames/Series based on same columns); if `axis=1`, stack horizontally (join based on same index). The DataFrames need to have the same columns/index. Generally `axis=1` is not used because you could stack DataFrames with the same column names (use `join` or `merge`).
+`pd.concat([df1, df2, ...], axis=0 or 1)` - if `axis=0`, stack vertically (join DataFrames/Series based on same columns); if `axis=1`, stack horizontally (join based on same index). The DataFrames need to have the same columns/index. Generally `axis=1` is not used because you could stack DataFrames with the same column names (use `join` or `merge`). 
+
+However, if you do stack horizontally and need to remove duplicate columns, you can either
+* `df = df.loc[:, ~df.columns.duplicated()].copy()`
+* `df = pd.concate([df, df], axis=1).set_flags(allows_duplicate_labels=False)`
 
 `df1.join(df2, lsuffix="left", rsuffix="right")` to join DataFrames with the same index. Can also join based on columns.
 
 `df1.merge(df2, how)` - like SQL join. `how` can be left, right, inner, outer.
+* `validate` option: check if merge keys are unique. 
+    * 1:1
+    * 1:m
+    * m:1
+    * m:m
 
 * `pd.merge(df1, df2, how, on=[col(s)], suffixes=("_1", "_2"))`
 * `pd.merge(df1, df2, left_on=[col(s)], right_on=[col(s)])` - if DataFrames do not have the same column names

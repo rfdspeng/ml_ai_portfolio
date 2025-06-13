@@ -41,6 +41,8 @@ Chunking a string into equal-length chunks: `zip(*[iter(string)] * k)`
 
 ## Slice objects
 
+## f-strings
+
 # Data structures
 
 ## Hash tables - add two-sum problem

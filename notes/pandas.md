@@ -48,7 +48,9 @@
 
 # Supported data types
 
+"object" refers to any Python object
 
+filter columns on dtype
 
 # DataFrames and Series
 

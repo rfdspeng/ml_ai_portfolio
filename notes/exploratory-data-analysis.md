@@ -3,6 +3,8 @@ https://medium.com/data-science/a-data-scientists-essential-guide-to-exploratory
 
 https://www.youtube.com/watch?v=xi0vhXFPegw
 
+Hands on machine learning (book)
+
 data smell, code smell
 
 For correlated features or features that are linear combinations of other features (linear algebra) - can you use linear algebra to scrap dependent features? Is correlation coefficient enough? How are these related?
@@ -108,6 +110,14 @@ Understand the feature properties, both individually (univariate analysis) and t
 We need to investigate the sufficient statistics and visualize the features.
 
 A sufficient statistic is a statistic that contains all the information in the sample regarding a specific parameter (a summary statistic that doesn't lose any relevant information). It doesn't depend on the parameter.
+
+## Questions to ask yourself
+
+Be aware of how your data (features and labels, i.e. attributes) was collected. Data often have already been preprocessed, e.g. a numerical feature may have been clipped to min/max values.
+
+What are the scales of the data? What kind of preprocessing was done?
+
+Is this preprocessing acceptable? Do you need to handle it in some way - either recollecting data or removing the offending attributes?
 
 ## Univariate analysis
 

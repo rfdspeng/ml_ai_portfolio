@@ -103,7 +103,13 @@ Foundation model: Massive model trained on broad, diverse data at scale, is gene
 
 # Quantization
 
-# Ray/Dask
+# Ray/
+
+# Regression
+
+* Multiple regression: multiple features
+* Univariate regression: one output (prediction)
+* Multivariate regression: multiple outputs (predictions)
 
 # REST APIs
 

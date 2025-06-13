@@ -166,23 +166,25 @@ Correlation calculation (default option for `ydata-profiling`):
 * Categorical vs. categorical: Cramer's V
 * Numeric vs. categorical: Cramer's V with the numeric feature discretized
 
+Standard correlation coefficient is Pearson's r. df.corr. I think this is numerical vs. numerical only.
+
 Remove redundant features if possible.
 
 Knowing the most correlated features to our target class helps us identify the most discriminative features and find possible data leakers.
 
 ```python
 """
-What are the relationships between our features?
+What are the relationships between our attributes
 * Use scatter plots
-* Calculate correlations between features
+* Calculate correlations between attributes, especially correlations between the features and the target
 """
 df.plot(kind="scatter", x=col1, y=col2)
 plt.show() # for cleaning notebook output (do not want to display object)
 sns.scatterplot(x=col1, y=col2, hue=col3, data=df) # color the dots based on col3; adds a third dimension to the plot
-sns.pairplot(data=df, vars, x_vars, y_vars, hue=hue_col, kind="scatter") # 2D plots for multiple pairs of features
+sns.pairplot(data=df, vars, x_vars, y_vars, hue=hue_col, kind="scatter") # 2D plots for pairs of numerical attributes
 df_corr = df.corr() # correlation matrix
 sns.heatmap(df_corr, annot=True) # heatmap of correlation matrix
-
+pd.plotting.scatter_matrix(df[[columns]]) # same functionality as sns.pairplot
 
 ```
 

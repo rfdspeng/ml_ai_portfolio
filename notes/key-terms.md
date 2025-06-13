@@ -76,6 +76,8 @@ Foundation model: Massive model trained on broad, diverse data at scale, is gene
 
 # Generative adversarial networks
 
+# GraphRAG
+
 # Image augmentation: https://docs.ultralytics.com/guides/yolo-data-augmentation/#saturation-adjustment-hsv_s
 
 # Information extraction

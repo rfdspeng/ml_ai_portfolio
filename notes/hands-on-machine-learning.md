@@ -215,7 +215,7 @@ This will give you a reference on performance, as well as insights on how to sol
 
 List and verify the assumptions that have been made so far to make sure you're working on the correct problem.
 
-## EDA
+## Initial look at the data (univariate analysis)
 
 Understand the data. Ask the simple questions:
 * What are the scales?
@@ -224,10 +224,58 @@ Understand the data. Ask the simple questions:
 
 Run simple univariate analysis and visualization (histograms and bar charts). How are the attributes distributed?
 
-Create the test set. DO NOT LOOK AT THE TEST SET. If you see something in the test set that informs your model selection, your performance will be biased to the test set. This is called _data snooping_ bias.
+Are any of the answers to these questions going to be a problem? Do you need to collect more data? Clean up the data? Transform the data? Keep this in mind for later.
+
+## Create the test set
+
+DO NOT LOOK AT THE TEST SET. If you see something in the test set that informs your model selection, your performance will be biased to the test set. This is called _data snooping_ bias.
 
 Creating the test set with purely random sampling:
 * If your dataset doesn't change, you can simply set the random seed so that the test split is the same every time, or you can save the test set. This guarantees your test set doesn't change.
 * If your dataset can be updated, a common solution is to use each sample's identifier to split (assuming samples have unique and immutable IDs or you can create one). E.g. compute a hash of each ID and funnel the sample to the test set if its hash is < 20% (test ratio) of the max hash value.
 
-Purely random sampling can be problematic if your dataset is not large.
+Purely random sampling can be problematic if your dataset is not large relative to the number of attributes because you risk introducing sampling bias.
+
+In _stratified sampling_, you curate your dataset to be representative of the population, which is split into homogeneous subgroups called strata. This means the dataset, w.r.t. the attribute of interest, will have the same distribution as the population. When the distribution of the dataset does not match the population, it is said to be _skewed_.
+
+To stratify along a continuous attribute, you need to convert it to categorical first (you can use `pd.cut`). It is important to have a sufficient number of instances in your dataset for each stratum, otherwise the estimate of a stratum's importance may be biased.
+
+Some dataset splitting options from `sklearn.model_selection`:
+* `train_test_split`
+* `KFolds`
+* `StratifiedKFold`
+* `ShuffleSplit`
+* `StratifiedShuffleSplit`
+
+## Closer look at the data (multivariate analysis)
+
+In this part, only look at the training set.
+
+The point of this part is to look for patterns yourself, and you will probably need to play around with visualization parameters to make the patterns stand out. For example, for scatter plots,
+* `alpha` parameter adjusts the transparency of the points, which is useful for analyzing density
+* Set marker size based on attribute value
+* Choose marker color based on attribute value and use the color map option to indicate scaling (e.g. blue for low values to red for high values)
+
+Calculate correlations between every pair of attributes using `df.corr()`. Pay special attention to correlations with the target attribute. You will want to pay attention to features that are strongly correlated with the target.
+
+Correlation coefficient only measures linear correlations - it cannot capture nonlinear relationships. Furthermore, correlation coefficient is independent of slope. A linear relationship can have any slope but only +/-1 correlation. That's why we need scatter plots.
+
+Note: Of course you want to find patterns that will inform your model choice. However, also pay attention to patterns in the data that may degrade your model performance.
+
+### Experimenting with attribute combinations
+
+At this point, you will have identified
+* Data to be cleaned
+* Correlations, especially with the target
+* Skewed distributions that you may want to transform
+
+You may be able to create more discriminative features from the raw features. For example, creating a new feature that is a ratio of two raw features is an operation that cannot be learned by a linear model.
+
+This process does not need to be absolutely thorough - you will come back to this again and again during the ML lifecycle.
+
+## Preparing the data for ML algorithms
+
+Use functions so you can easily reproduce the transformations on any dataset, any future project, and on the live system.
+
+Modular functions will allow you to easily try various transformation pipelines.
+

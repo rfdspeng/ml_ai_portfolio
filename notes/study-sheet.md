@@ -8,7 +8,15 @@ data leakage, target leakage - I bet if a feature has 100% correlation with targ
 
 EDA - different correlations
 
+What is stale data? Or stale output?
+
+What are all the infrastructure components?
+
+If I want to use ANNs for tabular data, what's a good way to construct them? Deep? How many neurons per layer?
+
 Transforming skewed distributions by taking log
+
+Study sklearn documentation, especially model APIs to at least understand the options that are available
 
 Curse of dimensionality/number of features to number of samples
 * Each feature is like a random variable - you want many samples per feature so you can see the underlying pattern and reduce noise
@@ -18,3 +26,8 @@ when I draw plots in a Python script, how are the plots rendered? Interactive vs
 Hands-on ML
 * Chapter 1 exercises
 * Appendix B
+
+# Drill
+
+* What is the point of having train, validation, and test splits? What are the pitfalls of not using these splits correctly?
+* What are holdout validation, cross validation, and leave-one-out validation? When do we use them/what are the advantages and disadvantages of each strategy?

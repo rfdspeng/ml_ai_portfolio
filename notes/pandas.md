@@ -52,6 +52,8 @@
 
 filter columns on dtype
 
+select_dtypes
+
 # DataFrames and Series
 
 Two data structures, DataFrames and Series. DataFrame is a bunch of Series (columns) glued together.

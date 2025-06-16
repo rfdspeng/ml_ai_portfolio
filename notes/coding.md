@@ -35,6 +35,10 @@
 
 Chunking a string into equal-length chunks: `zip(*[iter(string)] * k)`
 
+## Inheritance
+
+## *args, **kwargs
+
 ## Multi-line code
 
 ## Standard operators

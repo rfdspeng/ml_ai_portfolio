@@ -1,0 +1,62 @@
+At this point, you've
+* Acquired the data, explored it, performed feature engineering
+* Split your data into train and test
+* Written transformation pipelines (e.g. missing values, encoding, scaling) to automatically prepare your data for training the ML algorithm
+
+# Evaluating different model types
+
+**Important notes:**
+* The goal of this step is to shortlist a few model types before tuning the hyperparameters
+* You should save every model you experiment with so you can easily come back to any model. Save the hyperparameters, the trained parameters (serialize your model), cross-validation scores, and predictions.
+
+Serialization:
+* Python's built-in `pickle` module
+* `joblib` - good for Python objects with large NumPy arrays
+* TF/Keras/PyTorch have their own framework-specific serialization
+* ONNX enables interoperability b/w different frameworks
+
+Try a few different models with the default options.
+* Tabular data, supervised learning
+    * Linear or logistic regression, decision tree, random forest, gradient-boosted tree, SVM with different kernels
+
+Is the model underfitting (poor performance on training set)?
+* Select more powerful model, with more parameters
+* Feed better features to the learning algorithm (feature engineering)
+* Reduce model constraints (e.g. reduce regularization)
+
+Is the model overfitting (perfect performance on training set)?
+
+* Simplify the model: fewer parameters, reducing the training data dimension, or constraining the model (regularization)
+* Gather more training data
+* Reduce training data noise (fix errors and outliers)
+
+Use some kind of validation to see if the model is overfitting, like holdout or K-fold cross-validation. With K-fold, you can calculate the average and standard deviation of the target performance metric.
+
+# Hyperparameter tuning
+
+When you have no idea what a hyperparameter should be, a simple approach is to try consecutive powers of 10, e.g. 0.01, 0.1, 1, 10, 100, etc.
+
+**Remember: hyperparameters in any estimator instance in sklearn can be tuned, including components in the data preparation/transformation pipeline.** GridSearchCV with Pipeline: https://scikit-learn.org/stable/auto_examples/compose/plot_compare_reduction.html#sphx-glr-auto-examples-compose-plot-compare-reduction-py
+
+## Grid search
+
+For each hyperparameter, specify the values you want to sweep. Each possible combination of hyperparameters is searched.
+
+`sklearn.model_selection.GridSearchCV` implements grid search with cross validation.
+* Important constructor parameters: `param_grid`, `cv`, `scoring`, `return_train_score`
+* Important attributes: `best_params_`, `best_estimator_`, `cv_results_`
+
+## Randomized search
+
+Grid search is also known as exhaustive search and is impractical for huge numbers of hyperparameter combinations.
+
+In randomized search, you specify the number of iterations. In each iteration, it randomly selects values for each hyperparameter. Benefits:
+* You can sweep many different values for each hyperparameter instead of just a few like in grid search
+* You have more control over the computing budget since it's determined only by number of iterations
+
+## Ensemble methods
+
+Try combining different models that perform the best.
+
+## Analyze the best models and their errors
+

@@ -73,13 +73,17 @@ pd.to_datetime(series)
 pd.to_timedelta()
 convert_dtypes
 astype
+select_dtypes
 df.isna() # DataFrame with True/False 
 df.isna().sum() # Series; number of missing entries per column
-df.isna().sum().sum() # Total number of missing entries
+df.isna().sum().sum() # total number of missing entries
 round(df.isna().sum().sum() / df.size * 100, 1) # percentage of missing cells
-
-dropna
-fillna
+df.loc[df.isna().any(axis="columns")] # index rows where any values are missing
+df/series.dropna(subset=[col(s)]) # drop rows with missing values. Use subset to drop based on column subset.
+df.drop([columns with missing values], axis=1) # drop columns with missing values
+df/series.fillna(replacement_value) # replace missing values with replacement_value
+series.bfill() # backfill missing values with next valid observation
+series.replace(old_val, new_val) # replace non-null values
 
 
 
@@ -100,7 +104,9 @@ Handling missing values - either
     * Train a supervised model to fill missing values based on other features
     * 
 
+Some ML algorithms inherently handle missing values (like trees, I think).
 
+Check out sklearn library for imputation: https://scikit-learn.org/stable/modules/impute.html
 
 
 # Step 2: Feature assessment and visualization

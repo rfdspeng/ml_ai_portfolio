@@ -279,3 +279,13 @@ Use functions so you can easily reproduce the transformations on any dataset, an
 
 Modular functions will allow you to easily try various transformation pipelines.
 
+Handle missing values - omit or impute. Different strategies for numerical and categorical attributes.
+
+Encode categorical attributes.
+
+Scale features.
+
+Create transformation pipeline for data preparation.
+
+## Select and train a model
+

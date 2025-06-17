@@ -1,12 +1,28 @@
 # Handling missing values
 
+When values are missing, you can either omit the associated samples/attributes or you can impute (infer) the missing values.
+
+Can you leave the values as missing/replace them with a dummy value that indicates it was originally missing? What are techniques for analyzing patterns in the missing data?
+
+You can consider omission when
+* Only a small number of values are missing (in percentage/proportion)
+* A sample (row) is missing most of its attributes or critical attributes
+* An attribute (column) is missing most of its values
+
+Imputation techniques:
+* Replace missing values with default values, which depends on the data type
+    * For numerical, use summary statistics like mean, median, or mode
+    * For categorical, use a default choice
+* For numerical data that is taken over time or over geographic region, you can interpolate the missing values
+* Train a supervised model to fill in missing values based on other features (and potentially even the label). This is an option but may not be very practical, especially for large datasets.
+
 Handling missing values - either
 * Omission (remove samples w/missing values). Use when
     * Small number missing
     * Missing values are completely at random (MCAR) so that removing them won't change the feature distribution. If you identify patterns of missing data, then this is information you should not remove.
     * If feature is missing most of its values, them remove it entirely
 * Imputation (infer missing values)
-    * Fill with default values, which depends on dtype, e.g. for numerical, mean/median; for categorical, default choice
+    * Fill with default values, which depends on dtype, e.g. for numerical, mean/median; for categorical, default choice/mode
     * For numerical data that is taken over time or over geographic region, you can interpolate
     * Train a supervised model to fill missing values based on other features
     * 

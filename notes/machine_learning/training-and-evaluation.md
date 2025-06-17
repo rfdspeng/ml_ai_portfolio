@@ -3,7 +3,7 @@ At this point, you've
 * Split your data into train and test
 * Written transformation pipelines (e.g. missing values, encoding, scaling) to automatically prepare your data for training the ML algorithm
 
-# Evaluating different model types
+# Evaluate different model types on the training set
 
 **Important notes:**
 * The goal of this step is to shortlist a few model types before tuning the hyperparameters
@@ -59,4 +59,10 @@ In randomized search, you specify the number of iterations. In each iteration, i
 Try combining different models that perform the best.
 
 ## Analyze the best models and their errors
+
+You will often gain good insights on the problem by inspecting the best models. For example, tree-based models indicate the relative importance of each attribute for making accurate predictions.
+
+Inspect the specific errors in the predictions, try to understand what causes them, and try to fix the problem: add extra features, remove uninformative features, clean up outliers, etc.
+
+# Evaluate on the test set
 

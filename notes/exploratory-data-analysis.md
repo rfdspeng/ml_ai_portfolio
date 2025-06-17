@@ -93,6 +93,20 @@ df_new = df.loc[~df.duplicated(subset=[columns])] # retain non-duplicates
 
 ```
 
+## Missing values
+
+When values are missing, they may be MCAR (missing completely at random), MAR (missing at random), or MNAR (missing not at random).
+
+MCAR: 
+* Missingness is completely unrelated to both observed and unobserved values in the dataset (there is no pattern to the missingness). This type of missing value does not introduce bias.
+* Can be handled effectively through simple methods like sample deletion or mean imputation
+* Statistical inferences and results derived from MCAR data are generally unbiased and reliable
+
+MAR:
+* Missingness can be explained by some observed features in the dataset, 
+
+If feature distribution is not skewed, can use mean. 
+
 Handling missing values - either
 * Omission (remove samples w/missing values). Use when
     * Small number missing
@@ -134,7 +148,7 @@ Informs us of the relevance of each feature and the type of data prep required.
 * Handle shifted or skewed numerical features if the ML algorithm we want to use expects a particular feature distribution
 
 Descriptive stats and visualizations:
-* Numerical features: mean, standard deviation, skewness, kurtosis, quantiles; best represented using histograms
+* Numerical features: mean, standard deviation, skewness, kurtosis, quantiles; best represented using histograms (and kde?)
 * Categorical features: mode, frequency table; represented using bar plots
 
 If a feature is constant or nearly constant, then it may not be valuable for analysis or modeling.
@@ -162,6 +176,10 @@ plot(kind="barh")
 ```
 
 ## Multivariate analysis
+
+Numerical vs. numerical - scatter plot
+Numerical vs. categorical - groupby categorical, then distribution on numerical?
+Categorical vs. categorical - groupby, then "distribution"?
 
 Interactions: visually explore how each pair of features behaves. They may exhibit positive or negative relationships. Essentially a 2D scatter plot.
 
@@ -193,7 +211,6 @@ sns.heatmap(df_corr, annot=True) # heatmap of correlation matrix
 pd.plotting.scatter_matrix(df[[columns]]) # same functionality as sns.pairplot
 
 ```
-
 Ask a question about the data. Try to answer the question using plots and statistics.
 ```python
 df.query().groupby()[col].agg([]).query().sort_values(sort_col).plot()

@@ -192,6 +192,8 @@ Correlation calculation (default option for `ydata-profiling`):
 
 Standard correlation coefficient is Pearson's r. df.corr. I think this is numerical vs. numerical only.
 
+If you group features by label, can you determine if the group distributions are statistically significantly different?
+
 Remove redundant features if possible.
 
 Knowing the most correlated features to our target class helps us identify the most discriminative features and find possible data leakers.

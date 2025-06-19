@@ -14,6 +14,12 @@ What are all the infrastructure components?
 
 Which models support statistical tests for confidence?
 
+How do confidence values jive with other metrics like RMSE, accuracy, etc?
+
+What is statistical modeling? What are the models? How do statistics underlie these models?
+
+Stats for cross validation, bootstrapping
+
 If I want to use ANNs for tabular data, what's a good way to construct them? Deep? How many neurons per layer?
 
 Transforming skewed distributions by taking log
@@ -24,6 +30,8 @@ Feature importance - model-specific (trees and impurity-based) and model-agnosti
 
 Curse of dimensionality/number of features to number of samples
 * Each feature is like a random variable - you want many samples per feature so you can see the underlying pattern and reduce noise
+
+Kernel density estimation
 
 when I draw plots in a Python script, how are the plots rendered? Interactive vs. non-interactive, backend
 

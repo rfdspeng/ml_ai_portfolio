@@ -159,6 +159,10 @@ Small disjuncts may have consequences for bias and fairness.
 
 We should consider performing data augmentation conditioned on the underrepresented categories and consider fairness-aware metrics for model evaluation.
 
+Should we "bin" numerical attributes (convert them to categorical)?
+
+Use df.describe() on numerical features to help inform your choice of bin size.
+
 For tabular data:
 ```python
 """

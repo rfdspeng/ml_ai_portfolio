@@ -159,9 +159,11 @@ Small disjuncts may have consequences for bias and fairness.
 
 We should consider performing data augmentation conditioned on the underrepresented categories and consider fairness-aware metrics for model evaluation.
 
-Should we "bin" numerical attributes (convert them to categorical)?
+Should we "bin" numerical attributes (convert them to categorical)? I think it is beneficial if it makes the pattern more clear. We want as many samples as possible per category, especially for integer attributes. Simplifying the data (bigger bins) may reduce overfitting/sensitivity to outliers.
 
 Use df.describe() on numerical features to help inform your choice of bin size.
+
+Need statistical tests to confirm intuition / insights drawn from visualizations. For example, should "Embarked" really make a big difference? Does "Embarked" have anything to do with location on ship? 
 
 For tabular data:
 ```python

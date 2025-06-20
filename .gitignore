@@ -175,6 +175,7 @@ secrets.toml
 .db
 .db-journal
 ~$*
+*.zip
 
 # MLflow
 mlruns/

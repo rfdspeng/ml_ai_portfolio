@@ -75,6 +75,21 @@ You get `fit_transform` for free by adding `TransformerMixin` as a base class.
 
 If you add `BaseEstimator` as a base class and avoid `*args` and `**kwargs` in your constructor, you also get `get_params()` and `set_params()`, which will be useful for automatic hyperparameter tuning.
 
+```python
+from sklearn.base import BaseEstimator, TransformerMixin
+
+class CustomTransformer(BaseEstimator, TransformerMixin):
+    def __init__(self, hyperparameter=default_value):
+        self.hyperparameter = hyperparameter
+    
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X):
+        # transformation logic
+        return X_transformed
+```
+
 Use hyperparameters to toggle off/on data preparation steps you're not 100% sure on.
 
 # Transformation pipelines in sklearn

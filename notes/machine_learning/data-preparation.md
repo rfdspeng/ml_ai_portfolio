@@ -14,7 +14,8 @@ Imputation techniques:
     * For numerical, use summary statistics like mean, median, or mode
     * For categorical, use a default choice
 * For numerical data that is taken over time or over geographic region, you can interpolate the missing values
-* Train a supervised model to fill in missing values based on other features (and potentially even the label). This is an option but may not be very practical, especially for large datasets.
+* Train a supervised model to fill in missing values based on other features. This is an option but may not be very practical, especially for large datasets.
+    * Can you use the label? If you plan on using this model to impute missing values during inference, then you definitely shouldn't use the label.
 
 Handling missing values - either
 * Omission (remove samples w/missing values). Use when

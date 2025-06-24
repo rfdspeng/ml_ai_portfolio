@@ -85,8 +85,8 @@ X = X.loc[:, ["AgeCatScaleImpute", "FareCatScale", "TotalFamScale", "PclassScale
 # model = DecisionTreeClassifier(max_depth=30, max_leaf_nodes=70, random_state=0, class_weight="balanced")
 # model = DecisionTreeClassifier(class_weight="balanced")
 # model = RandomForestClassifier()
-model = RandomForestClassifier(class_weight="balanced")
-# model = RandomForestClassifier(class_weight="balanced", max_leaf_nodes=50, random_state=0)
+# model = RandomForestClassifier(class_weight="balanced")
+model = RandomForestClassifier(class_weight="balanced", max_leaf_nodes=60, random_state=0)
 
 # model = RandomForestClassifier(class_weight="balanced_subsample")
 # model = HistGradientBoostingClassifier(class_weight="balanced", max_leaf_nodes=20)
@@ -94,7 +94,7 @@ model = RandomForestClassifier(class_weight="balanced")
 # print(X.columns)
 # scores = cross_validate(ml_pipe, X, y, scoring="f1", cv=10, n_jobs=-1, return_train_score=True, return_estimator=True) # bad descriptor failure when debugging
 # scores = cross_validate(ml_pipe, X, y, scoring=["f1", "recall", "precision"], cv=10, return_train_score=True, return_estimator=True)
-scores = cross_validate(model, X, y, scoring=["f1_macro", "recall_macro", "precision_macro", "f1", "recall", "precision"], cv=10, return_train_score=True, return_estimator=True)
+scores = cross_validate(model, X, y, scoring=["accuracy", "f1_macro", "recall_macro", "precision_macro", "f1", "recall", "precision"], cv=10, return_train_score=True, return_estimator=True)
 
 print(f"{"-"*50}\nScores\n{"-"*50}")
 for k in sorted(scores.keys()):

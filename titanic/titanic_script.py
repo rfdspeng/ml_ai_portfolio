@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
+from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler, MinMaxScaler
 from sklearn.model_selection import StratifiedKFold, cross_val_score, cross_validate
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
@@ -51,23 +51,25 @@ y = df_train["Survived"].to_numpy()
 
 # model = LogisticRegression()
 # model = SVC()
-model = DecisionTreeClassifier(max_depth=5, max_leaf_nodes=150, random_state=0)
+# model = DecisionTreeClassifier(max_depth=5, max_leaf_nodes=150, random_state=0)
 # model = DecisionTreeClassifier()
 # model = RandomForestClassifier()
-# model = RandomForestClassifier(class_weight="balanced")
+model = RandomForestClassifier(class_weight="balanced", max_leaf_nodes=80, random_state=0)
+# model = RandomForestClassifier(max_depth=5, random_state=1)
 # model = RandomForestClassifier(class_weight="balanced_subsample")
 # model = HistGradientBoostingClassifier()
 
 
 
 data_pipe = ColumnTransformer([
-    ("scaler_only", StandardScaler(), ["Fare", "Age", "SibSp", "Parch", "TotalFam"]),
-    # ("scaler_only", StandardScaler(), ["Fare", "Age"]),
-    # ("ordinal_encoder", OrdinalEncoder(), ["Sex", "Pclass"]),
+    # ("scaler_only", StandardScaler(), ["Fare", "Age", "SibSp", "Parch", "TotalFam"]),
+    ("scaler_only", MinMaxScaler(), ["Fare", "Age", "TotalFam"]),
+    ("ordinal_encoder", OrdinalEncoder(), ["Sex", "Pclass"]),
+    # ("scaler_only", MinMaxScaler(), ["Age", "SibSp", "Parch"]),
     # ("onehot_encoder", OneHotEncoder(), ["Embarked", "Pclass"]),
     # ("onehot_encoder", OneHotEncoder(), ["Pclass"]),
     # ("labels", "passthrough", ["Survived"])
-    ("ordinal_encoder", OrdinalEncoder(), ["Sex", "Pclass", "HasFam", "AgeLessThanEqual5", "FareLessThanEqual10"])
+    # ("ordinal_encoder", OrdinalEncoder(), ["Sex", "Pclass", "HasFam", "AgeLessThanEqual5", "FareLessThanEqual10"])
 ], remainder="drop")
 
 ml_pipe = Pipeline([
@@ -78,11 +80,12 @@ ml_pipe = Pipeline([
 
 # print(X.columns)
 # scores = cross_validate(ml_pipe, X, y, scoring="f1", cv=10, n_jobs=-1, return_train_score=True, return_estimator=True) # bad descriptor failure when debugging
-scores = cross_validate(ml_pipe, X, y, scoring="f1", cv=10, return_train_score=True, return_estimator=True)
+scores = cross_validate(ml_pipe, X, y, scoring=["accuracy", "f1_macro", "recall_macro", "precision_macro", "f1", "recall", "precision"], cv=10, return_train_score=True, return_estimator=True)
 
 print(f"{"-"*50}\nScores\n{"-"*50}")
-print(f"{"Train score avg, std":30}: {(scores["train_score"].mean()*100).round(1)}, {(scores["train_score"].std()*100).round(1)}")
-print(f"{"Val score avg, std":30}: {(scores["test_score"].mean()*100).round(1)}, {(scores["test_score"].std()*100).round(1)}")
+for k in sorted(scores.keys()):
+    if k.startswith("test") or k.startswith("train"):
+        print(f"{k + " avg, std":30}: {(scores[k].mean()*100).round(1)}, {(scores[k].std()*100).round(1)}")
 
 
 

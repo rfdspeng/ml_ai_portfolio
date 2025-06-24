@@ -70,14 +70,15 @@ X["TotalFam"] = np.clip(X["Parch"] + X["SibSp"], a_min=0, a_max=4)
 
 X["SexEnc"] = OrdinalEncoder().fit_transform(X[["Sex"]])
 
-X[["AgeCatScale", "FareCatScale", "TotalFamScale", "PclassScale"]] = MinMaxScaler().fit_transform(X[["AgeCat", "FareCat", "TotalFam", "Pclass"]])
+# X[["AgeCatScale", "FareCatScale", "TotalFamScale", "PclassScale"]] = MinMaxScaler().fit_transform(X[["AgeCat", "FareCat", "TotalFam", "Pclass"]])
 
-imp = KNNImputer()
-tr = imp.fit_transform(X[["AgeCatScale", "FareCatScale", "TotalFamScale", "PclassScale", "SexEnc"]])
-X["AgeCatScaleImpute"] = pd.Series(tr[:, 0])
+# imp = KNNImputer()
+# tr = imp.fit_transform(X[["AgeCatScale", "FareCatScale", "TotalFamScale", "PclassScale", "SexEnc"]])
+# X["AgeCatScaleImpute"] = pd.Series(tr[:, 0])
 
-X = X.loc[:, ["AgeCatScaleImpute", "FareCatScale", "TotalFamScale", "PclassScale", "SexEnc"]]
+# X = X.loc[:, ["AgeCatScaleImpute", "FareCatScale", "TotalFamScale", "PclassScale", "SexEnc"]]
 # X = X.loc[:, ["AgeCatScale", "FareCatScale", "TotalFamScale", "PclassScale", "SexEnc"]]
+X = X.loc[:, ["AgeCat", "FareCat", "TotalFam", "Pclass", "SexEnc"]]
 
 # model = LogisticRegression()
 # model = SVC()
@@ -85,8 +86,8 @@ X = X.loc[:, ["AgeCatScaleImpute", "FareCatScale", "TotalFamScale", "PclassScale
 # model = DecisionTreeClassifier(max_depth=30, max_leaf_nodes=70, random_state=0, class_weight="balanced")
 # model = DecisionTreeClassifier(class_weight="balanced")
 # model = RandomForestClassifier()
-# model = RandomForestClassifier(class_weight="balanced")
-model = RandomForestClassifier(class_weight="balanced", max_leaf_nodes=60, random_state=0)
+# model = RandomForestClassifier(class_weight="balanced", random_state=0)
+model = RandomForestClassifier(class_weight="balanced", max_leaf_nodes=8, random_state=0)
 
 # model = RandomForestClassifier(class_weight="balanced_subsample")
 # model = HistGradientBoostingClassifier(class_weight="balanced", max_leaf_nodes=20)
@@ -134,3 +135,39 @@ if hasattr(scores["estimator"][0], "feature_importances_"):
     feature_names = scores["estimator"][0].feature_names_in_[feature_importances.argsort()[::-1]]
     feature_importances = feature_importances[feature_importances.argsort()[::-1]]
     print(*[f"{i[0]:30}: {i[1]}" for i in zip(feature_names, feature_importances)], sep="\n")
+
+
+# Inference
+
+model.fit(X, y)
+
+df_test = pd.read_csv("./dataset/test.csv")
+
+X = df_test
+
+farebins = np.array([-1,10,20,40,60,80,100,120,140,np.inf])
+
+def farecat(x):
+    return np.argmax(x <= farebins)-1
+
+X["FareCat"] = X["Fare"].map(farecat)
+
+X["AgeCat"] = np.floor(np.clip(X["Age"], a_min=None, a_max=55)/5)
+
+X["TotalFam"] = np.clip(X["Parch"] + X["SibSp"], a_min=0, a_max=4)
+
+X["SexEnc"] = OrdinalEncoder().fit_transform(X[["Sex"]])
+
+# # imp = KNNImputer()
+# # tr = imp.fit_transform(X[["AgeCatScale", "FareCatScale", "TotalFamScale", "PclassScale", "SexEnc"]])
+# # X["AgeCatScaleImpute"] = pd.Series(tr[:, 0])
+
+passenger_ids = X.loc[:, "PassengerId"]
+
+X = X.loc[:, ["AgeCat", "FareCat", "TotalFam", "Pclass", "SexEnc"]]
+
+y_pred = model.predict(X)
+
+output = pd.DataFrame({"PassengerId": passenger_ids, "Survived": y_pred})
+
+output.to_csv("./dataset/submission.csv", index=False)

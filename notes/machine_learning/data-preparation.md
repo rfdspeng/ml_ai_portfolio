@@ -2,33 +2,26 @@
 
 When values are missing, you can either omit the associated samples/attributes or you can impute (infer) the missing values.
 
-Can you leave the values as missing/replace them with a dummy value that indicates it was originally missing? What are techniques for analyzing patterns in the missing data?
-
 You can consider omission when
 * Only a small number of values are missing (in percentage/proportion)
+* Missing values are missing completely at random (MCAR) so that removing them won't change the feature distribution. If you identify patterns of missing data, then this is information you should not remove.
 * A sample (row) is missing most of its attributes or critical attributes
 * An attribute (column) is missing most of its values
 
-Imputation techniques:
-* Replace missing values with default values, which depends on the data type
-    * For numerical, use summary statistics like mean, median, or mode
-    * For categorical, use a default choice
-* For numerical data that is taken over time or over geographic region, you can interpolate the missing values
-* Train a supervised model to fill in missing values based on other features. This is an option but may not be very practical, especially for large datasets.
-    * Can you use the label? If you plan on using this model to impute missing values during inference, then you definitely shouldn't use the label.
-
-Handling missing values - either
-* Omission (remove samples w/missing values). Use when
-    * Small number missing
-    * Missing values are completely at random (MCAR) so that removing them won't change the feature distribution. If you identify patterns of missing data, then this is information you should not remove.
-    * If feature is missing most of its values, them remove it entirely
-* Imputation (infer missing values)
-    * Fill with default values, which depends on dtype, e.g. for numerical, mean/median; for categorical, default choice/mode
-    * For numerical data that is taken over time or over geographic region, you can interpolate
-    * Train a supervised model to fill missing values based on other features
-    * 
+There are a few different techniques for imputing missing values.
+* Simple imputation: Replace missing values with a summary statistic or a constant. Be careful of introducing bias into your data.
+    * For numerical, this is usually mean, median, or mode, depending on your distribution.
+    * For categorical, this is usually mode.
+* Missing indicator: Add a boolean feature that indicates if the original value is missing. This is used in conjunction with one of the other imputation methods.
+* Predictive imputation: Train a supervised model to fill in missing values based on other features. Because of its complexity, this is not a practical method for large datasets.
+    * If you want to impute during inference, you CANNOT use the label to train the imputer
+    * If you only need to impute training data, you CAN use the label to train the imputer
+* KNN imputation: Uses KNN with a euclidean distance metric that supports missing values. Finds the nearest neighbors and imputes missing values based on an average of the nearest neighbors.
+* Interpolation (for numerical data that is a function of time or location)
 
 Some ML algorithms inherently handle missing values (like trees, I think).
+
+MCAR, MAR, MNAR
 
 Check out sklearn library for imputation: https://scikit-learn.org/stable/modules/impute.html
 
@@ -64,7 +57,7 @@ With few exceptions (e.g. decision trees), ML algorithms don't perform well when
 
 **Standardization:**
 * Subtract all values by mean, then divide by standard deviation
-* The resuting distribution has zero mean, unit variance
+* The resulting distribution has zero mean, unit variance
 * Does not bound values to a specific range (which may be a problem for some algorithms)
 * Much less affected by outliers compared to min-max scaling
 

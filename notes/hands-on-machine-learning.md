@@ -35,7 +35,7 @@ Benefits of ML method:
 Broad classifications:
 * Trained with human supervision? (supervised, unsupervised, semisupervised, reinforcement learning)
 * Can learn incrementally on the fly? (online vs. batch learning)
-* Compare new data points to known data points or instead detect patterns in training data and build a predictive model? (instance-based vs. model-lbased learning)
+* Compare new data points to known data points or instead detect patterns in training data and build a predictive model? (instance-based vs. model-based learning)
 
 ### Supervised learning algorithms
 

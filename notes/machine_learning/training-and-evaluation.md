@@ -19,16 +19,27 @@ Try a few different models with the default options.
 * Tabular data, supervised learning
     * Linear or logistic regression, decision tree, random forest, gradient-boosted tree, SVM with different kernels
 
-Is the model underfitting (poor performance on training set)?
-* Select more powerful model, with more parameters
-* Feed better features to the learning algorithm (feature engineering)
-* Reduce model constraints (e.g. reduce regularization)
+There is (hopefully) a pattern in the data that will allow you to make predictions. You need to pick the right model to capture that pattern - that relationship between input features and output labels.
 
-Is the model overfitting (perfect performance on training set)?
+The data will be noisy. It may also have errors and outliers that don't reflect the pattern. These may confuse your model. Your model may capture noise/errors/outliers instead of the true pattern.
 
-* Simplify the model: fewer parameters, reducing the training data dimension, or constraining the model (regularization)
-* Gather more training data
-* Reduce training data noise (fix errors and outliers)
+Generally, as your dataset grows in size, the "signal" or pattern grows stronger and noise decreases. Central limit theorem, the error in each sample is a zero-mean random variable. (Do the math here).
+
+In both overfitting and underfitting, your model is not capturing the pattern/relationship. When your model overfits, it's capturing noise (in addition to pattern). When your model underfits, it's unable to capture any pattern at all, noise or true relationship.
+
+If your model is overfitting to the training data, you can
+* Gather more training data (which reduces noise)
+* Simplify the model: pick a simpler model or constrain the model (regularization) so it's unable to capture the noise
+* Clean the training data: remove or clean the samples that don't represent the true relationship
+    * Get rid of errors and/or outliers
+    * Remove uninformative features (feature engineering)
+    * Combine raw features into more useful features (feature engineering)
+
+If your model is underfitting, you can
+* Increase the complexity of the model: select a more powerful model, with more parameters, or reduce the model constraints (e.g. reduce regularization)
+* Combine raw features into more useful features (feature engineering) - if this works, I think that means that the raw features don't represent the true relationship on their own. The features themselves don't carry the information that allows us to separate the classes/predict continuous value.
+
+Curse of dimensionality - as number of features goes up, you need more samples to "see" the pattern because the data gets very sparse as number of dimensions increases.
 
 Use some kind of validation to see if the model is overfitting, like holdout or K-fold cross-validation. With K-fold, you can calculate the average and standard deviation of the target performance metric.
 

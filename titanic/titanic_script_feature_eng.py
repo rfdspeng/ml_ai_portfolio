@@ -68,13 +68,13 @@ farebins = np.array([-1,10,20,40,60,80,100,120,140,np.inf])
 def farecat(x):
     return np.argmax(x <= farebins)-1
 
-X["FareCat"] = X["Fare"].map(farecat)
+# X["FareCat"] = X["Fare"].map(farecat)
 
-X["AgeCat"] = np.floor(np.clip(X["Age"], a_min=None, a_max=55)/5)
+# X["AgeCat"] = np.floor(np.clip(X["Age"], a_min=None, a_max=55)/5)
 
-X["TotalFam"] = np.clip(X["Parch"] + X["SibSp"], a_min=0, a_max=4)
+# X["TotalFam"] = np.clip(X["Parch"] + X["SibSp"], a_min=0, a_max=4)
 
-X["SexEnc"] = OrdinalEncoder().fit_transform(X[["Sex"]])
+# X["SexEnc"] = OrdinalEncoder().fit_transform(X[["Sex"]])
 
 # X[["AgeCatScale", "FareCatScale", "TotalFamScale", "PclassScale"]] = MinMaxScaler().fit_transform(X[["AgeCat", "FareCat", "TotalFam", "Pclass"]])
 
@@ -84,16 +84,16 @@ X["SexEnc"] = OrdinalEncoder().fit_transform(X[["Sex"]])
 
 # X = X.loc[:, ["AgeCatScaleImpute", "FareCatScale", "TotalFamScale", "PclassScale", "SexEnc"]]
 # X = X.loc[:, ["AgeCatScale", "FareCatScale", "TotalFamScale", "PclassScale", "SexEnc"]]
-X = X.loc[:, ["AgeCat", "FareCat", "TotalFam", "Pclass", "SexEnc"]]
+# X = X.loc[:, ["AgeCat", "FareCat", "TotalFam", "Pclass", "SexEnc"]]
 
 # model = LogisticRegression()
 # model = SVC()
-# model = DecisionTreeClassifier()
+model = DecisionTreeClassifier()
 # model = DecisionTreeClassifier(max_depth=30, max_leaf_nodes=70, random_state=0, class_weight="balanced")
 # model = DecisionTreeClassifier(class_weight="balanced")
 # model = RandomForestClassifier()
 # model = RandomForestClassifier(class_weight="balanced", random_state=0)
-model = RandomForestClassifier(class_weight="balanced", max_leaf_nodes=8, random_state=0)
+# model = RandomForestClassifier(class_weight="balanced", max_leaf_nodes=8, random_state=0)
 
 # model = RandomForestClassifier(class_weight="balanced_subsample")
 # model = HistGradientBoostingClassifier(class_weight="balanced", max_leaf_nodes=20)
@@ -101,7 +101,8 @@ model = RandomForestClassifier(class_weight="balanced", max_leaf_nodes=8, random
 # print(X.columns)
 # scores = cross_validate(ml_pipe, X, y, scoring="f1", cv=10, n_jobs=-1, return_train_score=True, return_estimator=True) # bad descriptor failure when debugging
 # scores = cross_validate(ml_pipe, X, y, scoring=["f1", "recall", "precision"], cv=10, return_train_score=True, return_estimator=True)
-scores = cross_validate(model, X, y, scoring=["accuracy", "f1_macro", "recall_macro", "precision_macro", "f1", "recall", "precision"], cv=10, return_train_score=True, return_estimator=True)
+# scores = cross_validate(model, X, y, scoring=["accuracy", "f1_macro", "recall_macro", "precision_macro", "f1", "recall", "precision"], cv=10, return_train_score=True, return_estimator=True)
+scores = cross_validate(model, X, y, scoring=["accuracy"], cv=10, return_train_score=True, return_estimator=True)
 
 print(f"{"-"*50}\nScores\n{"-"*50}")
 for k in sorted(scores.keys()):

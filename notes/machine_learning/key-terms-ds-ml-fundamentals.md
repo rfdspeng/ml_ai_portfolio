@@ -4,6 +4,8 @@ Data bias, model bias
 
 There are two sources of information: the model assumptions (bias) and the training data. Check CS229 lectures.
 
+The relationship 
+
 # Data bias
 
 When the data is not representative of the real-world population or phenomenon being studied.

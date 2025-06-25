@@ -52,6 +52,12 @@ from pandas.core.frame import DataFrame
 # A question for ChatGPT: I'm doing all these experiments and because the dataset size and models are small, I can easily run them over and over. When dataset size is huge, what's the strat?
 # Do I take a subsample of the dataset? Start with simple models to get an intuition? Use tree-based models so I can compute feature importance?
 
+# The cross validation score has high standard deviation - maybe this is why your test score is so much worse than validation? Or are you overfitting to the validation set?
+# Print out scores per fold?
+# Did imputing Age really have no effect on the results? I feel like it should have SOME effect even if DT/RF naturally handle missing values.
+
+# Can I set Pipeline to inference only? So it only calls transform? Yes - Pipeline.transform()
+
 df_train = pd.read_csv("./dataset/train.csv")
 
 X = df_train.drop("Survived", axis="columns")
@@ -144,11 +150,6 @@ model.fit(X, y)
 df_test = pd.read_csv("./dataset/test.csv")
 
 X = df_test
-
-farebins = np.array([-1,10,20,40,60,80,100,120,140,np.inf])
-
-def farecat(x):
-    return np.argmax(x <= farebins)-1
 
 X["FareCat"] = X["Fare"].map(farecat)
 

@@ -19,13 +19,22 @@ Try a few different models with the default options.
 * Tabular data, supervised learning
     * Linear or logistic regression, decision tree, random forest, gradient-boosted tree, SVM with different kernels
 
-There is (hopefully) a pattern in the data that will allow you to make predictions. You need to pick the right model to capture that pattern - that relationship between input features and output labels.
+## Overfitting and underfitting, bias-variance tradeoff
 
-The data will be noisy. It may also have errors and outliers that don't reflect the pattern. These may confuse your model. Your model may capture noise/errors/outliers instead of the true pattern.
+The goal of learning algorithms, both supervised and unsupervised, is to capture the "true" patterns in the data. In the case of supervised learning, we want to capture the relationship between input features and output labels.
 
-Generally, as your dataset grows in size, the "signal" or pattern grows stronger and noise decreases. Central limit theorem, the error in each sample is a zero-mean random variable. (Do the math here).
+The learning algorithm has two sources of information:
+* The model assumptions (this information comes from you, the data scientist). This is also known as inductive bias.
+The stronger the assumptions, the higher the inductive bias of the model.
+* The training data
 
-In both overfitting and underfitting, your model is not capturing the pattern/relationship. When your model overfits, it's capturing noise (in addition to pattern). When your model underfits, it's unable to capture any pattern at all, noise or true relationship.
+If your model is too simple, it is unable to capture the pattern, and it will have poor performance on both training and test data.
+
+Data is noisy. It has errors and outliers that are not part of the pattern. If your model is too complex (or too flexible), it will capture both the pattern and the noise in your training data, and it will not generalize well to unseen data.
+
+Both overfitting and underfitting means that your model is not capturing the true relationship (and only the true relationship).
+
+With good sampling, as your dataset grows in size, the "signal" or pattern grows stronger and the effect of noise is reduced. 
 
 If your model is overfitting to the training data, you can
 * Gather more training data (which reduces noise)
@@ -39,9 +48,11 @@ If your model is underfitting, you can
 * Increase the complexity of the model: select a more powerful model, with more parameters, or reduce the model constraints (e.g. reduce regularization)
 * Combine raw features into more useful features (feature engineering) - if this works, I think that means that the raw features don't represent the true relationship on their own. The features themselves don't carry the information that allows us to separate the classes/predict continuous value.
 
+Use some kind of validation to see if the model is overfitting, like holdout or K-fold cross-validation. With K-fold, you can calculate the average and standard deviation of the target performance metric. With K-fold, you probably want to pay attention to standard deviation - I think both mean and standard deviation are important for seeing how well your model generalizes.
+
 Curse of dimensionality - as number of features goes up, you need more samples to "see" the pattern because the data gets very sparse as number of dimensions increases.
 
-Use some kind of validation to see if the model is overfitting, like holdout or K-fold cross-validation. With K-fold, you can calculate the average and standard deviation of the target performance metric.
+
 
 # Hyperparameter tuning
 

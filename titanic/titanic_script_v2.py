@@ -2,58 +2,88 @@ import pandas as pd
 import numpy as np
 
 EXPERIMENT_CONFIG = {
-    "age_strategy": "group_median",
-    # "age_strategy": False,
+    # "age_strategy": "group_median",
+    "age_strategy": False,
     "use_cabin": True,
-    "use_embarked": True,
+    "use_embarked": False,
     "model": "RandomForest",
     "model_params": {"max_depth": 5, "n_estimators": 100, "random_state": 0}
     # "model_params": {"max_leaf_nodes": 80, "n_estimators": 100}
 }
 
-def prepare_dataframe(df, age_strategy="group_median", use_cabin=True, use_embarked=False):
+def prepare_dataframe(
+    df,
+    age_strategy="group_median",
+    use_cabin=True,
+    use_embarked=False,
+    is_train=True,
+    group_medians=None
+):
     df = df.copy()
 
-    # Process Name
+    # Process Title from Name
     df["Title"] = df["Name"].map(lambda x: x.strip().split(",")[1].strip().split()[0])
-    titles_small_samples = df["Title"].value_counts().index[df["Title"].value_counts() < 10]
-    df.loc[(df["Title"].isin(titles_small_samples)) & \
-        (df["Sex"] == "female") & (df["Age"] <= 30), "Title"] = "Miss."
-    df.loc[(df["Title"].isin(titles_small_samples)) & \
-        (df["Sex"] == "female") & (df["Age"] > 30), "Title"] = "Mrs."
-    df.loc[(df["Title"].isin(titles_small_samples)) & \
-        (df["Sex"] == "male") & (df["Age"] > 12), "Title"] = "Mr."
-    df.loc[(df["Title"] == "Dr.") & (df["Sex"] == "male"), "Title"] = "Mr."
+
+    if is_train:
+        # Group rare titles
+        titles_small_samples = df["Title"].value_counts().index[df["Title"].value_counts() < 10]
+        df.loc[(df["Title"].isin(titles_small_samples)) & \
+               (df["Sex"] == "female") & (df["Age"] <= 30), "Title"] = "Miss."
+        df.loc[(df["Title"].isin(titles_small_samples)) & \
+               (df["Sex"] == "female") & (df["Age"] > 30), "Title"] = "Mrs."
+        df.loc[(df["Title"].isin(titles_small_samples)) & \
+               (df["Sex"] == "male") & (df["Age"] > 12), "Title"] = "Mr."
+        df.loc[(df["Title"] == "Dr.") & (df["Sex"] == "male"), "Title"] = "Mr."
 
     df["TotalFam"] = df["SibSp"] + df["Parch"]
     famgroups = df["TotalFam"].map(lambda x: x if x <= 2 else 3)
 
+    # Age handling
     if age_strategy == "group_median":
         df["AgeMissing"] = df["Age"].isna().astype(int)
-        group_median = (df.groupby(["Title", "Pclass", famgroups]).Age
-                        .transform("median")
-                        )
-        df["Age"] = df["Age"].fillna(group_median)
 
+        if is_train:
+            # compute group medians and store them
+            df["GroupKey"] = list(zip(df["Title"], df["Pclass"], famgroups))
+            group_medians = df.groupby("GroupKey")["Age"].median().to_dict()
+        else:
+            df["GroupKey"] = list(zip(df["Title"], df["Pclass"], famgroups))
+            if group_medians is None:
+                raise ValueError("Must provide group_medians during inference.")
+
+        # fill missing ages using group medians
+        df["Age"] = df.apply(
+            lambda row: group_medians.get(row["GroupKey"], np.nan) if pd.isna(row["Age"]) else row["Age"],
+            axis=1
+        )
+
+        df = df.drop("GroupKey", axis=1)
+
+    # Cabin handling
     if use_cabin:
         df["CabinLetter"] = df["Cabin"].str[0].fillna("M")
-        df["CabinLetter"] = df["CabinLetter"].replace("T", "C")
+        if is_train:
+            df["CabinLetter"] = df["CabinLetter"].replace("T", "C")
 
-    if not use_embarked:
+    if not use_embarked and "Embarked" in df.columns:
         df = df.drop("Embarked", axis=1)
-    
-    df = df.drop(["PassengerId", "Ticket", "Name", "Cabin"], axis=1)
 
-    return df
+    # Drop unused
+    drop_cols = ["PassengerId", "Ticket", "Name", "Cabin", "SibSp", "Parch"]
+    df = df.drop(columns=[col for col in drop_cols if col in df.columns])
+
+    return df, group_medians
 
 df = pd.read_csv("./dataset/train.csv")
-df = prepare_dataframe(df, **{k: v for k, v in EXPERIMENT_CONFIG.items() if k in ["age_strategy", "use_cabin", "use_embarked"]})
+df, group_medians = prepare_dataframe(df, **{k: v for k, v in EXPERIMENT_CONFIG.items() if k in ["age_strategy", "use_cabin", "use_embarked"]})
 
 # Encoding
 from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 
 X = df.drop("Survived", axis=1)
 y = df["Survived"].to_numpy()
@@ -61,6 +91,7 @@ y = df["Survived"].to_numpy()
 ord_features = ["Sex"]
 if "CabinLetter" in X.columns:
     ord_features.append("CabinLetter")
+    # ord_features = ["CabinLetter"]
 onehot_features = ["Title"]
 if "Embarked" in X.columns:
     onehot_features.append("Embarked")
@@ -103,3 +134,17 @@ if hasattr(scores["estimator"][0].named_steps.model, "feature_importances_"):
 # with open("experiment_log.json", "a") as f:
 #     import json
 #     f.write(json.dumps(EXPERIMENT_CONFIG) + "\n")
+
+pipeline.fit(X, y)
+
+df_test = pd.read_csv("./dataset/test.csv")
+passenger_ids = df_test.loc[:, "PassengerId"]
+
+df_test, _ = prepare_dataframe(df_test, is_train=False, group_medians=group_medians, 
+                               **{k: v for k, v in EXPERIMENT_CONFIG.items() if k in ["age_strategy", "use_cabin", "use_embarked"]})
+
+y_pred = pipeline.predict(df_test)
+
+output = pd.DataFrame({"PassengerId": passenger_ids, "Survived": y_pred})
+
+output.to_csv("./dataset/submission.csv", index=False)

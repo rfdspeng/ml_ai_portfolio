@@ -12,7 +12,8 @@ There are a few different techniques for imputing missing values.
 * Simple imputation: Replace missing values with a summary statistic or a constant. Be careful of introducing bias into your data.
     * For numerical, this is usually mean, median, or mode, depending on your distribution.
     * For categorical, this is usually mode.
-* Missing indicator: Add a boolean feature that indicates if the original value is missing. This is used in conjunction with one of the other imputation methods.
+* Group-wise imputation: Similar to simple imputation, but you first organize the data into different (and logical) groups. Groups should be large enough to compute stable summary statistics.
+* Missing indicator: Add a boolean feature that indicates if the original value is missing. This can be used in conjunction with one of the other imputation methods or on its own.
 * Predictive imputation: Train a supervised model to fill in missing values based on other features. Because of its complexity, this is not a practical method for large datasets.
     * If you want to impute during inference, you CANNOT use the label to train the imputer
     * If you only need to impute training data, you CAN use the label to train the imputer

@@ -4,8 +4,9 @@ import numpy as np
 EXPERIMENT_CONFIG = {
     # "age_strategy": "group_median",
     "age_strategy": False,
-    "use_cabin": True,
+    "use_cabin": False,
     "use_embarked": False,
+    "log_transform_fare": False,
     "model": "RandomForest",
     "model_params": {"max_depth": 5, "n_estimators": 100, "random_state": 0}
     # "model_params": {"max_leaf_nodes": 80, "n_estimators": 100}
@@ -16,24 +17,28 @@ def prepare_dataframe(
     age_strategy="group_median",
     use_cabin=True,
     use_embarked=False,
+    log_transform_fare=False,
     is_train=True,
     group_medians=None
 ):
     df = df.copy()
 
-    # Process Title from Name
-    df["Title"] = df["Name"].map(lambda x: x.strip().split(",")[1].strip().split()[0])
+    if log_transform_fare:
+        df["Fare"] = np.log10(df["Fare"]+1)
 
-    if is_train:
-        # Group rare titles
-        titles_small_samples = df["Title"].value_counts().index[df["Title"].value_counts() < 10]
-        df.loc[(df["Title"].isin(titles_small_samples)) & \
-               (df["Sex"] == "female") & (df["Age"] <= 30), "Title"] = "Miss."
-        df.loc[(df["Title"].isin(titles_small_samples)) & \
-               (df["Sex"] == "female") & (df["Age"] > 30), "Title"] = "Mrs."
-        df.loc[(df["Title"].isin(titles_small_samples)) & \
-               (df["Sex"] == "male") & (df["Age"] > 12), "Title"] = "Mr."
-        df.loc[(df["Title"] == "Dr.") & (df["Sex"] == "male"), "Title"] = "Mr."
+    # Process Title from Name
+    # df["Title"] = df["Name"].map(lambda x: x.strip().split(",")[1].strip().split()[0])
+
+    # if is_train:
+    #     # Group rare titles
+    #     titles_small_samples = df["Title"].value_counts().index[df["Title"].value_counts() < 10]
+    #     df.loc[(df["Title"].isin(titles_small_samples)) & \
+    #         (df["Sex"] == "female") & (df["Age"] <= 30), "Title"] = "Miss."
+    #     df.loc[(df["Title"].isin(titles_small_samples)) & \
+    #         (df["Sex"] == "female") & (df["Age"] > 30), "Title"] = "Mrs."
+    #     df.loc[(df["Title"].isin(titles_small_samples)) & \
+    #         (df["Sex"] == "male") & (df["Age"] > 12), "Title"] = "Mr."
+    #     df.loc[(df["Title"] == "Dr.") & (df["Sex"] == "male"), "Title"] = "Mr."
 
     df["TotalFam"] = df["SibSp"] + df["Parch"]
     famgroups = df["TotalFam"].map(lambda x: x if x <= 2 else 3)
@@ -75,7 +80,7 @@ def prepare_dataframe(
     return df, group_medians
 
 df = pd.read_csv("./dataset/train.csv")
-df, group_medians = prepare_dataframe(df, **{k: v for k, v in EXPERIMENT_CONFIG.items() if k in ["age_strategy", "use_cabin", "use_embarked"]})
+df, group_medians = prepare_dataframe(df, **{k: v for k, v in EXPERIMENT_CONFIG.items() if k in ["age_strategy", "use_cabin", "use_embarked", "log_transform_fare"]})
 
 # Encoding
 from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, StandardScaler
@@ -92,7 +97,9 @@ ord_features = ["Sex"]
 if "CabinLetter" in X.columns:
     ord_features.append("CabinLetter")
     # ord_features = ["CabinLetter"]
-onehot_features = ["Title"]
+onehot_features = []
+if "Title" in X.columns:
+    onehot_features.append("Title")
 if "Embarked" in X.columns:
     onehot_features.append("Embarked")
 num_features = X.select_dtypes(exclude=["object"]).columns
@@ -135,16 +142,16 @@ if hasattr(scores["estimator"][0].named_steps.model, "feature_importances_"):
 #     import json
 #     f.write(json.dumps(EXPERIMENT_CONFIG) + "\n")
 
-pipeline.fit(X, y)
+# pipeline.fit(X, y)
 
-df_test = pd.read_csv("./dataset/test.csv")
-passenger_ids = df_test.loc[:, "PassengerId"]
+# df_test = pd.read_csv("./dataset/test.csv")
+# passenger_ids = df_test.loc[:, "PassengerId"]
 
-df_test, _ = prepare_dataframe(df_test, is_train=False, group_medians=group_medians, 
-                               **{k: v for k, v in EXPERIMENT_CONFIG.items() if k in ["age_strategy", "use_cabin", "use_embarked"]})
+# df_test, _ = prepare_dataframe(df_test, is_train=False, group_medians=group_medians, 
+#                                **{k: v for k, v in EXPERIMENT_CONFIG.items() if k in ["age_strategy", "use_cabin", "use_embarked"]})
 
-y_pred = pipeline.predict(df_test)
+# y_pred = pipeline.predict(df_test)
 
-output = pd.DataFrame({"PassengerId": passenger_ids, "Survived": y_pred})
+# output = pd.DataFrame({"PassengerId": passenger_ids, "Survived": y_pred})
 
-output.to_csv("./dataset/submission.csv", index=False)
+# output.to_csv("./dataset/submission.csv", index=False)

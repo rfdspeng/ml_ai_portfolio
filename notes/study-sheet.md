@@ -29,7 +29,11 @@ Study sklearn documentation, especially model APIs to at least understand the op
 Feature importance - model-specific (trees and impurity-based) and model-agnostic (permutation importance, SHAP, LIME)
 
 Curse of dimensionality/number of features to number of samples
-* Each feature is like a random variable - you want many samples per feature so you can see the underlying pattern and reduce noise
+* Each feature is like a random variable - you want many samples per feature so you can see the underlying pattern and reduce 
+
+Statistical tests - Chi-Square, t-test, z-test, ANOVA, etc.
+
+How is an outlier defined?
 
 Kernel density estimation
 

@@ -344,7 +344,7 @@ df.rename_axis("column_axis_name", axis="columns")
 
 However, if you do stack horizontally and need to remove duplicate columns, you can either
 * `df = df.loc[:, ~df.columns.duplicated()].copy()`
-* `df = pd.concate([df, df], axis=1).set_flags(allows_duplicate_labels=False)`
+* `df = pd.concat([df, df], axis=1).set_flags(allows_duplicate_labels=False)`
 
 `df1.join(df2, lsuffix="left", rsuffix="right")` to join DataFrames with the same index. Can also join based on columns.
 

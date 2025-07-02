@@ -39,6 +39,8 @@ confounding factor/variable
 
 feature selection and feature extraction - subset selection, shrinkage, dimensionality reduction. Can dimensionality reduction be used for both selection and extraction?
 
+test-driven development (corner cases)
+
 Kernel density estimation
 
 when I draw plots in a Python script, how are the plots rendered? Interactive vs. non-interactive, backend

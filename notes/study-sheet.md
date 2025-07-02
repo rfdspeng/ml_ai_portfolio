@@ -18,7 +18,7 @@ How do confidence values jive with other metrics like RMSE, accuracy, etc?
 
 What is statistical modeling? What are the models? How do statistics underlie these models?
 
-Stats for cross validation, bootstrapping
+cross-validation, bootstrapping (see introduction to statistical learning)
 
 If I want to use ANNs for tabular data, what's a good way to construct them? Deep? How many neurons per layer?
 
@@ -34,6 +34,10 @@ Curse of dimensionality/number of features to number of samples
 Statistical tests - Chi-Square, t-test, z-test, ANOVA, etc.
 
 How is an outlier defined?
+
+confounding factor/variable
+
+feature selection and feature extraction - subset selection, shrinkage, dimensionality reduction. Can dimensionality reduction be used for both selection and extraction?
 
 Kernel density estimation
 

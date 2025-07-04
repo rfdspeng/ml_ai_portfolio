@@ -1,9 +1,13 @@
+# References
+
+* Hands-On Machine Learning
+
+# Evaluate different model types on the training set
+
 At this point, you've
 * Acquired the data, explored it, performed feature engineering
 * Split your data into train and test
 * Written transformation pipelines (e.g. missing values, encoding, scaling) to automatically prepare your data for training the ML algorithm
-
-# Evaluate different model types on the training set
 
 **Important notes:**
 * The goal of this step is to shortlist a few model types before tuning the hyperparameters
@@ -86,5 +90,24 @@ You will often gain good insights on the problem by inspecting the best models. 
 
 Inspect the specific errors in the predictions, try to understand what causes them, and try to fix the problem: add extra features, remove uninformative features, clean up outliers, etc.
 
+Let's take Titanic as an example. You can create subsets of your validation dataset that represent different groups of people (lower class, children, women, etc.) and compare model accuracy across these different groups.
+
 # Evaluate on the test set
 
+Run your model on the test set and calculate the generalization error (MSE, accuracy, whatever). This is an estimate of the real generalization error (sample vs. population). Let's say this generalization error is 0.1% better than a previous model. How confident are we that this model is better?
+
+For that, we can calculate a confidence interval (fill this in).
+* MHIST paper – they used 10 random seeds.
+* https://sebastianraschka.com/blog/2022/confidence-intervals-for-ml.html
+
+If you did a lot of hyperparameter tuning, performance on the test set will usually be slightly worse than performance in cross-validation because your learning algorithm will be fine-tuned to perform well on the validation data and will likely not generalize as well to unseen data. When this happens, you must resist the temptation to tweak the learning algorithm to improve performance on the test set.
+
+# Project pre-launch
+
+* Present solution
+    * What did you learn?
+    * What worked and what didn't work?
+    * What are your assumptions?
+    * What are the system limitations?
+* Document everything
+* Create presentations with clear visualization and easy-to-remember statements, like "the median income is the number one predictor of housing prices"

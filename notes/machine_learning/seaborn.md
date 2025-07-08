@@ -51,7 +51,7 @@ Use them for visualizing bivariate (joint) and univariate (marginal) distributio
 
 `jointplot` returns `JointGrid` and `pairplot` returns `PairGrid` for managing the figure.
 
-# Visualizing statistical relationships
+# Visualizing statistical relationships (relational module)
 
 ## Scatterplots and lineplots
 
@@ -62,7 +62,7 @@ Use them for visualizing bivariate (joint) and univariate (marginal) distributio
 These functions plot the joint distribution of two numeric variables. You can add three additional variables to the visualization by passing `hue`, `size`, and `style` (although it may not be a good idea to do this, since you may lose visual meaning). This is called semantic mapping.
 * `hue` may be categorical or numeric (switches between qualitative and sequential palette) - changes marker/line color
     * You can and probably should specify `palette`
-* `style` is always treated as categorical - changes marker/line style
+* `style` is always treated as categorical - changes marker/line style. For line plots, you can enable marker style over line style with `dashes=False, markers=True`.
 * `size` may be categorical or numeric - changes marker/line size. The raw values of the size variable are normalized into a range, but the range is customizable via `sizes`.
 
 Even if you add only one additional variable, it's good practice to use that variable for both `hue` and `style`.
@@ -96,7 +96,68 @@ If you want to turn off statistical aggregation entirely, set `estimator` to `No
 
 ## Showing multiple relationships with facets
 
-# Visualizing distributions of data
+Using semantic mapping with too many variables can decrease the readability of your plots. When this is the case, it's better to make multiple plots by faceting on columns and rows.
+
+Faceting allows you to make multiple plots of the x-y relationship conditioned on categorical variables.
+
+For example, if you set `col="Sex"` and `row="Class"`, then each subplot is conditioned on a unique sex-class group. It's like a groupby operation for visualization.
+
+If your facet variable has many categories, you may want to facet on columns and then "wrap" the facets into rows using `col_wrap`.
+
+This visualization technique is also called "lattice" plots or "small-multiples".
+
+# Visualizing distributions of data (distributional module)
+
+This module is primarily for numeric variables (discrete and continuous). You can visualize univariate and bivariate distributions.
+
+`displot` is the figure-level function that wraps around `histplot`, `kdeplot`, `ecdfplot`, and `rugplot`. `ecdfplot` is univariate only; the others can visualize bivariate.
+
+`jointplot` and `pairplot` wrap `histplot` and `kdeplot`.
+
+Distributions support `hue` semantic and faceting by `col` and `row`.
+
+Histograms:
+* `binwidth`
+* `bins` - specify number of bins or a list of bin breaks
+* `discrete=True` for discrete variables
+* `element` - specify bar graphic
+* `stat` - normalize histogram
+* `kde` - draw KDE. Use `kde_kws` to pass KDE options, e.g. `{"bw_adjust": 1}`.
+
+Kernel density estimation:
+* `bw_adjust` - smoothing parameter
+* KDE assumes the underlying distribution is smooth and unbounded. It is not a good representation for jagged and/or bounded data.
+
+Empirical cumulative distributions:
+* Unlike histogram and KDE, it directly represents each datapoint - no bin size or smoothing parameter to consider
+* Good for comparing multiple distributions (e.g. using `hue`)
+* Less intuitive visualization of the distribution shape compared to histogram/KDE
+
+Visualization options when using `hue` semantic mapping:
+* `multiple` - specify how to display multiple histograms
+* `common_norm` - how to normalize multiple histograms
+
+## Visualizing bivariate distributions
+
+Primarily using histograms and KDE. Pass `x` and `y`.
+
+Histograms do 2D binning and colors each rectangle based on count (like a heatmap). Set `cbar=True` to aid visual interpretation.
+
+One or both histogram variables can be discrete.
+* One discrete variable: another way to plot conditional univariate distributions (of the continuous variable)
+* Both discrete variables: cross-tabulation visualization
+
+KDE smoothes (x, y) with a 2D Gaussian and plots the contours of the 2D density. Each curve shows a level set s.t. some proportion of density lies below it. Specify levels via `thresh` and `levels`.
+
+Binning and smoothing still applies. Pass a pair of values (e.g. a 2-ple) to specify per variable.
+
+Generally, `hue` semantic mapping works better with 2D KDE. It only works with 2D histograms if there is minimal overlap between conditional distributions.
+
+## `jointplot`, `pairplot`
+
+`jointplot` and `pairplot` wrap `histplot` and `kdeplot`.
+
+
 
 # Visualizing categorical data
 

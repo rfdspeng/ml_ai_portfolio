@@ -41,7 +41,7 @@ Figure-level functions:
 
 ## Combining multiple views on the data
 
-`jointplot` and `pairplot` are outside of the three modules described above - they employ multiple kinds of plots from different modules.
+`jointplot` and `pairplot` are outside of the three modules described above - they employ multiple kinds of plots from different modules (relational and distributional).
 
 Use them for visualizing bivariate (joint) and univariate (marginal) distributions of numerical variables. Both are figure-level functions and create figures with multiple subplots by default.
 
@@ -155,15 +155,134 @@ Generally, `hue` semantic mapping works better with 2D KDE. It only works with 2
 
 ## `jointplot`, `pairplot`
 
-`jointplot` and `pairplot` wrap `histplot` and `kdeplot`.
+These figure-level functions augment bivariate relational or distribution plots with marginal distributions of the two variables.
 
+`jointplot`:
+* Default: scatter plot for bivariate distribution, histogram for marginal distributions
+* `kind` - specify plot type
+* Use `JointGrid` for more flexibility - initialize `JointGrid` object with data object and call methods like `plot_joint` and `plot_marginals` to control plot types
 
+`pairplot`:
+* Uses "small-multiple" approach
+* Diagonals plot univariate distributions
+* Off-diagonals plot bivariate distributions
+* Use `PairGrid` for more flexibility - call methods like `map_upper`, `map_lower`, `map_diag` to control plot types
 
 # Visualizing categorical data
 
+All functions plot one variable against a second variable. One variable is treated as categorical, the other as numeric.
+
+Categorical plots belong to three different families.
+* Categorical scatterplots
+    * `stripplot`
+    * `swarmplot`
+* Categorical distribution plots
+    * `boxplot`
+    * `violinplot`
+    * `boxenplot`
+* Categorical estimate plots
+    * `pointplot`
+    * `barplot`
+    * `countplot`
+
+`catplot` is the figure-level function (default is `kind="strip"`).
+
+Supports `hue` semantic mapping and faceting by `col` and `row`.
+
+## Categorical scatterplots
+
+One variable is treated as categorical (but it can still have numeric data type), the other is numerical. 
+
+Strip plot adds jitter when plotting along the categorical axis so points don't completely overlap. `jitter` controls magnitude or disables it.
+
+Swarm plot completely prevents points from overlapping along categorical axis.
+
+Scatterplots are only useful for very small datasets.
+
+Seaborn tries to infer the order of the categories from the data, but you can use `order` to specify the order of the categorical variable. If the input data is a pandas `Categorical` type, then seaborn directly uses the defined categories and their order.
+
+If the categorical variable has a numeric data type, it will still be drawn as if it's categorical. To draw based on the numeric value, set `native_scale=True`.
+
+## Categorical distributions
+
+Similar idea to categorical scatterplots (one categorical variable, one numeric) but better suited for visualizing larger datasets because it draws distributions instead of individual points.
+
+* Box plot
+* Boxen plot - shows more information about the distribution shape compared to box plot (better for larger datasets)
+* Violin plot - combines box plot with KDE (pass KDE-specific keyword arguments). Use `split=True` for space efficiency; use `inner` to control the inner visualization (box plot, quartiles, stick/point, `None`). You can also manually add a strip or swarm plot in place of the inner visualization.
+
+## Categorical estimate plots (estimating central tendency)
+
+When plotting a numeric variable vs. a categorical variable, rather than showing the distribution of the numeric variable, you may want to plot a summary statistic (like mean salary vs. age bin). Mean is most common, but you can use any function that maps from a vector to a scalar. Seaborn offers two ways to do this: `barplot` and `pointplot`.
+
+Both of these plot the estimate per category, along with error bars/confidence intervals if there are multiple observations per category.
+* `barplot`: estimate = height of bar
+* `pointplot`: estimate = single point
+
+Additionally, `pointplot` connects a line between points from the same `hue`. You can choose different styles for each `hue` line with `palette`, `markers`, and `linestyles`.
+
+If you want to estimate proportion (which is a summary statistic for a categorical variable), then you can encode the category of interest as 1 and all others as 0. Calculating mean gives proportion.
+
+If you want to estimate proportion for 3+ categories, then I think you need to create one encoding per category and do the same procedure.
+
+If you only want to plot the raw number of observations per category (completely ignoring the numeric variable), use `countplot`. It's like a histogram for a categorical variable.
+
 # Statistical estimation and error bars
 
+Aggregation/estimation: multiple data points reduced to a summary statistic like mean or median. When plotting, it's appropriate to add error bars to visually show how well the summary represents the underlying data points.
 
+Error bars around an estimate of central tendency can show one of two things: either the range of uncertainty around the estimate or the spread of the underlying data.
+* Range of uncertainty is for estimation (as of a sampling distribution).
+* Spread of underlying data is for aggregation (as of a population distribution)
+
+Range of uncertainty decreases as sample size grows, but spread (generally) does not.
+
+Two approaches for constructing each type of error bar: parametric and nonparametric.
+* Parametric: uses a formula that relies on assumptions about the shape of the distribution
+* Nonparametric: uses only the data
+
+Several seaborn functions calculate both the statistic and the error bars and is controlled via `errorbar`. `errorbar` accepts the name of the method to use and optionally, a parameter that controls the size of the interval.
+
+|Method Type|Spread|Uncertainty|
+|-----------|------|-----------|
+|Parametric|Standard deviation: `errorbar=("sd", scale)`|Standard error: `errorbar=("se", scale)`|
+|Nonparametric|Percentile interval: `errorbar=("pi", width)`|Confidence interval: `errorbar=("ci", width)`|
+
+Scale is the number of standard deviations/errors to draw. Width is the percentile width.
+
+## Measures of data spread
+
+Standard deviation draws error bars at +/-(scale)*sd around the estimate. Scale default is 1.
+
+Percentile intervals also draw the range where your data falls. Width default is 95 (%), so the error bars show the range from 2.5 to 97.5 percentiles.
+
+SD error bars will always be symmetrical around the estimate, which can be a problem when the data are skewed, especially if there are natural bounds (e.g. if the data represent a quantity that can only be positive). In some cases, SD error bars may extend to "impossible" values. The nonparametric approach does not have this problem.
+
+## Measures of estimate uncertainty
+
+If you are trying to estimate something about the population from your sample statistic, then it's more appropriate to use a measure of uncertainty to indicate the range of likely values for the population parameter.
+
+Standard error bars are simply equal to standard deviation divided by square root of sample size.
+
+Confidence intervals use bootstrapping: the dataset is randomly resampled with replacement multiple times, and the estimate is recalculated for each resample. This creates a distribution that approximates a sampling distribution.
+
+Note: In statistics, confidence intervals can be parametric or nonparametric. Parametric confidence interval is calculated from standard error. If you assume sampling distribution is approximately normal, then you can convert confidence interval to standard errors.
+
+Bootstrap:
+* Naturally adapts to skewed and bounded data in a way that standard error interval cannot
+* While standard error is specific to mean, error bars can be computed using bootstrap for any estimator (like median)
+* Bootstrapping is random, so error bars will be slightly different each time
+    * `n_boot` = number of samples. Larger number = less random variation in error bars.
+    * `seed` = set rng seed. Ensures reproducible results.
+* Bootstrapping is expensive. This is best used for smaller datasets where you can't make assumptions about the sampling distribution.
+
+## Custom error bars
+
+You can also pass a function that takes a vector and maps it to a pair of values representing the min and max points of the interval, e.g. `lambda x: (x.min(), x.max())`.
+
+## Error bars on regression fits
+
+Just as we draw error bands around parameter estimates, we can draw error bands around estimates for regression parameters. For this, only confidence intervals are supported.
 
 # Estimating regression fits
 

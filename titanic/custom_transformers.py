@@ -4,22 +4,111 @@ from pandas.core.frame import DataFrame
 from pandas.core.series import Series
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import OrdinalEncoder
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
 
-# Extract family size and drop unneeded columns
+class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
+    def __init__(self, extract_fam=False, fam_kwargs={}, 
+                 extract_title=False, title_kwargs={}, 
+                 extract_deck=False, deck_kwargs={},
+                 extract_sexpclassage=False, sexpclassage_kwargs={},
+                 numeric_columns={"Age", "Pclass", "Fare"},
+                 onehot_columns={"Sex"},
+                 ordinal_columns={}):
+        self.extract_fam = extract_fam
+        self.fam_kwargs = fam_kwargs
+        self.extract_title = extract_title
+        self.title_kwargs = title_kwargs
+        self.extract_deck = extract_deck
+        self.deck_kwargs = deck_kwargs
+        self.extract_sexpclassage = extract_sexpclassage
+        self.sexpclassage_kwargs = sexpclassage_kwargs
+        self.numeric_columns = numeric_columns
+        self.onehot_columns = onehot_columns
+        self.ordinal_columns = ordinal_columns
+    
+    def fit(self, X: DataFrame, y=None):
+        # Instantiate extractors
+        fam = FamilySizeExtractor(**self.fam_kwargs)
+        fam.extract = self.extract_fam
+
+        title = TitleExtractor(**self.title_kwargs)
+        title.extract = self.extract_title
+
+        deck = DeckExtractor(**self.deck_kwargs)
+        deck.extract = self.extract_deck
+
+        sexpclassage = SexPclassAgeExtractor(**self.sexpclassage_kwargs)
+        sexpclassage.extract = self.extract_sexpclassage
+
+        # Build extractor pipeline
+        feature_extractor = Pipeline([
+            ("fam", fam),
+            ("title", title),
+            ("deck", deck),
+            ("sexpclassage", sexpclassage)
+        ])
+
+        # Run extractors to find out what columns they output
+        X_extracted = feature_extractor.fit_transform(X)
+
+        # * Age: passthrough
+        # * Fare: passthrough
+        # * Sex (ord): passthrough
+        # * Pclass (ord): passthrough
+        # * Title (onehot): valid = [Mr, Mrs, Miss, Master, Rev, Dr], valid = [Mr, Mrs, Miss, Master, Rev]
+        # * SibSp/Parch: drop
+        # * FamilySize: passthrough, clip upper 4
+        # * Deck: drop
+        # * Embarked: drop
+        # * SexPclassAge (onehot): passthrough
+
+        # Dynamically choose columns
+        numeric = list(X_extracted.select_dtypes(exclude=["object"]) & self.numeric_columns)
+        ordinal = []
+        onehot = []
+
+        if 'FamilySize' in X_extracted.columns:
+            numeric.append('FamilySize')
+
+        if 'Title' in X_extracted.columns:
+            categorical.append('Title')
+
+        if 'Deck' in X_extracted.columns:
+            categorical.append('Deck')
+
+        # Build column transformer
+        col_tf = ColumnTransformer([
+            ('num', StandardScaler(), numeric),
+            ('cat', OneHotEncoder(), categorical)
+        ])
+
+        # Final full pipeline
+        self.pipeline_ = Pipeline([
+            ("extractor", feature_extractor),
+            ("col_tf", col_tf)
+        ])
+
+        self.pipeline_.fit(X, y)
+        return self
+
+    def transform(self, X):
+        return self.pipeline_.transform(X)
+        
+
+# Extract family size
 class FamilySizeExtractor(BaseEstimator, TransformerMixin):
-    def __init__(self, max_famsize: int | None=None, to_drop: list[str] | None=None):
+    def __init__(self, extract=True, max_famsize: int | None=None):
+        self.extract = extract
         self.max_famsize = max_famsize
-        self.to_drop = set(to_drop) if to_drop else None
     
     def fit(self, X, y=None):
         return self
     
     def transform(self, X: DataFrame) -> DataFrame:
         X_out = X.copy()
-        if ("SibSp" in X_out.columns) and ("Parch" in X_out.columns):
+        if self.extract and ("SibSp" in X_out.columns) and ("Parch" in X_out.columns):
             X_out["FamilySize"] = (X_out["SibSp"] + X_out["Parch"]).clip(upper=self.max_famsize)
-        if self.to_drop:
-            X_out = X_out[list(set(X_out.columns) - self.to_drop)]
         return X_out
 
 # Extract titles from names
@@ -45,14 +134,16 @@ class TitleExtractor(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X: DataFrame) -> DataFrame:
-        X_out = X.drop("Name", axis=1)
-        if self.extract:
+        if ("Name" in X.columns) and self.extract:
+            X_out = X.drop("Name", axis=1)
             extracted = X["Name"].map(self._extract_one)
             if self.to_replace:
                 extracted = extracted.replace(self.to_replace)
             if self.valid:
                 extracted.loc[~extracted.isin(self.valid)] = self.fallback
             X_out["Title"] = extracted
+        else:
+            X_out = X.drop("Name", axis=1, errors="ignore")
         return X_out
     
 # Extract decks from cabins
@@ -78,14 +169,47 @@ class DeckExtractor(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X: DataFrame) -> DataFrame:
-        X_out = X.drop("Cabin", axis=1)
-        if self.extract:
+        if ("Cabin" in X.columns) and self.extract:
+            X_out = X.drop("Cabin", axis=1)
             extracted = X["Cabin"].map(self._extract_one)
             if self.to_replace:
                 extracted = extracted.replace(self.to_replace)
             if self.valid:
                 extracted.loc[~extracted.isin(self.valid)] = self.fallback
             X_out["Deck"] = extracted
+        else:
+            X_out = X.drop("Cabin", axis=1, errors="ignore")
+        return X_out
+    
+# Create new categorical feature from Sex, Pclass, Age
+class SexPclassAgeExtractor(BaseEstimator, TransformerMixin):
+    def __init__(self, extract=True, fallback="Other"):
+        self.extract = extract
+        self.fallback = fallback
+
+    def fit(self, X, y=None):
+        return self
+    
+    def _sex_pclass_age_feature(self, x):
+        # x is a row
+        sex = x["Sex"]
+        pclass = x["Pclass"]
+        age = x["Age"]
+        x["SexPclassAge"] = self.fallback
+        if age and sex and pclass:
+            if sex == "male" and pclass == 3:
+                if age <= 5:
+                    x["SexPclassAge"] = f"Male, P3, Age<=5"
+                elif age <= 15:
+                    x["SexPclassAge"] = f"Male, P3, 5<Age<=15"
+                else:
+                    x["SexPclassAge"] = f"Male, P3, Age>15"
+        return x
+
+    def transform(self, X: DataFrame) -> DataFrame:
+        X_out = X.copy()
+        if self.extract and ("Sex" in X.columns) and ("Pclass" in X.columns) and ("Age" in X.columns):
+            X_out = X_out.apply(self._sex_pclass_age_feature, axis=1)
         return X_out
 
 # Age imputation

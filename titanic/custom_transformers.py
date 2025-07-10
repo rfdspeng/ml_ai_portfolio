@@ -7,7 +7,8 @@ from sklearn.preprocessing import OrdinalEncoder
 
 # Extract family size and drop unneeded columns
 class FamilySizeExtractor(BaseEstimator, TransformerMixin):
-    def __init__(self, to_drop: list[str] | None=None):
+    def __init__(self, max_famsize: int | None=None, to_drop: list[str] | None=None):
+        self.max_famsize = max_famsize
         self.to_drop = set(to_drop) if to_drop else None
     
     def fit(self, X, y=None):
@@ -16,23 +17,26 @@ class FamilySizeExtractor(BaseEstimator, TransformerMixin):
     def transform(self, X: DataFrame) -> DataFrame:
         X_out = X.copy()
         if ("SibSp" in X_out.columns) and ("Parch" in X_out.columns):
-            X_out["FamilySize"] = X_out["SibSp"] + X_out["Parch"]
+            X_out["FamilySize"] = (X_out["SibSp"] + X_out["Parch"]).clip(upper=self.max_famsize)
         if self.to_drop:
             X_out = X_out[list(set(X_out.columns) - self.to_drop)]
         return X_out
 
 # Extract titles from names
 class TitleExtractor(BaseEstimator, TransformerMixin):
-    def __init__(self, extract_titles=True, to_replace=None, valid_titles=None, fallback="Unknown"):
-        self.extract_titles = extract_titles
+    def __init__(self, extract=True, 
+                 to_replace={"Mlle": "Miss", "Mme": "Mrs", "Ms": "Miss"}, 
+                 valid=["Mr", "Miss", "Mrs", "Master", "Dr", "Rev"], 
+                 fallback="Unknown"):
+        self.extract = extract
         self.to_replace = to_replace
-        self.valid_titles = valid_titles
+        self.valid = valid
         self.fallback = fallback
         self.pattern = re.compile(r"\b([a-zA-Z]+?)\.")
 
-    def _extract_one(self, name) -> str:
-        if isinstance(name, str):
-            match = self.pattern.search(name)
+    def _extract_one(self, x) -> str:
+        if isinstance(x, str):
+            match = self.pattern.search(x)
             if match:
                 return match.group(1)
         return self.fallback
@@ -41,15 +45,48 @@ class TitleExtractor(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X: DataFrame) -> DataFrame:
-        X_clean = X.drop("Name", axis=1)
-        if self.extract_titles:
-            titles = X["Name"].map(self._extract_one)
+        X_out = X.drop("Name", axis=1)
+        if self.extract:
+            extracted = X["Name"].map(self._extract_one)
             if self.to_replace:
-                titles = titles.replace(self.to_replace)
-            if self.valid_titles:
-                titles.loc[~titles.isin(self.valid_titles)] = self.fallback
-                X_clean["Title"] = titles
-        return X_clean
+                extracted = extracted.replace(self.to_replace)
+            if self.valid:
+                extracted.loc[~extracted.isin(self.valid)] = self.fallback
+            X_out["Title"] = extracted
+        return X_out
+    
+# Extract decks from cabins
+class DeckExtractor(BaseEstimator, TransformerMixin):
+    def __init__(self, extract=True, 
+                 valid: list[str] | None=["A", "B", "C", "D", "E", "F", "G"], 
+                 to_replace: dict[str, str] | None=None, 
+                 fallback="U"):
+        self.extract = extract
+        self.valid = valid
+        self.to_replace = to_replace
+        self.fallback = fallback
+        self.pattern = re.compile(r"\b([A-Z])[0-9]*?\b")
+
+    def _extract_one(self, x) -> str:
+        if isinstance(x, str):
+            m = self.pattern.search(x)
+            if m:
+                return m.group(1)
+        return self.fallback
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X: DataFrame) -> DataFrame:
+        X_out = X.drop("Cabin", axis=1)
+        if self.extract:
+            extracted = X["Cabin"].map(self._extract_one)
+            if self.to_replace:
+                extracted = extracted.replace(self.to_replace)
+            if self.valid:
+                extracted.loc[~extracted.isin(self.valid)] = self.fallback
+            X_out["Deck"] = extracted
+        return X_out
 
 # Age imputation
 class AgeImputer(BaseEstimator, TransformerMixin):

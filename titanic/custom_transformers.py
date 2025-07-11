@@ -6,6 +6,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+from sklearn.utils.validation import check_is_fitted
 
 class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
     def __init__(self, extract_fam=False, fam_kwargs={}, 
@@ -82,31 +83,23 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         self.feature_names_out_.extend(onehot)
 
         # Build column transformer
-        col_tf = ColumnTransformer([
-            ('num', "passthrough", numeric),
-            ("onehot", OneHotEncoder(), onehot),
-            ("ord", OrdinalEncoder(), ordinal)
-        ], remainder="drop")
-
-        sex_col = ["Sex"] if "Sex" in ordinal else []
-        deck_col = ["Deck"] if "Deck" in ordinal else []
-
-        col_tf = ColumnTransformer([
-            ('num', "passthrough", numeric),
-            ("onehot", OneHotEncoder(handle_unknown="ignore"), onehot),
-            ("ord_sex", OrdinalEncoder(
+        col_tf = ColumnTransformer(
+            ([('num', "passthrough", numeric)] if numeric else []) + 
+            ([("onehot", OneHotEncoder(handle_unknown="ignore"), onehot)] if onehot else []) +
+            ([("ord_sex", OrdinalEncoder(
                 categories=[["male", "female"]], 
                 handle_unknown="error",
                 ), 
-            sex_col),
-            ("ord_deck", OrdinalEncoder(
+            ["Sex"])] if "Sex" in ordinal else []) + 
+            ([("ord_deck", OrdinalEncoder(
                 categories=[["A", "B", "C", "D", "E", "F", "G", "U"]],
-                handle_unknown="use_encoded_value",
-                unknown_value=7,
-                encoded_missing_value=7,
+                handle_unknown="error", # unknowns are handled in preprocessing
+                # handle_unknown="use_encoded_value",
+                # unknown_value=7,
+                # encoded_missing_value=7,
                 ), 
-            deck_col),
-        ], remainder="drop")
+            ["Deck"])] if "Deck" in ordinal else [])
+            , remainder="drop")
 
         # Final full pipeline
         self.pipeline_ = Pipeline([
@@ -115,10 +108,21 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         ])
 
         self.pipeline_.fit(X, y)
+        # self._is_fitted = True
         return self
 
     def transform(self, X):
+        # check_is_fitted(self)
         return self.pipeline_.transform(X)
+    
+    def get_feature_names_out(self):
+        return self.pipeline_.named_steps["col_tf"].get_feature_names_out()
+
+    # def __sklearn_is_fitted__(self):
+    #     """
+    #     Check fitted status and return a Boolean value.
+    #     """
+    #     return hasattr(self, "_is_fitted") and self._is_fitted
 
 # Extract family size
 class FamilySizeExtractor(BaseEstimator, TransformerMixin):
@@ -134,6 +138,11 @@ class FamilySizeExtractor(BaseEstimator, TransformerMixin):
         if self.extract and ("SibSp" in X_out.columns) and ("Parch" in X_out.columns):
             X_out["FamilySize"] = (X_out["SibSp"] + X_out["Parch"]).clip(upper=self.max_famsize)
         return X_out
+    
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.requires_fit = False
+        return tags
 
 # Extract titles from names
 class TitleExtractor(BaseEstimator, TransformerMixin):
@@ -156,6 +165,11 @@ class TitleExtractor(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None):
         return self
+    
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.requires_fit = False
+        return tags
 
     def transform(self, X: DataFrame) -> DataFrame:
         if ("Name" in X.columns) and self.extract:
@@ -191,6 +205,11 @@ class DeckExtractor(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None):
         return self
+    
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.requires_fit = False
+        return tags
 
     def transform(self, X: DataFrame) -> DataFrame:
         if ("Cabin" in X.columns) and self.extract:
@@ -213,6 +232,11 @@ class SexPclassAgeExtractor(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None):
         return self
+    
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.requires_fit = False
+        return tags
     
     def _sex_pclass_age_feature(self, x):
         # x is a row

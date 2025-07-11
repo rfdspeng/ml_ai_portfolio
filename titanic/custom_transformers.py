@@ -3,7 +3,7 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 
@@ -13,8 +13,8 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
                  extract_deck=False, deck_kwargs={},
                  extract_sexpclassage=False, sexpclassage_kwargs={},
                  numeric_columns={"Age", "Pclass", "Fare"},
-                 onehot_columns={"Sex"},
-                 ordinal_columns={}):
+                 onehot_columns=set(),
+                 ordinal_columns={"Sex"}):
         self.extract_fam = extract_fam
         self.fam_kwargs = fam_kwargs
         self.extract_title = extract_title
@@ -50,38 +50,63 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         ])
 
         # Run extractors to find out what columns they output
-        X_extracted = feature_extractor.fit_transform(X)
-
-        # * Age: passthrough
-        # * Fare: passthrough
-        # * Sex (ord): passthrough
-        # * Pclass (ord): passthrough
-        # * Title (onehot): valid = [Mr, Mrs, Miss, Master, Rev, Dr], valid = [Mr, Mrs, Miss, Master, Rev]
-        # * SibSp/Parch: drop
-        # * FamilySize: passthrough, clip upper 4
-        # * Deck: drop
-        # * Embarked: drop
-        # * SexPclassAge (onehot): passthrough
+        # X_extracted = feature_extractor.fit_transform(X)
 
         # Dynamically choose columns
-        numeric = list(X_extracted.select_dtypes(exclude=["object"]) & self.numeric_columns)
-        ordinal = []
-        onehot = []
+        numeric = list(set(X.select_dtypes(exclude=["object", "category"]).columns) & self.numeric_columns)
+        ordinal = list(set(X.select_dtypes(include=["object", "category"]).columns) & self.ordinal_columns)
+        onehot = list(set(X.select_dtypes(include=["object", "category"]).columns) & self.onehot_columns)
 
-        if 'FamilySize' in X_extracted.columns:
+        self.feature_names_in_ = numeric.copy()
+        self.feature_names_in_.extend(ordinal)
+        self.feature_names_in_.extend(onehot)
+
+        # if 'FamilySize' in X_extracted.columns:
+        if self.extract_fam:
             numeric.append('FamilySize')
 
-        if 'Title' in X_extracted.columns:
-            categorical.append('Title')
+        # if 'Title' in X_extracted.columns:
+        if self.extract_title:
+            onehot.append('Title')
 
-        if 'Deck' in X_extracted.columns:
-            categorical.append('Deck')
+        # if 'Deck' in X_extracted.columns:
+        if self.extract_deck:
+            ordinal.append('Deck')
+        
+        # if "SexPclassAge" in X_extracted.columns:
+        if self.extract_sexpclassage:
+            onehot.append('SexPclassAge')
+        
+        self.feature_names_out_ = numeric.copy()
+        self.feature_names_out_.extend(ordinal)
+        self.feature_names_out_.extend(onehot)
 
         # Build column transformer
         col_tf = ColumnTransformer([
-            ('num', StandardScaler(), numeric),
-            ('cat', OneHotEncoder(), categorical)
-        ])
+            ('num', "passthrough", numeric),
+            ("onehot", OneHotEncoder(), onehot),
+            ("ord", OrdinalEncoder(), ordinal)
+        ], remainder="drop")
+
+        sex_col = ["Sex"] if "Sex" in ordinal else []
+        deck_col = ["Deck"] if "Deck" in ordinal else []
+
+        col_tf = ColumnTransformer([
+            ('num', "passthrough", numeric),
+            ("onehot", OneHotEncoder(handle_unknown="ignore"), onehot),
+            ("ord_sex", OrdinalEncoder(
+                categories=[["male", "female"]], 
+                handle_unknown="error",
+                ), 
+            sex_col),
+            ("ord_deck", OrdinalEncoder(
+                categories=[["A", "B", "C", "D", "E", "F", "G", "U"]],
+                handle_unknown="use_encoded_value",
+                unknown_value=7,
+                encoded_missing_value=7,
+                ), 
+            deck_col),
+        ], remainder="drop")
 
         # Final full pipeline
         self.pipeline_ = Pipeline([
@@ -94,7 +119,6 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         return self.pipeline_.transform(X)
-        
 
 # Extract family size
 class FamilySizeExtractor(BaseEstimator, TransformerMixin):

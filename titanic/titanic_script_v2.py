@@ -8,7 +8,7 @@ EXPERIMENT_CONFIG = {
     "use_embarked": False,
     "log_transform_fare": False,
     "model": "RandomForest",
-    "model_params": {"max_depth": 5, "n_estimators": 100, "random_state": 0}
+    "model_params": {"max_depth": 10, "n_estimators": 100, "random_state": 0}
     # "model_params": {"max_leaf_nodes": 80, "n_estimators": 100}
 }
 

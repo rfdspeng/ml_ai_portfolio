@@ -108,11 +108,10 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         ])
 
         self.pipeline_.fit(X, y)
-        # self._is_fitted = True
         return self
 
     def transform(self, X):
-        # check_is_fitted(self)
+        check_is_fitted(self)
         return self.pipeline_.transform(X)
     
     def get_feature_names_out(self):

@@ -1,4 +1,5 @@
 import re
+import numpy as np
 import pandas as pd
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
@@ -13,6 +14,7 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
                  extract_title=False, title_kwargs={}, 
                  extract_deck=False, deck_kwargs={},
                  extract_sexpclassage=False, sexpclassage_kwargs={},
+                 transform_fare=False, fare_kwargs={},
                  numeric_columns={"Age", "Pclass", "Fare"},
                  onehot_columns=set(),
                  ordinal_columns={"Sex"}):
@@ -24,6 +26,8 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         self.deck_kwargs = deck_kwargs
         self.extract_sexpclassage = extract_sexpclassage
         self.sexpclassage_kwargs = sexpclassage_kwargs
+        self.transform_fare = transform_fare
+        self.fare_kwargs = fare_kwargs
         self.numeric_columns = numeric_columns
         self.onehot_columns = onehot_columns
         self.ordinal_columns = ordinal_columns
@@ -42,12 +46,16 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         sexpclassage = SexPclassAgeExtractor(**self.sexpclassage_kwargs)
         sexpclassage.extract = self.extract_sexpclassage
 
+        fare = FareTransformer(**self.fare_kwargs)
+        fare.extract = self.transform_fare
+
         # Build extractor pipeline
         feature_extractor = Pipeline([
             ("fam", fam),
             ("title", title),
             ("deck", deck),
-            ("sexpclassage", sexpclassage)
+            ("sexpclassage", sexpclassage),
+            ("fare", fare)
         ])
 
         # Run extractors to find out what columns they output
@@ -78,13 +86,16 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         if self.extract_sexpclassage:
             onehot.append('SexPclassAge')
         
+        if self.transform_fare:
+            numeric.append("FareTransformed")
+        
         self.feature_names_out_ = numeric.copy()
         self.feature_names_out_.extend(ordinal)
         self.feature_names_out_.extend(onehot)
 
         # Build column transformer
         col_tf = ColumnTransformer(
-            ([('num', "passthrough", numeric)] if numeric else []) + 
+            ([("num", "passthrough", numeric)] if numeric else []) + 
             ([("onehot", OneHotEncoder(handle_unknown="ignore"), onehot)] if onehot else []) +
             ([("ord_sex", OrdinalEncoder(
                 categories=[["male", "female"]], 
@@ -308,3 +319,21 @@ class ImputationEncoder(BaseEstimator, TransformerMixin):
     
     def get_feature_names_out(self):
         return [f"{name}_Ord" for name in self.feature_names_in_]
+
+
+class FareTransformer(BaseEstimator, TransformerMixin):
+    def __init__(self, extract=True, base=10, bin=False):
+        self.extract = extract
+        self.base = base
+        self.bin = bin
+    
+    def fit(self, X, y=None):
+        self.fitted_ = True
+        return self
+    
+    def transform(self, X: DataFrame) -> DataFrame:
+        X_out = X.copy()
+        X_out["FareTransformed"] = np.log10(X_out["Fare"].clip(lower=1))/np.log10(self.base)
+        if self.bin:
+            X_out["FareTransformed"] = np.floor(X_out["FareTransformed"])
+        return X_out

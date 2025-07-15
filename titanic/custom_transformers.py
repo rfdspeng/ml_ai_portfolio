@@ -37,7 +37,7 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
                  extract_deck=False, deck_kwargs={},
                  extract_sexpclassage=False, sexpclassage_kwargs={},
                  transform_fare=False, fare_kwargs={},
-                 impute_age=False, impute_age_kwargs={},
+                 age_imputer_model=None, impute_age_kwargs={},
                  numeric_columns={"Age", "Pclass", "Fare"},
                  onehot_columns=set(),
                  ordinal_columns={"Sex"}):
@@ -51,7 +51,7 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         self.sexpclassage_kwargs = sexpclassage_kwargs
         self.transform_fare = transform_fare
         self.fare_kwargs = fare_kwargs
-        self.impute_age = impute_age
+        self.age_imputer_model = age_imputer_model
         self.impute_age_kwargs = impute_age_kwargs
         self.numeric_columns = numeric_columns
         self.onehot_columns = onehot_columns
@@ -75,14 +75,16 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         fare.extract = self.transform_fare
 
         age_imputer = AgeImputer(**self.impute_age_kwargs)
+        age_imputer.model = self.age_imputer_model
 
         # Build extractor pipeline
-        feature_extractor = Pipeline([
+        self.feature_extractor_ = Pipeline([
             ("fam", fam),
             ("title", title),
             ("deck", deck),
             ("sexpclassage", sexpclassage),
-            ("fare", fare)
+            ("fare", fare),
+            ("age_imputer", age_imputer),
         ])
 
         # Run extractors to find out what columns they output
@@ -116,30 +118,34 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         if self.transform_fare:
             numeric.append("FareTransformed")
         
+        if age_imputer.add_indicator:
+            ordinal.append("Age_Missing")
+        
         self.feature_names_out_ = numeric.copy()
         self.feature_names_out_.extend(ordinal)
         self.feature_names_out_.extend(onehot)
 
         # Build column transformer
-        col_tf = ColumnTransformer(
-            ([("num", "passthrough", numeric)] if numeric else []) + 
-            ([("onehot", OneHotEncoder(handle_unknown="ignore"), onehot)] if onehot else []) +
-            ([("ord_sex", OrdinalEncoder(
-                categories=[["male", "female"]], 
-                handle_unknown="error",
-                ), 
-            ["Sex"])] if "Sex" in ordinal else []) + 
-            ([("ord_deck", OrdinalEncoder(
-                categories=[["A", "B", "C", "D", "E", "F", "G", "U"]],
-                handle_unknown="error", # unknowns are handled in preprocessing
-                ), 
-            ["Deck"])] if "Deck" in ordinal else [])
-            , remainder="drop")
+        # col_tf = ColumnTransformer(
+        #     ([("num", "passthrough", numeric)] if numeric else []) + 
+        #     ([("onehot", OneHotEncoder(handle_unknown="ignore"), onehot)] if onehot else []) +
+        #     ([("ord_sex", OrdinalEncoder(
+        #         categories=[["male", "female"]], 
+        #         handle_unknown="error",
+        #         ), 
+        #     ["Sex"])] if "Sex" in ordinal else []) + 
+        #     ([("ord_deck", OrdinalEncoder(
+        #         categories=[["A", "B", "C", "D", "E", "F", "G", "U"]],
+        #         handle_unknown="error", # unknowns are handled in preprocessing
+        #         ), 
+        #     ["Deck"])] if "Deck" in ordinal else [])
+        #     , remainder="drop")
+        self.col_tf_ = build_column_transformer(numeric=numeric, onehot=onehot, ordinal=ordinal)
 
         # Final full pipeline
         self.pipeline_ = Pipeline([
-            ("extractor", feature_extractor),
-            ("col_tf", col_tf)
+            ("extractor", self.feature_extractor_),
+            ("col_tf", self.col_tf_)
         ])
 
         self.pipeline_.fit(X, y)
@@ -303,7 +309,7 @@ class AgeImputer(BaseEstimator, TransformerMixin):
         self.add_indicator = add_indicator
     
     def fit(self, X: DataFrame, y=None):
-        if self.model:
+        if not(self.model == None):
             X = X.dropna(subset=[self.target_name]) # drop missing rows
             columns = set(X.columns)
             numeric = list(columns & self.feature_names["numeric"])
@@ -326,7 +332,7 @@ class AgeImputer(BaseEstimator, TransformerMixin):
         if self.add_indicator:
             X_out[self.target_name + "_Missing"] = missing_mask
 
-        if self.model:
+        if not(self.model == None):
             check_is_fitted(self)
             if missing_mask.any():
                 y_pred = self.pipeline_.predict(X_out.loc[missing_mask, self.feature_names_in_])

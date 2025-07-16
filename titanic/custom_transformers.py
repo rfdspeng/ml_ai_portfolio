@@ -15,6 +15,7 @@ def build_column_transformer(numeric: list[str]=[], onehot: list[str]=[], ordina
     
     """
 
+    ordinal_remainder = list(set(ordinal) - {"Sex", "Deck"})
     col_tf = ColumnTransformer(
             ([("num", "passthrough", numeric)] if numeric else []) + 
             ([("onehot", OneHotEncoder(handle_unknown="ignore"), onehot)] if onehot else []) +
@@ -27,7 +28,11 @@ def build_column_transformer(numeric: list[str]=[], onehot: list[str]=[], ordina
                 categories=[["A", "B", "C", "D", "E", "F", "G", "U"]],
                 handle_unknown="error", # unknowns are handled in preprocessing
                 ), 
-            ["Deck"])] if "Deck" in ordinal else [])
+            ["Deck"])] if "Deck" in ordinal else []) +
+            ([("ord", OrdinalEncoder(
+                handle_unknown="error",
+                ), 
+            ordinal_remainder)] if ordinal_remainder else [])
             , remainder="drop")
     return col_tf
 

@@ -23,4 +23,5 @@ def make_scorer_wrapper(categories, category,
     def scorer(estimator, X, y):
         y_pred = estimator.predict(X)
         return category_scorer(y, y_pred, categories.loc[X.index], category, metric_type)
-    return make_scorer(scorer)
+    
+    return scorer

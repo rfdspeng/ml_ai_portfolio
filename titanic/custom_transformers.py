@@ -156,13 +156,14 @@ class ThresholdClassifier(BaseEstimator, ClassifierMixin):
         # subgroups is a 2-ple
             # First element is a tuple of titles, e.g. ("Mr", "Mrs")
             # Second element is indices of the feature matrix corresponding to the one-hot encoded titles
-        self.subgroup_names, self.subgroup_indices = subgroups if subgroups else (), ()
+        self.subgroup_names, self.subgroup_indices = subgroups if subgroups else (None, None)
+        self.subgroups = subgroups
 
         # subgroup_thresholds is a dictionary. Ex: {"Mr": 0.4, "Miss": 0.6}
         if subgroup_thresholds and subgroups:
             self.subgroup_thresholds = np.array([subgroup_thresholds.get(name, threshold) for name in subgroups[0]])[:, np.newaxis]
         else:
-            self.subgroup_thresholds = []
+            self.subgroup_thresholds = None
 
     def fit(self, X, y):
         self.base_estimator.fit(X, y)
@@ -176,8 +177,8 @@ class ThresholdClassifier(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         check_is_fitted(self)
         probs = self.predict_proba(X)[:, 1]
-        if self.subgroup_thresholds and self.subgroup_indices:
-            return (probs >= (X[:, self.subgroup_indices] @ self.subgroup_thresholds)).astype(int)
+        if (self.subgroup_thresholds is not None) and (self.subgroup_indices is not None):
+            return (probs >= (X[:, self.subgroup_indices] @ self.subgroup_thresholds).squeeze()).astype(int)
         else:
             return (probs >= self.threshold).astype(int)
 
@@ -205,11 +206,11 @@ class MLPipeline(BaseEstimator, ClassifierMixin):
         # Instantiate the classifier with the subgroups
         self.classifier_ = self.classifier_class(**self.classifier_kwargs, subgroups=self.subgroups_)
 
-        self.classifier_.fit(X, y)
         self.pipeline_ = Pipeline([
             ("data_prep", self.data_prep_),
             ("clf", self.classifier_)
         ])
+        self.pipeline_.fit(X, y)
         return self
     
     def predict(self, X):
@@ -358,7 +359,14 @@ class SexPclassAgeExtractor(BaseEstimator, TransformerMixin):
 
 # Age imputation
 class AgeImputer(BaseEstimator, TransformerMixin):
-    def __init__(self, model=None, feature_names={"numeric": {"FamilySize", "SibSp", "Pclass"}, "ordinal": {"Sex"}, "onehot": {"Title"}}, add_indicator=False, target_name="Age"):        
+    def __init__(self, model=None, 
+                 feature_names={
+                     "numeric": {"FamilySize", "SibSp", "Pclass", "FareTransformed"}, 
+                     "ordinal": {"Sex"}, 
+                     "onehot": {"Title"}}, 
+                     add_indicator=False, 
+                     target_name="Age"):
+        
         self.feature_names = feature_names
         self.target_name = target_name
         self.model = model

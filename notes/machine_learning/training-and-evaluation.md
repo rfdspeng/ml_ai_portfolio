@@ -1,6 +1,7 @@
 # References
 
 * Hands-On Machine Learning
+* https://scikit-learn.org/stable/model_selection.html
 
 # Evaluate different model types on the training set
 
@@ -91,6 +92,25 @@ You will often gain good insights on the problem by inspecting the best models. 
 Inspect the specific errors in the predictions, try to understand what causes them, and try to fix the problem: add extra features, remove uninformative features, clean up outliers, etc.
 
 Let's take Titanic as an example. You can create subsets of your validation dataset that represent different groups of people (lower class, children, women, etc.) and compare model accuracy across these different groups.
+
+## Tuning the decision threshold for class prediction
+
+Classification is best divided into two parts:
+* The statistical problem of learning a model to predict class probabilities
+* The decision problem to take concrete action based on those probability predictions
+
+The difference, for example, is between these two questions:
+* What is the chance that it will rain tomorrow?
+* Should I take an umbrella tomorrow?
+
+* `predict_proba`: default threshold = 0.5. Returns conditional probability estimates - $P(y|X)$ - for each class.
+* `decision_function`: default threshold = 0. Returns decision scores for each class. Only available for some classifiers, like `LogisticRegression`. Represents the distance of the sample from the decision boundary - is this the raw logit/theta_T*sample?
+
+The default threshold of 0.5 often doesn't make sense. For example, if there is a 45% of rain. Cost-sensitive learning. Etc.
+
+`TunedThresholdClassifierCV`
+* Tunes the decision threshold using internal cv. The optimum threshold is chosen to maximize a metric given via `scoring` (balanced accuracy is the default metric).
+* By default, uses 5-fold stratified cv; controllable via `cv`. You can bypass cv with `cv="prefit"` and provide a fitted classifier; then the decision threshold is tuned on the data provided to `fit`. 
 
 # Evaluate on the test set
 

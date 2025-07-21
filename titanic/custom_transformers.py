@@ -3,11 +3,14 @@ import numpy as np
 import pandas as pd
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
 from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.utils.validation import check_is_fitted
+from sklearn.ensemble import RandomForestClassifier
+
+# Stateless transformers - check sklearn's FunctionTransformer
 
 def build_column_transformer(numeric: list[str]=[], onehot: list[str]=[], ordinal: list[str]=[]) -> ColumnTransformer:
     """ 
@@ -35,6 +38,31 @@ def build_column_transformer(numeric: list[str]=[], onehot: list[str]=[], ordina
             ordinal_remainder)] if ordinal_remainder else [])
             , remainder="drop")
     return col_tf
+
+class ThresholdClassifier(BaseEstimator, ClassifierMixin):
+    def __init__(self, base_estimator, threshold=0.5, subgroups=None, subgroup_thresholds=None):
+        self.base_estimator = base_estimator
+        self.threshold = threshold
+
+        # Ex: {"Title_Mr": 0.4, "Title_Miss": 0.6}
+        self.subgroup_thresholds = subgroup_thresholds or ()
+
+    def fit(self, X, y):
+        self.base_estimator.fit(X, y)
+        return self
+
+    def predict_proba(self, X):
+        return self.base_estimator.predict_proba(X)
+
+    def predict(self, X, group_labels=None):
+        probs = self.predict_proba(X)[:, 1]
+        if group_labels is not None:
+            return np.array([
+                int(prob >= self.subgroup_thresholds.get(group, self.threshold))
+                for prob, group in zip(probs, group_labels)
+            ])
+        else:
+            return (probs >= self.threshold).astype(int)
 
 class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
     def __init__(self, extract_fam=False, fam_kwargs={}, 
@@ -168,6 +196,34 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
     #     Check fitted status and return a Boolean value.
     #     """
     #     return hasattr(self, "_is_fitted") and self._is_fitted
+
+class MLPipeline(BaseEstimator, ClassifierMixin):
+    def __init__(self, data_prep_class=DynamicDataPrepPipeline, data_prep_kwargs={}, classifier_class=ThresholdClassifier, classifier_kwargs={}):
+        self.data_prep_class = data_prep_class
+        self.data_prep_kwargs = data_prep_kwargs
+        self.classifier_class = classifier_class
+        self.classifier_kwargs = classifier_kwargs
+    
+    def fit(self, X, y):
+        self.data_prep_pipe_ = self.data_prep_class(**self.data_prep_kwargs)
+        self.classifier_ = self.classifier_class(**self.classifier_kwargs)
+
+        # "Fits" the data prep pipeline - instantiates the individual components based on the constructor parameters
+        self.data_prep_pipe_.fit(X, y)
+
+        # Look for feature names that include "Title_", e.g. "onehot__Title_Mr"
+        # Store as a 2-ple
+            # First element is a tuple of titles, e.g. ("Mr", "Mrs")
+            # Second element is indices corresponding to the feature matrix
+        pattern = re.compile(r"Title_([a-zA-Z]+)")
+        feature_names = self.data_prep_pipe_.get_feature_names_out()
+        self.subgroups_ = tuple(zip(*[(title.group(1), index) for index, title in enumerate([pattern.search(f) for f in feature_names]) if title]))
+
+
+
+        # Construct data prep pipeline, figure out which columns for Title, e.g. Title_Mr, Title_Mrs, Title_Miss, etc.
+        # Pass column indices to ThresholdClassifier constructor
+        return self
 
 # Extract family size
 class FamilySizeExtractor(BaseEstimator, TransformerMixin):

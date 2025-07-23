@@ -388,16 +388,17 @@ class AgeImputer(BaseEstimator, TransformerMixin):
             self.feature_names_in_ = numeric.copy()
             self.feature_names_in_.extend(ordinal)
             self.feature_names_in_.extend(onehot)
+        self.is_fitted_ = True
         return self
     
     def transform(self, X: DataFrame) -> DataFrame:
+        check_is_fitted(self)
         X_out = X.copy()
         missing_mask = X_out[self.target_name].isna()
         if self.add_indicator:
             X_out[self.target_name + "_Missing"] = missing_mask
 
         if not(self.model == None):
-            check_is_fitted(self)
             if missing_mask.any():
                 y_pred = self.pipeline_.predict(X_out.loc[missing_mask, self.feature_names_in_])
                 X_out[self.target_name] = X_out[self.target_name].fillna(pd.Series(y_pred, index=missing_mask.loc[missing_mask].index))

@@ -2,6 +2,8 @@
 
 * Hands-On Machine Learning
 * https://scikit-learn.org/stable/model_selection.html
+* Stanford CS229 notes
+* https://scikit-learn.org/stable/auto_examples/model_selection/plot_nested_cross_validation_iris.html
 
 # Model selection
 
@@ -88,11 +90,23 @@ Simple strategies for hyperparameter tuning:
 
 ### Nested cross-validation
 
-We train the model on the training data and tune the hyperparameters on the validation data. Our learning algorithm has learned from both the training and validation data, which means that validation error will typically underestimate true generalization error.
+Nested CV estimates the generalization error of the underlying model and its hyperparameter search.
 
-We can get a better estimate of generalization error by using nested cross-validation.
+Basically, you split twice.
+* In the outer loop, you split the data into _K_ outer folds. Let's say _K_ is 5. In the first outer iteration, 1 fold is your test fold and the remaining 4 are your training set.
+* You further split the training set into _L_ inner folds and tune hyperparameters on the training set, as normal. Choose the best hyperparameters, retrain the model on the entire training set, and then calculate generalization error on the outer test fold. Repeat this for all _K_ folds to get _K_ estimates of generalization error.
 
-This isn't exactly to get the best hyperparameters.
+This is similar to having a test set, except of course the _K_ folds are not totally independent.
+
+You can implement nested CV in `sklearn` by passing a grid or randomized search object into a cross validation function. However, note that this cannot be directly used to find the best hyperparameters - each outer fold may have chosen different hyperparameters, and from what I've seen, the grid search object doesn't save any results anyway. 
+
+In other words,
+* Use regular CV for hyperparameter tuning
+* Use nested CV to get a less biased estimate of how well the model generalizes
+
+## What about bootstrapping?
+
+
 
 ## Ensemble methods
 
@@ -125,15 +139,21 @@ The default threshold of 0.5 often doesn't make sense. For example, if there is 
 * Tunes the decision threshold using internal cv. The optimum threshold is chosen to maximize a metric given via `scoring` (balanced accuracy is the default metric).
 * By default, uses 5-fold stratified cv; controllable via `cv`. You can bypass cv with `cv="prefit"` and provide a fitted classifier; then the decision threshold is tuned on the data provided to `fit`. 
 
-# Evaluate on the test set
+# Estimate true generalization error on the test set
 
-Run your model on the test set and calculate the generalization error (MSE, accuracy, whatever). This is an estimate of the real generalization error (sample vs. population). Let's say this generalization error is 0.1% better than a previous model. How confident are we that this model is better?
+Any time we use the same data for optimizing the model and evaluating the model performance, there is a possibility of overfitting.
 
-For that, we can calculate a confidence interval (fill this in).
+For example, we learned the model parameters from the training data. The parameters have been optimized to fit the training data. Given new data, it's unlikely that the model will perform as well.
+
+We tuned the model hyperparameters based on the validation data. The hyperparameters have been optimized for the validation data. Given new data, it's unlikely that the model will perform as well.
+
+That's the point of having a test set - to get a true (unbiased) estimate of your generalization error. (In academia, it is absolutely necessary to have a test set for estimating generalization error, but in industry/production, you may choose not to have a test set.) If test performance is worse than validation, YOU MUST NOT TWEAK THE LEARNING ALGORITHM. That defeats the point of the test set, which is just to estimate generalization error.
+
+Let's say your generalization error is 0.1% better than a previous model. How confident are we that this model is better?
+
+For that, we can calculate a confidence interval (t-distribution for regression, Z-distribution for classification - fill this in). Additional resources:
 * MHIST paper – they used 10 random seeds.
 * https://sebastianraschka.com/blog/2022/confidence-intervals-for-ml.html
-
-If you did a lot of hyperparameter tuning, performance on the test set will usually be slightly worse than performance in cross-validation because your learning algorithm will be fine-tuned to perform well on the validation data and will likely not generalize as well to unseen data. When this happens, you must resist the temptation to tweak the learning algorithm to improve performance on the test set.
 
 # Data leakage
 

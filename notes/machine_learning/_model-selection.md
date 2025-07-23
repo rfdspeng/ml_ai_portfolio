@@ -4,6 +4,8 @@
 * https://scikit-learn.org/stable/model_selection.html
 * Stanford CS229 notes
 * https://scikit-learn.org/stable/auto_examples/model_selection/plot_nested_cross_validation_iris.html
+* The Elements of Statistical Learning
+* https://www.cs.cmu.edu/~psarkar/sds383c_16/lecture9_scribe.pdf
 
 # Model selection
 
@@ -46,12 +48,17 @@ If your model is underfitting, you can
 
 To evaluate if the learning algorithm is overfitting or underfitting, we typically use cross-validation. 
 
-The simplest is _holdout validation_: split your training data further into one training set and one validation set. Train on the training set and measure _generalization error_ (aka out-of-sample error) on the validation set.
+The simplest is _holdout validation_: split your training data further into one training set and one validation set. Train on the training set and estimate _generalization error_ (aka out-of-sample error) on the validation set.
 
 If you can afford training multiple times, _K-fold cross-validation_ is a better strategy.
-* You train and validate on the entire training set
-* You train and validate _K_ times so you can have more confidence in your generalization error (less susceptible to random variation than holdout validation)
-* You can get an estimate of how much generalization error might vary by calculating the standard error of your _K_ generalization errors
+* You train and validate on the entire training set (more efficient use of data)
+* The estimate of generalization error is the mean error across _K_ folds, which is less susceptible to random variation than holdout validation, where you only get one estimate of generalization error
+* Calculate the standard error of the estimate
+    * You have _K_ samples
+    * The mean generalization error is an estimate of the true generalization error
+    * The standard error for _K_ samples is given by $\sigma/\sqrt(K)$, where $\sigma$ is the standard deviation of the _K_ samples
+    * Keep in mind that since the _K_ samples are not entirely independent (the folds overlap), the standard error underestimates the uncertainty of the estimate
+    * As _K_ increases, standard deviation will tend to increase since validation size decreases
 
 ## Hyperparameter tuning
 
@@ -87,6 +94,14 @@ Simple strategies for hyperparameter tuning:
     * In randomized search, you specify the number of iterations. In each iteration, it randomly selects values for each hyperparameter. Benefits:
         * You can sweep many different values for each hyperparameter instead of just a few like in grid search
         * You have more control over the computing budget since it's determined only by number of iterations
+
+### One standard error rule
+
+Any time we use the same data for optimizing the model and evaluating the model performance, there is a possibility of overfitting.
+
+One popular strategy for preventing overfitting the hyperparameters is the one standard error rule. Rather than picking the model with the best cross-validation performance, we pick the simplest model that has reasonably similar performance. Specifically,
+* For the model with the best mean generalization error, calculate the standard error
+* Pick the simplest model with performance within one standard error of the best model
 
 ### Nested cross-validation
 
@@ -131,7 +146,7 @@ The difference, for example, is between these two questions:
 * Should I take an umbrella tomorrow?
 
 * `predict_proba`: default threshold = 0.5. Returns conditional probability estimates - $P(y|X)$ - for each class.
-* `decision_function`: default threshold = 0. Returns decision scores for each class. Only available for some classifiers, like `LogisticRegression`. Represents the distance of the sample from the decision boundary - is this the raw logit/theta_T*sample?
+* `decision_function`: default threshold = 0. Returns decision scores for each class. Represents the distance of the sample from the decision boundary. Only available for some classifiers, like `LogisticRegression` - in logistic regression, the decision function is equal to the dot product of the input vector with the parameter vector.
 
 The default threshold of 0.5 often doesn't make sense. For example, if there is a 45% of rain. Cost-sensitive learning. Etc.
 
@@ -139,7 +154,7 @@ The default threshold of 0.5 often doesn't make sense. For example, if there is 
 * Tunes the decision threshold using internal cv. The optimum threshold is chosen to maximize a metric given via `scoring` (balanced accuracy is the default metric).
 * By default, uses 5-fold stratified cv; controllable via `cv`. You can bypass cv with `cv="prefit"` and provide a fitted classifier; then the decision threshold is tuned on the data provided to `fit`. 
 
-# Estimate true generalization error on the test set
+# Estimate generalization error on the test set
 
 Any time we use the same data for optimizing the model and evaluating the model performance, there is a possibility of overfitting.
 
@@ -156,6 +171,8 @@ For that, we can calculate a confidence interval (t-distribution for regression,
 * https://sebastianraschka.com/blog/2022/confidence-intervals-for-ml.html
 
 # Data leakage
+
+If we select predictors for the labels based on the entire training set before splitting into _K_ folds for cross-validation, this is one example of target leakage (from _Elements_).
 
 # Project pre-launch
 

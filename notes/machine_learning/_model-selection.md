@@ -119,10 +119,6 @@ In other words,
 * Use regular CV for hyperparameter tuning
 * Use nested CV to get a less biased estimate of how well the model generalizes
 
-## What about bootstrapping?
-
-
-
 ## Ensemble methods
 
 Try combining different models that perform the best.
@@ -168,11 +164,24 @@ Let's say your generalization error is 0.1% better than a previous model. How co
 
 For that, we can calculate a confidence interval (t-distribution for regression, Z-distribution for classification - fill this in). Additional resources:
 * MHIST paper – they used 10 random seeds.
+
+## What about bootstrapping?
+
+Alternatively, we may employ bootstrapping.
 * https://sebastianraschka.com/blog/2022/confidence-intervals-for-ml.html
+* https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+* Check Machine Learning for Dummies
+* Check The Elements of Statistical Learning, which frames bootstrapping as an alternative to cross-validation
 
 # Data leakage
 
 If we select predictors for the labels based on the entire training set before splitting into _K_ folds for cross-validation, this is one example of target leakage (from _Elements_).
+
+If we tune our learning algorithm to get best performance on the test set, this is another form of leakage. We're using data that is not available to us in the real world (from sklearn doc).
+
+* https://en.wikipedia.org/wiki/Leakage_(machine_learning)
+* https://www.kaggle.com/code/alexisbcook/data-leakage
+* https://scikit-learn.org/stable/modules/cross_validation.html#cross-validation
 
 # Project pre-launch
 

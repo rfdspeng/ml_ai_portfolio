@@ -1,6 +1,9 @@
 # References
 
 * Hands-On ML
+* https://scikit-learn.org/stable/modules/preprocessing.html#
+* https://scikit-learn.org/stable/auto_examples/preprocessing/plot_scaling_importance.html#importance-of-feature-scaling
+* https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py
 * https://scikit-learn.org/stable/developers/develop.html#apis-of-scikit-learn-objects
 * https://scikit-learn.org/stable/modules/grid_search.html
 * https://scikit-learn.org/stable/modules/compose.html#pipeline
@@ -33,7 +36,7 @@ MCAR, MAR, MNAR
 
 Check out sklearn library for imputation: https://scikit-learn.org/stable/modules/impute.html
 
-# Encoding categorical attributes
+# Categorical encoding
 
 Categorical attributes, if not already represented as numbers, need to be converted to numbers before being fed to the learning algorithm.
 
@@ -53,21 +56,119 @@ Embedding:
 * Learnable, low-dimensional vector
 * Representation learning: each category's representation is learned during training
 
-# Feature scaling
+# Numerical transformations
 
-With few exceptions (e.g. decision trees), ML algorithms don't perform well when input numerical attributes have very different scales. Larger features are heavily weighted during optimization.
+## Feature scaling
+
+With few exceptions (e.g. decision trees), ML algorithms don't perform well when input numerical attributes have very different scales. Many estimators are designed with the assumption that each feature takes values close to zero and all features vary on comparable scales. In particular, metric-based and gradient-based estimators often assume approximately standardized data (centered features with unit variances, aka Z-score standardization).
+
+**Unscaled features degrade predictive performance.**
+
+_Metric-based estimators_ are models that rely on distance metrics. If one feature has a much larger scale, it dominates the distance computation, which skews the model towards that feature even if it's not more predictive. Examples:
+* k-nearest neighbors
+* k-means clustering
+* SVM with RBF kernel
+* DBSCAN
+* PCA
+
+_Gradient-based estimators_ use gradient descent (or similar optimization techniques) to minimize a loss function. If one feature has a much larger scale, it dominates gradient descent because small changes in its weight have an outsize impact on loss. This means that gradient descent will be slow (or may not even converge) for other features. The loss surface will be very steep along the dominant feature's axis and very flat along other features (flat means slow convergence). Examples:
+* Logistic regression
+* Linear regression
+* Neural networks
+* SVM with optimization-based training
+* L1, L2 regularization
 
 **As with all transformations, it's important to fit scalers only to the training set, while transformations are applied to all sets.**
 
-**Min-max scaling, aka normalization:** 
-* Values are shifted and rescaled so they are clipped to the range [0, 1]
-* Subtract all values by min, then divide by (max - min)
+### Standardization, or mean removal and variance scaling
 
-**Standardization:**
-* Subtract all values by mean, then divide by standard deviation
-* The resulting distribution has zero mean, unit variance
+Many estimators assume features are distributed according to the standard normal (Z) distribution.
+
+In practice, we often ignore the shape of the distribution and simply standardize it to have zero mean (aka centering) and unit variance.
+* Subtract all values by mean, then divide by standard deviation. The resulting distribution has zero mean, unit variance.
 * Does not bound values to a specific range (which may be a problem for some algorithms)
-* Much less affected by outliers compared to min-max scaling
+* `sklearn.preprocessing.StandardScaler`
+
+Standardization is skewed by outliers because standard deviation is skewed by outliers. A feature that has extreme outliers will have a high standard deviation, which means that standardization will shrink its scale/spread more than for a feature without outliers.
+
+**In other words, standardization cannot guarantee balanced feature scales in the presence of outliers.**
+
+### Scaling features to a range
+
+`sklearn.preprocessing.MinMaxScaler`: Scale features to between a given min and max value (often 0 and 1)
+
+`sklearn.preprocessing.MaxAbsScaler`: Scale features so the maximum absolute value is 1 (i.e. values lie between -1 and 1). Meant for data that is already centered at 0.
+
+Motivation: robustness to very small standard deviations of features and preserving zero entries in sparse data.
+
+**However, scaling features to a range is even more skewed by outliers than standardization.**
+
+### Scaling sparse data
+
+Centering sparse data (removing the mean) would destroy the sparseness of the data and thus is rarely the sensible thing to do. However, it can make sense to scale sparse inputs.
+* `MaxAbsScaler` is specifically designed for scaling sparse data (and is the recommended way)
+* `StandardScaler` can accept `scipy.sparse` matrices as input, and set `with_mean=False`
+* `RobustScaler` cannot be fitted to sparse inputs but you can call `transform` on them
+
+### Scaling data with outliers
+
+Use `RobustScaler` as a drop-in replacement when your data has outliers. Instead of using mean, standard deviation, or range for scaling, it centers using median and scales by quantile range (IQR by default).
+
+The transformation doesn't remove the outliers, but it is able to balance feature scales. Removing outliers requires a nonlinear transformation.
+
+### Scaling vs. whitening
+
+It is sometimes not enough to center and scale the features independently, since a downstream model can further make some assumption on the linear independence of the features.
+
+To address this issue you can use `PCA` with `whiten=True` to further remove the linear correlation across features.
+
+ChatGPT:
+
+PCA does the following:
+
+    Rotates the data into a new basis (principal components).
+
+    These components are uncorrelated.
+
+When you use whiten=True:
+
+    It also scales each principal component so that the result has unit variance.
+
+    So now:
+
+        The data is centered
+
+        The data is uncorrelated
+
+        Each dimension has unit variance
+
+In effect, this gives you a version of the data that’s both standardized and decorrelated.
+
+Whiten=True guarantees that the transformed features have unit variance. PCA guarantees linear independence among the transformed features. Come back to this.
+
+### Centering kernel matrices
+
+## Nonlinear transformations
+
+Two types: quantile transforms and power transforms. Both are monotonic transformations of the features and thus preserve the rank of values along each feature.
+
+These techniques remove skew and outliers, but they do distort correlation and distances among within and among features.
+
+_Quantile transforms_ (a type of rank transformation) put the feature into the desired distribution based on the formula $G^{-1}(F(X))$. $F$ is the cumulative distribution function of the feature and $G^{-1}$ is the quantile function of the desired output distribution $G$. This is based on
+1. If $X$ is a random variable with continuous cdf $F$ then $F(X)$ is uniformly distributed on $[0,1]$
+2. If $U$ is a random variable with uniform distribution on $[0,1]$, then $G^{-1}(U)$ has distribution $G$
+
+`QuantileTransformer` supports uniform and Gaussian output distributions. During transformation, if a value is seen beyond the extreme values seen in fitting, then `QuantileTransformer` clips that value to 0 or 1, resulting in a slight loss of information due to saturation.
+
+_Power transforms_ make the data more Gaussian-like. `PowerTransformer` supports two types:
+1. Box-Cox can only be applied to strictly positive data
+2. Yeo-Johnson is preferred for data with negative values
+
+## Normalization
+
+Normalization is the process of scaling individual samples to have unit norm. Useful if you plan to use a quadratic form like the dot-product or any other kernel to quantify the similarity of any pair of samples.
+
+`Normalizer` supports L1, L2, and max norms.
 
 # Custom transformers in sklearn
 

@@ -19,3 +19,5 @@ Sampling bias, other types of bias
 I think model-based learning can be parametric (e.g. linear regression) or non-parametric (e.g. decision trees), but instance-based learning (e.g. KNN) is always non-parametric.
 
 What makes decision trees non-parametric?
+
+instance-based vs. model-based

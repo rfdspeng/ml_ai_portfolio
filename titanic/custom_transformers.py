@@ -4,7 +4,7 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
 from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
-from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder
+from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.utils.validation import check_is_fitted
@@ -12,43 +12,65 @@ from sklearn.ensemble import RandomForestClassifier
 
 # Stateless transformers - check sklearn's FunctionTransformer
 
-def build_column_transformer(numeric: list[str]=[], onehot: list[str]=[], ordinal: list[str]=[]) -> ColumnTransformer:
+def build_column_transformer(numeric: list[str] | None = None, 
+                             numeric_transformations: dict | None = None,
+                             onehot: list[str] | None = None, 
+                             onehot_transformations: dict | None = None,
+                             ordinal: list[str] | None = None,
+                             ordinal_transformations: dict | None = None,
+                             ) -> ColumnTransformer:
     """ 
     Build a ColumnTransformer from input lists of feature names
     
     """
 
-    ordinal_remainder = list(set(ordinal) - {"Sex", "Deck"})
-    col_tf = ColumnTransformer(
-            ([("num", "passthrough", numeric)] if numeric else []) + 
-            ([("onehot", OneHotEncoder(handle_unknown="ignore"), onehot)] if onehot else []) +
-            ([("ord_sex", OrdinalEncoder(
-                categories=[["male", "female"]], 
-                handle_unknown="error",
-                ), 
-            ["Sex"])] if "Sex" in ordinal else []) + 
-            ([("ord_deck", OrdinalEncoder(
-                categories=[["A", "B", "C", "D", "E", "F", "G", "U"]],
-                handle_unknown="error", # unknowns are handled in preprocessing
-                ), 
-            ["Deck"])] if "Deck" in ordinal else []) +
-            ([("ord", OrdinalEncoder(
-                handle_unknown="error",
-                ), 
-            ordinal_remainder)] if ordinal_remainder else [])
-            , remainder="drop")
-    return col_tf
+    numeric = numeric or []
+    numeric_transformations = numeric_transformations or {}
+    numeric_transformations.setdefault("default", StandardScaler())
+    onehot = onehot or []
+    onehot_transformations = onehot_transformations or {}
+    onehot_transformations.setdefault("default", OneHotEncoder())
+    ordinal = ordinal or []
+    ordinal_transformations = ordinal_transformations or {
+        "Sex": OrdinalEncoder(categories=[["male", "female"]], handle_unknown="error"),
+        "Deck": Pipeline([
+            ("encode", OrdinalEncoder(categories=[["A", "B", "C", "D", "E", "F", "G", "U"]], handle_unknown="error")),
+            ("scale", StandardScaler())
+        ])
+        }
+    ordinal_transformations.setdefault("default", Pipeline([
+        ("encode", OrdinalEncoder()),
+        ("scale", StandardScaler())
+        ])
+    )
+
+    transformers = []
+    for col in numeric:
+        transformers.append((f"num_{col}", numeric_transformations.get(col, numeric_transformations.get("default")), [col]))
+    for col in ordinal:
+        transformers.append((f"ord_{col}", ordinal_transformations.get(col, ordinal_transformations.get("default")), [col]))
+    for col in onehot:
+        transformers.append((f"onehot_{col}", onehot_transformations.get(col, onehot_transformations.get("default")), [col]))
+
+    return ColumnTransformer(transformers, remainder="drop")
 
 class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
     def __init__(self, extract_fam=False, fam_kwargs={}, 
                  extract_title=False, title_kwargs={}, 
                  extract_deck=False, deck_kwargs={},
                  extract_sexpclassage=False, sexpclassage_kwargs={},
-                 transform_fare=False, fare_kwargs={},
                  age_imputer_model=None, impute_age_kwargs={},
                  numeric_columns={"Age", "Pclass", "Fare"},
+                 numeric_transformations={},
                  onehot_columns=set(),
-                 ordinal_columns={"Sex"}):
+                 onehot_transformations={},
+                 ordinal_columns={"Sex"},
+                 ordinal_transformations={
+                     "Sex": OrdinalEncoder(categories=[["male", "female"]], handle_unknown="error"),
+                     "Deck": OrdinalEncoder(categories=[["A", "B", "C", "D", "E", "F", "G", "U"]], handle_unknown="error")
+                     }
+                     ):
+        
         self.extract_fam = extract_fam
         self.fam_kwargs = fam_kwargs
         self.extract_title = extract_title
@@ -57,13 +79,14 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         self.deck_kwargs = deck_kwargs
         self.extract_sexpclassage = extract_sexpclassage
         self.sexpclassage_kwargs = sexpclassage_kwargs
-        self.transform_fare = transform_fare
-        self.fare_kwargs = fare_kwargs
         self.age_imputer_model = age_imputer_model
         self.impute_age_kwargs = impute_age_kwargs
         self.numeric_columns = numeric_columns
+        self.numeric_transformations = numeric_transformations
         self.onehot_columns = onehot_columns
+        self.onehot_transformations = onehot_transformations
         self.ordinal_columns = ordinal_columns
+        self.ordinal_transformations = ordinal_transformations
     
     def fit(self, X: DataFrame, y=None):
         # Instantiate extractors
@@ -79,9 +102,6 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         sexpclassage = SexPclassAgeExtractor(**self.sexpclassage_kwargs)
         sexpclassage.extract = self.extract_sexpclassage
 
-        fare = FareTransformer(**self.fare_kwargs)
-        fare.extract = self.transform_fare
-
         age_imputer = AgeImputer(**self.impute_age_kwargs)
         age_imputer.model = self.age_imputer_model
 
@@ -90,9 +110,8 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
             ("fam", fam),
             ("title", title),
             ("deck", deck),
-            ("sexpclassage", sexpclassage),
-            ("fare", fare),
             ("age_imputer", age_imputer),
+            ("sexpclassage", sexpclassage),
         ])
 
         # Dynamically choose columns
@@ -104,24 +123,18 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         self.feature_names_in_.extend(ordinal)
         self.feature_names_in_.extend(onehot)
 
-        # if 'FamilySize' in X_extracted.columns:
         if self.extract_fam:
             numeric.append('FamilySize')
 
-        # if 'Title' in X_extracted.columns:
         if self.extract_title:
             onehot.append('Title')
 
-        # if 'Deck' in X_extracted.columns:
         if self.extract_deck:
             ordinal.append('Deck')
         
         # if "SexPclassAge" in X_extracted.columns:
         if self.extract_sexpclassage:
             onehot.append('SexPclassAge')
-        
-        if self.transform_fare:
-            numeric.append("FareTransformed")
         
         if age_imputer.add_indicator:
             ordinal.append("Age_Missing")

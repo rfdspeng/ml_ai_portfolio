@@ -43,6 +43,7 @@ Categorical attributes, if not already represented as numbers, need to be conver
 **Ordinal encoding:**
 * Convert categories to whole numbers, 0 to n_categories-1
 * You should use this encoding for attributes that have order, intensity, scale, etc. For example, a rating that has 4 categories: "bad", "average", "good", "excellent".
+* `OrdinalEncoder` passes through missing values by default but can run simple imputation with the option `encoded_missing_value`
 
 **One-hot encoding:**
 * Create one binary attribute per category: if your attribute has n_categories, then it is encoded as a one-hot vector of size n_categories. 
@@ -169,6 +170,29 @@ _Power transforms_ make the data more Gaussian-like. `PowerTransformer` supports
 Normalization is the process of scaling individual samples to have unit norm. Useful if you plan to use a quadratic form like the dot-product or any other kernel to quantify the similarity of any pair of samples.
 
 `Normalizer` supports L1, L2, and max norms.
+
+## Discretization
+
+AKA quantization or binning - partition continuous features into discrete values. 
+
+One-hot encoded discretized features can make a model more expressive while maintaining interpretability.
+
+Discretization introduces nonlinearity into the pipeline.
+
+### K-bins discretization
+
+`KBinsDiscretizer` discretizes a continuous feature(s) into `n_bins`. The output is a one-hot encoding of the bins (default) or ordinal.
+
+There are three `strategy` available:
+* `uniform` - all bins have identical widths
+* `quantile` - all bins have the same number of points (default)
+* `kmeans` - values in each bin have the same nearest center of a 1D k-means cluster
+
+Bin edges are computed during fit.
+
+For custom bins, you may pass a callable defining the discretization strategy to a `FunctionTransformer`.
+
+### Feature binarization
 
 # Custom transformers in sklearn
 

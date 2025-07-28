@@ -4,7 +4,7 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
 from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
-from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, StandardScaler
+from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.utils.validation import check_is_fitted
@@ -31,16 +31,10 @@ def build_column_transformer(numeric: list[str] | None = None,
     onehot_transformations = onehot_transformations or {}
     onehot_transformations.setdefault("default", OneHotEncoder())
     ordinal = ordinal or []
-    ordinal_transformations = ordinal_transformations or {
-        "Sex": OrdinalEncoder(categories=[["male", "female"]], handle_unknown="error"),
-        "Deck": Pipeline([
-            ("encode", OrdinalEncoder(categories=[["A", "B", "C", "D", "E", "F", "G", "U"]], handle_unknown="error")),
-            ("scale", StandardScaler())
-        ])
-        }
+    ordinal_transformations = ordinal_transformations or {}
     ordinal_transformations.setdefault("default", Pipeline([
         ("encode", OrdinalEncoder()),
-        ("scale", StandardScaler())
+        ("scale", MinMaxScaler())
         ])
     )
 
@@ -55,38 +49,44 @@ def build_column_transformer(numeric: list[str] | None = None,
     return ColumnTransformer(transformers, remainder="drop")
 
 class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
-    def __init__(self, extract_fam=False, fam_kwargs={}, 
-                 extract_title=False, title_kwargs={}, 
-                 extract_deck=False, deck_kwargs={},
-                 extract_sexpclassage=False, sexpclassage_kwargs={},
-                 age_imputer_model=None, impute_age_kwargs={},
-                 numeric_columns={"Age", "Pclass", "Fare"},
-                 numeric_transformations={},
-                 onehot_columns=set(),
-                 onehot_transformations={},
-                 ordinal_columns={"Sex"},
-                 ordinal_transformations={
-                     "Sex": OrdinalEncoder(categories=[["male", "female"]], handle_unknown="error"),
-                     "Deck": OrdinalEncoder(categories=[["A", "B", "C", "D", "E", "F", "G", "U"]], handle_unknown="error")
-                     }
-                     ):
+    def __init__(self, 
+                 extract_fam=False, 
+                 fam_kwargs: dict | None = None, 
+                 extract_title=False, 
+                 title_kwargs: dict | None = None,
+                 extract_deck=False, 
+                 deck_kwargs: dict | None = None,
+                 extract_sexpclassage=False, 
+                 sexpclassage_kwargs: dict | None = None,
+                 age_imputer_model=None, 
+                 impute_age_kwargs: dict | None = None,
+                 numeric_columns: set[str] | None = None,
+                 numeric_transformations: dict | None = None,
+                 onehot_columns: set[str] | None = None,
+                 onehot_transformations: dict | None = None,
+                 ordinal_columns: set[str] | None = None,
+                 ordinal_transformations: dict | None = None
+                 ):
         
         self.extract_fam = extract_fam
-        self.fam_kwargs = fam_kwargs
+        self.fam_kwargs = fam_kwargs or {}
         self.extract_title = extract_title
-        self.title_kwargs = title_kwargs
+        self.title_kwargs = title_kwargs or {}
         self.extract_deck = extract_deck
-        self.deck_kwargs = deck_kwargs
+        self.deck_kwargs = deck_kwargs or {}
         self.extract_sexpclassage = extract_sexpclassage
-        self.sexpclassage_kwargs = sexpclassage_kwargs
+        self.sexpclassage_kwargs = sexpclassage_kwargs or {}
         self.age_imputer_model = age_imputer_model
-        self.impute_age_kwargs = impute_age_kwargs
-        self.numeric_columns = numeric_columns
-        self.numeric_transformations = numeric_transformations
-        self.onehot_columns = onehot_columns
-        self.onehot_transformations = onehot_transformations
-        self.ordinal_columns = ordinal_columns
-        self.ordinal_transformations = ordinal_transformations
+        self.impute_age_kwargs = impute_age_kwargs or {}
+        self.numeric_columns = numeric_columns or {"Age", "Pclass", "Fare"}
+        self.numeric_transformations = numeric_transformations or {}
+        self.onehot_columns = onehot_columns or {"Sex"}
+        self.onehot_transformations = onehot_transformations or {"Sex": OneHotEncoder(categories=[["male", "female"]], handle_unknown="error")}
+        self.ordinal_columns = ordinal_columns or set()
+        self.ordinal_transformations = ordinal_transformations or {"Deck": Pipeline([
+            ("encode", OrdinalEncoder(categories=[sorted(["A", "B", "C", "D", "E", "F", "G", "U"], reverse=True)], handle_unknown="error")),
+            ("scale", MinMaxScaler())
+            ])}
     
     def fit(self, X: DataFrame, y=None):
         # Instantiate extractors

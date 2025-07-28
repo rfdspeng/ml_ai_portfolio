@@ -172,6 +172,10 @@ output/
 secrets.toml
 
 *Zone.Identifier
+.db
+.db-journal
+~$*
+*.zip
 
 # MLflow
 mlruns/

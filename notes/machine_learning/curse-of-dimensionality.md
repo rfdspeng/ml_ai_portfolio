@@ -1,0 +1,1 @@
+Curse of dimensionality - as number of features goes up, you need more samples to "see" the pattern because the data gets very sparse as number of dimensions increases.

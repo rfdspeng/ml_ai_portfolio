@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
-from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
+from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin, clone
 from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, StandardScaler, MinMaxScaler
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -58,7 +58,7 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
                  deck_kwargs: dict | None = None,
                  extract_sexpclassage=False, 
                  sexpclassage_kwargs: dict | None = None,
-                 age_imputer_model=None, 
+                 age_imputer_model: BaseEstimator | None = None, 
                  impute_age_kwargs: dict | None = None,
                  numeric_columns: set[str] | None = None,
                  numeric_transformations: dict | None = None,
@@ -69,44 +69,62 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
                  ):
         
         self.extract_fam = extract_fam
-        self.fam_kwargs = fam_kwargs or {}
+        self.fam_kwargs = fam_kwargs
         self.extract_title = extract_title
-        self.title_kwargs = title_kwargs or {}
+        self.title_kwargs = title_kwargs
         self.extract_deck = extract_deck
-        self.deck_kwargs = deck_kwargs or {}
+        self.deck_kwargs = deck_kwargs
         self.extract_sexpclassage = extract_sexpclassage
-        self.sexpclassage_kwargs = sexpclassage_kwargs or {}
+        self.sexpclassage_kwargs = sexpclassage_kwargs
         self.age_imputer_model = age_imputer_model
-        self.impute_age_kwargs = impute_age_kwargs or {}
-        self.numeric_columns = numeric_columns or {"Age", "Pclass", "Fare"}
-        self.numeric_transformations = numeric_transformations or {}
-        self.onehot_columns = onehot_columns or {"Sex"}
-        self.onehot_transformations = onehot_transformations or {"Sex": OneHotEncoder(categories=[["male", "female"]], handle_unknown="error")}
-        self.ordinal_columns = ordinal_columns or set()
-        self.ordinal_transformations = ordinal_transformations or {"Deck": Pipeline([
-            ("encode", OrdinalEncoder(categories=[sorted(["A", "B", "C", "D", "E", "F", "G", "U"], reverse=True)], handle_unknown="error")),
-            ("scale", MinMaxScaler())
-            ])}
+        self.impute_age_kwargs = impute_age_kwargs
+        self.numeric_columns = numeric_columns
+        self.numeric_transformations = numeric_transformations
+        self.onehot_columns = onehot_columns
+        self.onehot_transformations = onehot_transformations
+        self.ordinal_columns = ordinal_columns
+        self.ordinal_transformations = ordinal_transformations
     
     def fit(self, X: DataFrame, y=None):
         # Instantiate extractors
-        fam = FamilySizeExtractor(**self.fam_kwargs)
-        fam.extract = self.extract_fam
+        fam_kwargs = self.fam_kwargs.copy() if self.fam_kwargs is not None else {}
+        fam_kwargs["extract"] = self.extract_fam
+        fam = FamilySizeExtractor(**fam_kwargs)
 
-        title = TitleExtractor(**self.title_kwargs)
-        title.extract = self.extract_title
+        title_kwargs = self.title_kwargs.copy() if self.title_kwargs is not None else {}
+        title_kwargs["extract"] = self.extract_title
+        title = TitleExtractor(**title_kwargs)
 
-        deck = DeckExtractor(**self.deck_kwargs)
-        deck.extract = self.extract_deck
+        deck_kwargs = self.deck_kwargs.copy() if self.deck_kwargs is not None else {}
+        deck_kwargs["extract"] = self.extract_deck
+        deck = DeckExtractor(**deck_kwargs)
 
-        sexpclassage = SexPclassAgeExtractor(**self.sexpclassage_kwargs)
-        sexpclassage.extract = self.extract_sexpclassage
+        sexpclassage_kwargs = self.sexpclassage_kwargs.copy() if self.sexpclassage_kwargs is not None else {}
+        sexpclassage_kwargs["extract"] = self.extract_sexpclassage
+        sexpclassage = SexPclassAgeExtractor(**sexpclassage_kwargs)
 
-        age_imputer = AgeImputer(**self.impute_age_kwargs)
-        age_imputer.model = self.age_imputer_model
+        impute_age_kwargs = self.impute_age_kwargs.copy() if self.impute_age_kwargs is not None else {}
+        impute_age_kwargs["model"] = clone(self.age_imputer_model) if self.age_imputer_model is not None else None
+        age_imputer = AgeImputer(**impute_age_kwargs)
+
+        numeric_columns = self.numeric_columns.copy() if self.numeric_columns is not None else {"Age", "Pclass", "Fare"}
+        numeric_transformations = self.numeric_transformations.copy() if self.numeric_transformations is not None else {}
+
+        onehot_columns = self.onehot_columns.copy() if self.onehot_columns is not None else {"Sex"}
+        onehot_transformations = self.onehot_transformations.copy() if self.onehot_transformations is not None else {}
+        onehot_transformations.setdefault("Sex", OneHotEncoder(categories=[["male", "female"]], handle_unknown="error"))
+        onehot_transformations.setdefault("Title", OneHotEncoder(categories=[["Mr", "Miss", "Mrs", "Master", "Dr", "Rev", "Unknown"]], handle_unknown="ignore"))
+
+        ordinal_columns = self.ordinal_columns.copy() if self.ordinal_columns is not None else set()
+        ordinal_transformations = self.ordinal_transformations.copy() if self.ordinal_transformations is not None else {}
+        ordinal_transformations.setdefault("Deck", Pipeline([
+            ("encode", OrdinalEncoder(categories=[sorted(["A", "B", "C", "D", "E", "F", "G", "U"], reverse=True)], handle_unknown="error")),
+            ("scale", MinMaxScaler())
+            ]))
 
         # Build extractor pipeline
         self.feature_extractor_ = Pipeline([
+            ("fare_imputer", FareImputer()),
             ("fam", fam),
             ("title", title),
             ("deck", deck),
@@ -115,13 +133,13 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         ])
 
         # Dynamically choose columns
-        numeric = list(set(X.select_dtypes(exclude=["object", "category"]).columns) & self.numeric_columns)
-        ordinal = list(set(X.select_dtypes(include=["object", "category"]).columns) & self.ordinal_columns)
-        onehot = list(set(X.select_dtypes(include=["object", "category"]).columns) & self.onehot_columns)
+        numeric = list(set(X.select_dtypes(exclude=["object", "category"]).columns) & numeric_columns)
+        ordinal = list(set(X.select_dtypes(include=["object", "category"]).columns) & ordinal_columns)
+        onehot = list(set(X.select_dtypes(include=["object", "category"]).columns) & onehot_columns)
 
         self.feature_names_in_ = numeric.copy()
-        self.feature_names_in_.extend(ordinal)
-        self.feature_names_in_.extend(onehot)
+        self.feature_names_in_.extend(ordinal.copy())
+        self.feature_names_in_.extend(onehot.copy())
 
         if self.extract_fam:
             numeric.append('FamilySize')
@@ -132,7 +150,6 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         if self.extract_deck:
             ordinal.append('Deck')
         
-        # if "SexPclassAge" in X_extracted.columns:
         if self.extract_sexpclassage:
             onehot.append('SexPclassAge')
         
@@ -140,10 +157,15 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
             ordinal.append("Age_Missing")
         
         self.feature_names_out_ = numeric.copy()
-        self.feature_names_out_.extend(ordinal)
-        self.feature_names_out_.extend(onehot)
+        self.feature_names_out_.extend(ordinal.copy())
+        self.feature_names_out_.extend(onehot.copy())
 
-        self.col_tf_ = build_column_transformer(numeric=numeric, onehot=onehot, ordinal=ordinal)
+        self.col_tf_ = build_column_transformer(numeric=numeric, 
+                                                numeric_transformations=numeric_transformations,
+                                                onehot=onehot, 
+                                                onehot_transformations=onehot_transformations,
+                                                ordinal=ordinal,
+                                                ordinal_transformations=ordinal_transformations)
 
         # Final full pipeline
         self.pipeline_ = Pipeline([
@@ -159,6 +181,7 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         return self.pipeline_.transform(X)
     
     def get_feature_names_out(self):
+        check_is_fitted(self)
         return self.pipeline_.named_steps["col_tf"].get_feature_names_out()
 
 class ThresholdClassifier(BaseEstimator, ClassifierMixin):
@@ -442,19 +465,13 @@ class ImputationEncoder(BaseEstimator, TransformerMixin):
         return [f"{name}_Ord" for name in self.feature_names_in_]
 
 
-class FareTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, extract=True, base=10, bin=False):
-        self.extract = extract
-        self.base = base
-        self.bin = bin
-    
-    def fit(self, X, y=None):
-        self.fitted_ = True
+class FareImputer(BaseEstimator, TransformerMixin):
+    def fit(self, X: DataFrame, y=None):
+        self.mapper_ = X.groupby("Pclass")["Fare"].median().to_dict()
         return self
     
     def transform(self, X: DataFrame) -> DataFrame:
         X_out = X.copy()
-        X_out["FareTransformed"] = np.log10(X_out["Fare"].clip(lower=1))/np.log10(self.base)
-        if self.bin:
-            X_out["FareTransformed"] = np.floor(X_out["FareTransformed"])
+        mask = X_out["Fare"].isna()
+        X_out.loc[mask, "Fare"] = X_out.loc[mask, "Pclass"].map(self.mapper_)
         return X_out

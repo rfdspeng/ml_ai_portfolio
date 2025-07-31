@@ -1,0 +1,18 @@
+# ───────────────────────────────
+# configs/exp_rf_cv.yaml
+# ───────────────────────────────
+experiment_name: rf_cv_baseline
+task_type: cross_validate
+
+pipeline_kwargs:
+  use_title: true
+  use_fare: true
+  model: rf
+
+cv:
+  n_splits: 5
+  shuffle: true
+  random_state: 42
+
+scoring: accuracy
+save_predictions: true

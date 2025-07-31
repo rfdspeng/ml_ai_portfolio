@@ -1,0 +1,8 @@
+# ───────────────────────────────
+# configs/exp_rf_test.yaml
+# ───────────────────────────────
+experiment_name: rf_test_eval
+task_type: predict_test
+
+model_path: experiments/rf_gridsearch_001/model.pkl
+save_probabilities: true

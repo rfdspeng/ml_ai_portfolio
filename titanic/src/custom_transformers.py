@@ -10,8 +10,6 @@ from sklearn.compose import ColumnTransformer
 from sklearn.utils.validation import check_is_fitted
 from sklearn.ensemble import RandomForestClassifier
 
-# Stateless transformers - check sklearn's FunctionTransformer
-
 def build_column_transformer(numeric: list[str] | None = None, 
                              numeric_transformations: dict | None = None,
                              onehot: list[str] | None = None, 

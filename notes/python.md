@@ -1,3 +1,28 @@
+# How does a Python interpreter work?
+
+https://www.tutorialspoint.com/how-does-a-python-interpreter-work
+
+Google AI Overview:
+
+The Python interpreter processes and executes code in several distinct stages:
+
+    Lexical Analysis (Tokenization):
+    . 
+
+The interpreter reads the source code and breaks it down into a stream of tokens. Tokens are the smallest meaningful units of the program, such as keywords (e.g., if, for), operators (e.g., +, =), identifiers (variable names), and literals (numbers, strings). This stage essentially converts the raw text into a structured sequence of recognizable elements.
+Parsing:
+.
+The stream of tokens from the lexical analysis stage is then analyzed to create a hierarchical representation of the code, known as an Abstract Syntax Tree (AST). The AST represents the grammatical structure of the code, ensuring it adheres to Python's syntax rules. This stage identifies the relationships between different parts of the code, such as function definitions, loops, and conditional statements. 
+Bytecode Compilation:
+.
+The AST is then compiled into bytecode. Bytecode is a low-level, platform-independent set of instructions that the Python Virtual Machine (PVM) can understand and execute. This intermediate representation is stored in .pyc files for faster loading in subsequent executions. 
+Execution:
+.
+The PVM executes the bytecode instructions. The PVM interprets each bytecode instruction, translating it into machine-executable code and performing the corresponding operations, such as managing memory, calling functions, handling variables, and executing control flow structures like loops and conditionals. This stage is where the program's logic is actually carried out.
+Garbage Collection:
+.
+Throughout the execution stage, Python employs automatic garbage collection to manage memory. This process identifies and reclaims memory that is no longer in use, preventing memory leaks and optimizing resource utilization.
+
 # Modules
 
 https://docs.python.org/3/tutorial/modules.html
@@ -117,6 +142,77 @@ Alternatively, you can use relative imports.
 
 ### Packages in multiple directories
 
+# Errors and exceptions
+
+https://docs.python.org/3/tutorial/errors.html#raising-exceptions
+
+Two types of errors: _syntax errors_ (aka parsing errors) and _exceptions_.
+
+Prior to execution, Python parses the the code. If there is code it does not understand (due to syntax mistakes), it will raise a `SyntaxError`.
+
+_Exceptions_ are errors detected during execution and are not unconditionally fatal.
+
+## Handling exceptions
+
+Exceptions may be handled via try-except statements.
+```python
+while True:
+    try:
+        x = int(input("Please enter a number: "))
+        break
+    except ValueError:
+        print("Oops!  That was no valid number.  Try again...")
+```
+How it works:
+* `try` clause is executed
+* If no exception, then `except` clause is skipped and `try` statement finishes executing
+* If exception during `try`, the rest of the clause is skipped. If the exception type matches `except`, then `except` clause is executed and program continues.
+* If an exception during `try` does not match `except` type, then the exception is passed on to outer `try` statements, and if no handler is found, it is an _unhandled exception_ and execution stops with an error message.
+
+A `try` statement may have more than one `except` clause to specify handlers for different exceptions.
+* At most one handler will be executed
+* Handlers only handle exceptions that occur in the `try` clause, not in other handlers of the same `try`
+* `except` clause may name multiple exceptions like `except (RuntimeError, TypeError, NameError)`
+* A class in an `except` clause matches exceptions which are instances of the class itself or one of its derived classes
+* You may bind a variable name to an exception instance via `except Exception as e`
+    * An exception may have associated values, called its arguments, accessible via `e.args`
+    * Built-in exceptions define `__str__()` method to print all arguments, i.e. `print(e)`
+
+`BaseException` is the common base class of all exceptions.
+* `Exception` is the base class of non-fatal exceptions
+* Exceptions that are not derived from `Exception` are not typically handled because they indicate the program should terminate
+    * `SystemExit`, raised by `sys.exit()`
+    * `KeyboardInterrupt`, raised when the user wishes to interrupt the program
+
+`Exception` can be used as a wildcard that catches (almost) everything, but it's good practice to be as specific as possible with the types of exceptions we intend to handle and allow unexpected exceptions to propagate on. A common pattern is to print the exception and then re-raise it, which allows a caller to handle the exception.
+```python
+import sys
+
+try:
+    f = open('myfile.txt')
+    s = f.readline()
+    i = int(s.strip())
+except OSError as err:
+    print("OS error:", err)
+except ValueError:
+    print("Could not convert data to an integer.")
+except Exception as err:
+    print(f"Unexpected {err=}, {type(err)=}")
+    raise
+```
+
+try-except has an optional `else` clause that must follow all `except` clauses. It is executed if no exception is raised in `try`.
+
+## Raising exceptions
+
+`raise` statement forces a specified exception to occur.
+* `raise` may be called with an exception instance or class
+    * Instance: `raise NameError("HiThere")`
+    * Class: `raise ValueError`. When a class is passed, it is implicitly instantiated by calling its constructor with no arguments, i.e. `raise ValueError` is equivalent to `raise ValueError()`
+* `raise` with no arguments simply re-raises the exception if you don't intend to handle it
+
+## Exception chaining
+
 # Classes
 
 https://docs.python.org/3/tutorial/classes.html
@@ -147,6 +243,7 @@ https://docs.python.org/3/tutorial/classes.html
     * Global names in a module
     * Local names in a function invocation
     * The set of attributes of an object also form a namespace
+* `globals()` returns the global namespace, `locals()` returns the current namespace
 * There is no relation between names in different namespaces, e.g. two different modules may both define a function `maximize` without confusion. Users of the modules must prefix it with the module name.
 * An attribute is any name following a dot
     * In `z.real`, `real` is an attribute of object `z`

@@ -17,27 +17,23 @@ def make_custom_strata(X: DataFrame, columns: list[str]):
     y_concat.name = "_".join(columns)
     return y_concat
 
-def make_stratified_k_fold_with_custom_strata(X: DataFrame, columns: list[str], cv_kwargs={}):
+def make_stratified_k_fold_with_custom_strata(X: DataFrame, columns: list[str], n_splits=10, shuffle=True, random_state=0):
+    """
+    Concatenate values across multiple columns in the input DataFrame
+    Create cross-validation splits stratified across the concatenated values
+
+    e.g. columns should be of the form [col1_name, col2_name, ...]
+    """
     if not columns:
         raise Exception("make_stratified_k_fold_with_custom_strata: columns cannot be empty")
     
-    cv_splitter = StratifiedKFold(**cv_kwargs) # n_splits, shuffle, random_state
+    cv_splitter = StratifiedKFold(n_splits=n_splits, shuffle=shuffle, random_state=random_state) # n_splits, shuffle, random_state
 
     y_concat = make_custom_strata(X, columns)
     
-    # return cv_splitter.split(X, y_concat) # Generator object. Iterating yields (train_indices, val_indices) (a 2-ple of numpy arrays)
-    return cv_splitter
+    return cv_splitter.split(X, y_concat) # Generator object. Iterating yields (train_indices, val_indices) (a 2-ple of numpy arrays)
 
 def custom_cross_validate(estimator, X: DataFrame, y: Series | np.ndarray, cv, cv_kwargs={}) -> tuple[DataFrame, dict]:
-    # Ensure y is a NumPy array for consistent indexing
-    y = np.asarray(y)
-    
-    # Use provided splitter or create StratifiedKFold
-    if hasattr(cv, 'split'):
-        splitter = cv
-    else:
-        splitter = StratifiedKFold(n_splits=cv, **cv_kwargs)
-
     # Copy and reset X for indexing alignment
     X_out = X.copy().reset_index(drop=True)
 
@@ -45,7 +41,21 @@ def custom_cross_validate(estimator, X: DataFrame, y: Series | np.ndarray, cv, c
     X_out["PredictProba"] = np.nan
     X_out["Prediction"] = np.nan
 
-    for train_idx, val_idx in splitter.split(X_out, y):
+    # Ensure y is a NumPy array for consistent indexing
+    y = np.asarray(y)
+    
+    # Use provided splitter or create StratifiedKFold
+    try:
+        cv_iter = iter(cv)
+    except:
+        if hasattr(cv, 'split'):
+            splitter = cv
+        else:
+            splitter = StratifiedKFold(n_splits=cv, **cv_kwargs)
+        
+        cv_iter = splitter.split(X_out, y)   
+
+    for train_idx, val_idx in cv_iter:
         X_train, y_train = X_out.iloc[train_idx], y[train_idx]
         X_val = X_out.iloc[val_idx]
 

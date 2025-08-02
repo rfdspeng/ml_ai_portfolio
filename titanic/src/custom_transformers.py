@@ -1,3 +1,4 @@
+from pathlib import Path
 import re
 import numpy as np
 import pandas as pd
@@ -9,6 +10,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.utils.validation import check_is_fitted
 from sklearn.ensemble import RandomForestClassifier
+from src.utils import data_paths, find_project_root, load_titanic_data
 
 def build_column_transformer(numeric: list[str] | None = None, 
                              numeric_transformations: dict | None = None,
@@ -181,6 +183,22 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
     def get_feature_names_out(self):
         check_is_fitted(self)
         return self.pipeline_.named_steps["col_tf"].get_feature_names_out()
+
+def feature_extraction():
+    pipe = Pipeline([
+        ("fam", FamilySizeExtractor()),
+        ("title", TitleExtractor()),
+        ("deck", DeckExtractor()),
+        ("sexpclassage", SexPclassAgeExtractor()),
+    ])
+
+    data = load_titanic_data()
+    data["train"] = pipe.transform(data["train"])
+    data["test"] = pipe.transform(data["test"])
+
+    root_dir = find_project_root()
+    data["train"].to_csv(Path(root_dir) / Path(data_paths["train_extracted"]), index=False)
+    data["test"].to_csv(Path(root_dir) / Path(data_paths["test_extracted"]), index=False)
 
 class ThresholdClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, base_estimator, threshold=0.5, subgroups=None, subgroup_thresholds=None):

@@ -2,13 +2,14 @@
 # src/experiment_runner.py
 # ───────────────────────────────
 import os
+from pathlib import Path
 import json
 import joblib
 import pandas as pd
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
-from src.data_loader import load_titanic_data, load_test_set
+from src.utils import load_titanic_data
 from src.pipeline_builder import build_pipeline
-from src.utility_functions import custom_cross_validate
+from src.custom_model_selection import custom_cross_validate
 
 
 def make_output_dir(experiment_name):
@@ -67,20 +68,20 @@ def run_cross_validation(config):
         yaml.safe_dump(config, f)
 
 
-def predict_test(config):
-    model = joblib.load(config["model_path"])
-    X_test = load_test_set()
-    y_proba = model.predict_proba(X_test)
-    y_pred = model.predict(X_test)
+# def predict_test(config):
+#     model = joblib.load(config["model_path"])
+#     X_test = load_test_set()
+#     y_proba = model.predict_proba(X_test)
+#     y_pred = model.predict(X_test)
 
-    df = X_test.copy()
-    df["pred"] = y_pred
-    if config.get("save_probabilities", True):
-        for i in range(y_proba.shape[1]):
-            df[f"proba_class_{i}"] = y_proba[:, i]
+#     df = X_test.copy()
+#     df["pred"] = y_pred
+#     if config.get("save_probabilities", True):
+#         for i in range(y_proba.shape[1]):
+#             df[f"proba_class_{i}"] = y_proba[:, i]
 
-    out_dir = make_output_dir(config["experiment_name"])
-    df.to_csv(os.path.join(out_dir, "test_predictions.csv"), index=False)
+#     out_dir = make_output_dir(config["experiment_name"])
+#     df.to_csv(os.path.join(out_dir, "test_predictions.csv"), index=False)
 
-    with open(os.path.join(out_dir, "config.yaml"), "w") as f:
-        yaml.safe_dump(config, f)
+#     with open(os.path.join(out_dir, "config.yaml"), "w") as f:
+#         yaml.safe_dump(config, f)

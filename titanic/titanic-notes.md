@@ -37,3 +37,57 @@
         * Can you visualize the decision path?
     * Try using many different models for practice (this will require different kinds of preprocessing and feature engineering)
     * Use PCA to visualize the data points and decision boundary
+
+```
+titanic_project/
+├── data/                       # Raw, interim, processed data
+│   ├── raw/
+│   ├── processed/
+│   └── external/
+├── notebooks/
+│   └── eda.ipynb              # For exploration only
+├── src/
+│   ├── __init__.py
+│   ├── config.py              # Central config for experiment settings
+│   ├── custom_transformers.py
+│   ├── custom_scoring.py
+│   ├── utility_functions.py
+│   ├── pipeline_builder.py    # Functions to build pipelines
+│   ├── experiment_runner.py   # Runs experiments + saves output
+│   └── evaluation.py          # Metrics, plots, calibration, etc.
+├── experiments/
+│   ├── exp_001_gridsearch_rf/
+│   │   ├── metrics.json
+│   │   ├── predictions.csv
+│   │   ├── model.pkl
+│   │   └── config.yaml
+│   └── exp_002_bestmodel/
+├── scripts/
+│   ├── run_experiment.py      # CLI entry point to run a full experiment
+├── results/                   # Summary analysis
+├── requirements.txt
+└── README.md
+```
+
+`python scripts/run_experiment.py --config configs/exp_001.yaml`
+
+💾 5. Managing experiment_name
+
+Yes, you should include experiment_name in the config and create a folder for each experiment:
+
+import os
+
+out_dir = os.path.join("experiments", config["experiment_name"])
+os.makedirs(out_dir, exist_ok=True)
+
+Inside each folder, you can save:
+
+    model.pkl
+
+    cv_results.csv
+
+    metrics.json
+
+    predictions.csv
+
+    config.yaml (dump the config you used, for reproducibility)

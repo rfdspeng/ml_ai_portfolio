@@ -60,11 +60,11 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
                  sexpclassage_kwargs: dict | None = None,
                  age_imputer_model: BaseEstimator | None = None, 
                  impute_age_kwargs: dict | None = None,
-                 numeric_columns: set[str] | None = None,
+                 numeric_columns: list[str] | None = None,
                  numeric_transformations: dict | None = None,
-                 onehot_columns: set[str] | None = None,
+                 onehot_columns: list[str] | None = None,
                  onehot_transformations: dict | None = None,
-                 ordinal_columns: set[str] | None = None,
+                 ordinal_columns: list[str] | None = None,
                  ordinal_transformations: dict | None = None
                  ):
         
@@ -107,15 +107,15 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         impute_age_kwargs["model"] = clone(self.age_imputer_model) if self.age_imputer_model is not None else None
         age_imputer = AgeImputer(**impute_age_kwargs)
 
-        numeric_columns = self.numeric_columns.copy() if self.numeric_columns is not None else {"Age", "Pclass", "Fare"}
+        numeric_columns = self.numeric_columns.copy() if self.numeric_columns is not None else ["Age", "Pclass", "Fare"]
         numeric_transformations = self.numeric_transformations.copy() if self.numeric_transformations is not None else {}
 
-        onehot_columns = self.onehot_columns.copy() if self.onehot_columns is not None else {"Sex"}
+        onehot_columns = self.onehot_columns.copy() if self.onehot_columns is not None else ["Sex"]
         onehot_transformations = self.onehot_transformations.copy() if self.onehot_transformations is not None else {}
         onehot_transformations.setdefault("Sex", OneHotEncoder(categories=[["male", "female"]], handle_unknown="error"))
         onehot_transformations.setdefault("Title", OneHotEncoder(categories=[["Mr", "Miss", "Mrs", "Master", "Dr", "Rev", "Unknown"]], handle_unknown="ignore"))
 
-        ordinal_columns = self.ordinal_columns.copy() if self.ordinal_columns is not None else set()
+        ordinal_columns = self.ordinal_columns.copy() if self.ordinal_columns is not None else []
         ordinal_transformations = self.ordinal_transformations.copy() if self.ordinal_transformations is not None else {}
         ordinal_transformations.setdefault("Deck", Pipeline([
             ("encode", OrdinalEncoder(categories=[sorted(["A", "B", "C", "D", "E", "F", "G", "U"], reverse=True)], handle_unknown="error")),
@@ -133,9 +133,9 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         ])
 
         # Dynamically choose columns
-        numeric = list(set(X.select_dtypes(exclude=["object", "category"]).columns) & numeric_columns)
-        ordinal = list(set(X.select_dtypes(include=["object", "category"]).columns) & ordinal_columns)
-        onehot = list(set(X.select_dtypes(include=["object", "category"]).columns) & onehot_columns)
+        numeric = list(set(X.select_dtypes(exclude=["object", "category"]).columns) & set(numeric_columns))
+        ordinal = list(set(X.select_dtypes(include=["object", "category"]).columns) & set(ordinal_columns))
+        onehot = list(set(X.select_dtypes(include=["object", "category"]).columns) & set(onehot_columns))
 
         self.feature_names_in_ = numeric.copy()
         self.feature_names_in_.extend(ordinal.copy())

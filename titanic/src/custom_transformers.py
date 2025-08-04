@@ -85,6 +85,21 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         self.ordinal_columns = ordinal_columns
         self.ordinal_transformations = ordinal_transformations
     
+    @staticmethod
+    def clone_estimator_dict(d: dict) -> dict:
+        """
+        Input argument is a dictionary
+        Each value is either an estimator or an immutable Python type
+        This function returns a new dictionary with cloned estimators
+        """
+        d_copy = {}
+        for k, v in d.items():
+            try:
+                d_copy[k] = clone(v)
+            except TypeError:
+                d_copy[k] = v
+        return d_copy
+    
     def fit(self, X: DataFrame, y=None):
         # Instantiate extractors
         fam_kwargs = self.fam_kwargs.copy() if self.fam_kwargs is not None else {}
@@ -108,15 +123,15 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         age_imputer = AgeImputer(**impute_age_kwargs)
 
         numeric_columns = self.numeric_columns.copy() if self.numeric_columns is not None else ["Age", "Pclass", "Fare"]
-        numeric_transformations = self.numeric_transformations.copy() if self.numeric_transformations is not None else {}
+        numeric_transformations = DynamicDataPrepPipeline.clone_estimator_dict(self.numeric_transformations) if self.numeric_transformations is not None else {}
 
         onehot_columns = self.onehot_columns.copy() if self.onehot_columns is not None else ["Sex"]
-        onehot_transformations = self.onehot_transformations.copy() if self.onehot_transformations is not None else {}
+        onehot_transformations = DynamicDataPrepPipeline.clone_estimator_dict(self.onehot_transformations) if self.onehot_transformations is not None else {}
         onehot_transformations.setdefault("Sex", OneHotEncoder(categories=[["male", "female"]], handle_unknown="error"))
         onehot_transformations.setdefault("Title", OneHotEncoder(categories=[["Mr", "Miss", "Mrs", "Master", "Dr", "Rev", "Unknown"]], handle_unknown="ignore"))
 
         ordinal_columns = self.ordinal_columns.copy() if self.ordinal_columns is not None else []
-        ordinal_transformations = self.ordinal_transformations.copy() if self.ordinal_transformations is not None else {}
+        ordinal_transformations = DynamicDataPrepPipeline.clone_estimator_dict(self.ordinal_transformations) if self.ordinal_transformations is not None else {}
         ordinal_transformations.setdefault("Deck", Pipeline([
             ("encode", OrdinalEncoder(categories=[sorted(["A", "B", "C", "D", "E", "F", "G", "U"], reverse=True)], handle_unknown="error")),
             ("scale", MinMaxScaler())

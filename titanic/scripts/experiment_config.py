@@ -38,36 +38,38 @@
 #     }
 # }
 
-config = {
-    "data_prep": {
-        "type": "DynamicDataPrepPipeline",
-        "params": {
-            "ordinal_columns": ["Sex"],
-            "numeric_columns": ["Age", "Pclass", "Fare"],
-            "extract_title": True,
-            "extract_fam": True,
-            "extract_deck": True,
-            "extract_sexpclassage": True,
-        }    
-    },
-    "model": {
-        "type": "RandomForestClassifier",
-        "params": {
-            "max_depth": 20,
-            "random_state": 0,
-        }
-    },
-    "splitter": {
-        "type": "StratifiedKFold",
-        "params": {
-            "n_splits": 10,
-            "shuffle": True,
-            "random_state": 0,
-        }
-    }
-}
+# config = {
+#     "experiment_name": "000_example",
+#     "data_prep": {
+#         "type": "DynamicDataPrepPipeline",
+#         "params": {
+#             "ordinal_columns": ["Sex"],
+#             "numeric_columns": ["Age", "Pclass", "Fare"],
+#             "extract_title": True,
+#             "extract_fam": True,
+#             "extract_deck": True,
+#             "extract_sexpclassage": True,
+#         }    
+#     },
+#     "model": {
+#         "type": "RandomForestClassifier",
+#         "params": {
+#             "max_depth": 20,
+#             "random_state": 0,
+#         }
+#     },
+#     "splitter": {
+#         "type": "StratifiedKFold",
+#         "params": {
+#             "n_splits": 10,
+#             "shuffle": True,
+#             "random_state": 0,
+#         }
+#     }
+# }
 
-config = {
+CONFIG = {
+    "experiment_name": "000_example",
     "data_prep": {
         "type": "DynamicDataPrepPipeline",
         "params": {
@@ -89,7 +91,7 @@ config = {
     "splitter": {
         "type": "StratifiedKFold",
         "params": {
-            "n_splits": 10,
+            "n_splits": 5,
             "shuffle": True,
             "random_state": 0,
         }

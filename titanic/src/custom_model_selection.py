@@ -34,6 +34,18 @@ def make_stratified_k_fold_with_custom_strata(X: DataFrame, columns: list[str], 
     return cv_splitter.split(X, y_concat) # Generator object. Iterating yields (train_indices, val_indices) (a 2-ple of numpy arrays)
 
 def custom_cross_validate(estimator, X: DataFrame, y: Series | np.ndarray, cv, cv_kwargs={}) -> tuple[DataFrame, dict]:
+    """
+    This function performs cross validation for a binary classification problem
+    and saves the predictions and prediction probabilities (for the positive class).
+    For each sample, it records TP/TN/FP/FN. It expects a DataFrame and returns a DataFrame
+    with the results.
+
+    It also calculates accuracy, and precision/recall/f1 for the positive class and returns
+    in a dictionary.
+
+    It's not meant to replace sklearn's cross_validate; this function is for debugging.
+    
+    """
     # Copy and reset X for indexing alignment
     X_out = X.copy().reset_index(drop=True)
 

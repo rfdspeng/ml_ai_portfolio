@@ -9,8 +9,7 @@ from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, StandardScaler,
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.utils.validation import check_is_fitted
-from sklearn.ensemble import RandomForestClassifier
-from src.utils import data_paths, find_project_root, load_titanic_data
+from src.utils import DATA_PATHS, load_titanic_data
 
 def build_column_transformer(numeric: list[str] | None = None, 
                              numeric_transformations: dict | None = None,
@@ -47,6 +46,23 @@ def build_column_transformer(numeric: list[str] | None = None,
         transformers.append((f"onehot_{col}", onehot_transformations.get(col, onehot_transformations.get("default")), [col]))
 
     return ColumnTransformer(transformers, remainder="drop")
+
+def get_default_encoding(feature):
+    """
+    Used by DynamicDataPrepPipeline and AgeImputer during fit
+    """
+
+    if feature == "Sex":
+        return OneHotEncoder(categories=[["male", "female"]], handle_unknown="error")
+    elif feature == "Title":
+        return OneHotEncoder(categories=[["Mr", "Miss", "Mrs", "Master", "Dr", "Rev", "Unknown"]], handle_unknown="ignore")
+    elif feature == "Deck":
+        return Pipeline([
+            ("encode", OrdinalEncoder(categories=[sorted(["A", "B", "C", "D", "E", "F", "G", "U"], reverse=True)], handle_unknown="error")),
+            ("scale", MinMaxScaler())
+            ])
+    else:
+        raise ValueError("Please provide valid feature: 'Sex', 'Title', and 'Deck'.")
 
 class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
     def __init__(self, 
@@ -127,15 +143,12 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
 
         onehot_columns = self.onehot_columns.copy() if self.onehot_columns is not None else ["Sex"]
         onehot_transformations = DynamicDataPrepPipeline.clone_estimator_dict(self.onehot_transformations) if self.onehot_transformations is not None else {}
-        onehot_transformations.setdefault("Sex", OneHotEncoder(categories=[["male", "female"]], handle_unknown="error"))
-        onehot_transformations.setdefault("Title", OneHotEncoder(categories=[["Mr", "Miss", "Mrs", "Master", "Dr", "Rev", "Unknown"]], handle_unknown="ignore"))
+        onehot_transformations.setdefault("Sex", get_default_encoding("Sex"))
+        onehot_transformations.setdefault("Title", get_default_encoding("Title"))
 
         ordinal_columns = self.ordinal_columns.copy() if self.ordinal_columns is not None else []
         ordinal_transformations = DynamicDataPrepPipeline.clone_estimator_dict(self.ordinal_transformations) if self.ordinal_transformations is not None else {}
-        ordinal_transformations.setdefault("Deck", Pipeline([
-            ("encode", OrdinalEncoder(categories=[sorted(["A", "B", "C", "D", "E", "F", "G", "U"], reverse=True)], handle_unknown="error")),
-            ("scale", MinMaxScaler())
-            ]))
+        ordinal_transformations.setdefault("Deck", get_default_encoding("Deck"))
 
         # Build extractor pipeline
         self.feature_extractor_ = Pipeline([
@@ -207,13 +220,12 @@ def feature_extraction():
         ("sexpclassage", SexPclassAgeExtractor()),
     ])
 
-    data = load_titanic_data()
-    data["train"] = pipe.transform(data["train"])
-    data["test"] = pipe.transform(data["test"])
+    X, _, X_test = load_titanic_data(load_X_y=False, extracted=False, load_test=True)
+    X = pipe.transform(X)
+    X_test = pipe.transform(X_test)
 
-    root_dir = find_project_root()
-    data["train"].to_csv(Path(root_dir) / Path(data_paths["train_extracted"]), index=False)
-    data["test"].to_csv(Path(root_dir) / Path(data_paths["test_extracted"]), index=False)
+    X.to_csv(DATA_PATHS["train_extracted"], index=False)
+    X_test.to_csv(DATA_PATHS["test_extracted"], index=False)
 
 class ThresholdClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, base_estimator, threshold=0.5, subgroups=None, subgroup_thresholds=None):
@@ -445,8 +457,10 @@ class AgeImputer(BaseEstimator, TransformerMixin):
             columns = set(X.columns)
             numeric = list(columns & self.feature_names["numeric"])
             ordinal = list(columns & self.feature_names["ordinal"])
+            ordinal_transformations = {"Deck": get_default_encoding("Deck")}
             onehot = list(columns & self.feature_names["onehot"])
-            col_tf = build_column_transformer(numeric=numeric, onehot=onehot, ordinal=ordinal)
+            onehot_transformations = {"Sex": get_default_encoding("Sex"), "Title": get_default_encoding("Title")}
+            col_tf = build_column_transformer(numeric=numeric, onehot=onehot, onehot_transformations=onehot_transformations, ordinal=ordinal, ordinal_transformations=ordinal_transformations)
             self.pipeline_ = Pipeline([
                 ("col_tf", col_tf),
                 ("model", self.model),

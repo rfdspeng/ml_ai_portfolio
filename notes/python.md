@@ -268,3 +268,48 @@ https://docs.python.org/3/tutorial/classes.html
     * If no `global` or `nonlocal` statement is in effect, assignments to names always go into the innermost scope. Assignments do not copy data - they bind names to objects. The same is true for deletions: `del x` removes the binding of `x` from the namespace referenced by the local scope. In fact, all operations that introduce new names use the local scope: in particular, `import` statements and function definitions bind the module or function name in the local scope.
     * `global` indicates a variable that lives in the global scope and should be rebound there
     ` nonlocal` indicates that a variable lives in an enclosing scope and should be rebound there
+
+# Standard library
+
+## Operating system interface
+
+## File wildcards
+
+## Command line arguments
+
+* https://docs.python.org/3/tutorial/stdlib.html#command-line-arguments
+* https://docs.python.org/3/library/argparse.html#module-argparse
+
+Command line arguments: `python myscript.py arg1 arg2 arg3 ...`
+* args can be flags (like `-f` or `--flag`) or values
+* Arguments are stored in the `sys` module's `argv` attribute as a list. You can print them via `print(sys.argv)`.
+* `sys.argv[0]` is the name of the script
+
+`argparse` is the default recommended standard library module for handling command line arguments. It operates on `sys.argv`.
+* Create an instance of `argparse.ArgumentParser` with optional constructor parameters.
+* Call `ArgumentParser.add_argument()` to attach argument specifications
+* Call `ArgumentParser.parse_args()` to run the parser and place the extracted data in a `argparse.Namespace` object
+
+`add_argument` arguments:
+* `name` or `flags`: either a name or a list of option strings. A name indicates a positional argument, which is required. Option strings are optional unless otherwise specified.
+    * `add_argument("posarg")`
+    * `add_argument("-o", "--optarg")`
+* `action`: specifies how the command line argument should be handled
+    * `"store"`: default, stores the argument's value
+    * `"store_const"`: stores the value specified by the `const` keyword argument. Most commonly used with optional arguments - if the optional argument is supplied, then it stores the value of `const`.
+    * `"store_true"`, `"store_false"`: special cases of `store_const` for storing the values of `True` and `False`. If the optional argument is not supplied, then the default value is stored (`True` for `"store_false"` and `False` for `"store_true"`).
+    * `"append"`: stores a list and appends each argument value to the list. Allows option to be specified multiple times.
+    * `"append_const"`: stores a list and appends the value specified by the `const` keyword argument to the list. Allows multiple arguments to store constants to the same list (use `dest` to specify the attribute name).
+    * `"extend"`
+    * `"count"`
+    * `"help"`
+    * `"version"`
+    * Arbitrary action may be specified by apssing an `Action` subclass or any other object that implements the same interface
+* `nargs`: usually, a single command-line argument is associated with a single action. `nargs` associates a different number of command-line arguments with a single action. When not provided, the number of command-line arguments consumed is determined by `action`.
+    * `N` (an integer): gather `N` arguments from the command line into a list
+    * `"?"`: one argument will be consumed from the command line if possible and produced as a single item. If no argument is present, the value from `default` will be produced. This is often used to allow optional input and output files.
+    * `"*"`: all command-line arguments are gathered into a list. It generally doesn't make much sense to have more than one positional argument with this option, but multiple optional arguments is possible.
+    * `"+"`: like `"*"`, but will generate an error message if there isn't at least one command-line argument.
+* `const`
+* `default`
+* `type`

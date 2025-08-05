@@ -1,3 +1,6 @@
+# Required keys: 'experiment_name', 'data_prep', 'model', 'splitter'
+# Required for hyperparameter tuning: 'param_grid'
+
 CONFIG = {
     "experiment_name": "000_example",
     "data_prep": {

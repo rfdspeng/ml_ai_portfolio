@@ -80,43 +80,56 @@ def run_hyperparameter_tuning(config, search_type="grid"):
     experiments_subdir = make_output_dir(config["experiment_name"])
 
     if search_type == "grid":
-        grid = GridSearchCV(
+        hp_searcher = GridSearchCV(
             pipeline,
-            config["param_grid"],
+            param_grid=config["param_grid"],
             scoring=config.get("scoring", "accuracy"),
             cv=cv,
             return_train_score=True,
-            n_jobs=-1,
         )
-    grid.fit(X, y)
+    print(f"Running {search_type} search.")
+    hp_searcher.fit(X, y)
 
-    out_dir = make_output_dir(config["experiment_name"])
-    joblib.dump(grid.best_estimator_, os.path.join(out_dir, "model.pkl"))
-    pd.DataFrame(grid.cv_results_).to_csv(os.path.join(out_dir, "cv_results.csv"), index=False)
+    pd.DataFrame(
+        {"Run": list(range(len(hp_searcher.cv_results_["mean_train_score"]))),
+         "Train (Mean)": (np.array(hp_searcher.cv_results_["mean_train_score"])*100).round(2),
+         "Train (Std)": (np.array(hp_searcher.cv_results_["std_train_score"])*100/np.sqrt(cv.n_splits)).round(2),
+         "Test (Mean)": (np.array(hp_searcher.cv_results_["mean_test_score"])*100).round(2),
+         "Test (Std)": (np.array(hp_searcher.cv_results_["std_test_score"])*100/np.sqrt(cv.n_splits)).round(2),
+         "Params": hp_searcher.cv_results_["params"]
+         }
+         ).to_csv(experiments_subdir / f"{search_type}_results.csv", index=False)
+    print(f"Finished {search_type} search. Results saved to {str(experiments_subdir / f"{search_type}_results.csv")}.")
 
-    with open(os.path.join(out_dir, "metrics.json"), "w") as f:
-        json.dump({
-            "best_score": grid.best_score_,
-            "best_params": grid.best_params_
-        }, f, indent=2)
+def run_training(config):
+    X, y, _ = load_titanic_data()
 
-    with open(os.path.join(out_dir, "config.yaml"), "w") as f:
-        yaml.safe_dump(config, f)
+    pipeline = config["ml_pipe"]
 
-# def predict_test(config):
-#     model = joblib.load(config["model_path"])
-#     X_test = load_test_set()
-#     y_proba = model.predict_proba(X_test)
-#     y_pred = model.predict(X_test)
+    experiments_subdir = make_output_dir(config["experiment_name"])
 
-#     df = X_test.copy()
-#     df["pred"] = y_pred
-#     if config.get("save_probabilities", True):
-#         for i in range(y_proba.shape[1]):
-#             df[f"proba_class_{i}"] = y_proba[:, i]
+    print("Training ML pipeline.")
+    pipeline.fit(X, y)
+    joblib.dump(pipeline, experiments_subdir / "ml_pipeline.joblib")
+    print(f"Finished training pipeline. Saved pipeline to {str(experiments_subdir / "ml_pipeline.joblib")}.")
 
-#     out_dir = make_output_dir(config["experiment_name"])
-#     df.to_csv(os.path.join(out_dir, "test_predictions.csv"), index=False)
+def run_predictions(config):
+    experiments_subdir = EXPERIMENTS_DIR / config["experiment_name"]
+    model_path = config.get("model_path", experiments_subdir / "ml_pipeline.joblib")
+    print(f"Loading model from {model_path}.")
+    model = joblib.load(model_path)
+    _, _, X_test = load_titanic_data(load_test=True)
+    print("Running predictions.")
+    y_proba = model.predict_proba(X_test)
+    y_pred = model.predict(X_test)
+    print(f"Finished predictions. Predicted survival rate = {sum(y_pred)/len(y_pred)}.")
 
-#     with open(os.path.join(out_dir, "config.yaml"), "w") as f:
-#         yaml.safe_dump(config, f)
+    # Submission
+    pd.DataFrame({"PassengerId": X_test["PassengerId"], "Survived": y_pred}).to_csv(experiments_subdir / "submission.csv", index=False)
+
+    # Save predictions and probabilities for analysis
+    df = X_test.copy()
+    df["Prediction"] = y_pred
+    df["Probability"] = y_proba[:, 1]
+    df.to_csv(experiments_subdir / "test_predictions.csv", index=False)
+    print(f"Saved results to {str(experiments_subdir / "submission.csv")}, {str(experiments_subdir / "test_predictions.csv")}.")

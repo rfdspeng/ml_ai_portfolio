@@ -1,6 +1,7 @@
 # ───────────────────────────────
 # scripts/run_experiment.py
 # ───────────────────────────────
+from copy import deepcopy
 from pathlib import Path
 import os
 import argparse
@@ -9,7 +10,7 @@ import yaml
 root_dir = Path(__file__).resolve().parents[1]
 sys.path.append(str(root_dir))
 cwd = Path(os.getcwd())
-from src.experiment_runner import run_cross_validation, run_learning_curve, run_hyperparameter_tuning
+from src.experiment_runner import run_cross_validation, run_learning_curve, run_hyperparameter_tuning, run_training, run_predictions
 from src.config_parser import build_estimators
 from src.utils import EXPERIMENTS_DIR
 
@@ -26,10 +27,12 @@ def main():
     with open(config_filename, "r") as f:
         config = yaml.safe_load(f)
     print(f"Loaded config from {config_filename}.")
+
+    if ("grid" in args.task) and ("param_grid" not in config):
+        raise KeyError("'grid' task (hyperparameter tuning) specified but config does not contain 'param_grid'.")
     
     estimators = build_estimators(config)
     print("Built estimators.")
-    # print(estimators.keys())
 
     for task in args.task:
         if task == "cv": # sklearn cross validation
@@ -40,10 +43,13 @@ def main():
             run_learning_curve(estimators)
         # elif task == "cal": # calibration curves
         #     run_calibration_curve(estimators)
-        # elif task == "grid": # hyperparameter tuning with grid search
-        #     run_hyperparameter_tuning(estimators)
-        # elif task == "predict": # predict on test set
-        #     run_predictions(estimators)
+        elif task == "grid": # hyperparameter tuning with grid search
+            estimators["param_grid"] = deepcopy(config["param_grid"])
+            run_hyperparameter_tuning(estimators)
+        elif task == "train": # train on full training set
+            run_training(estimators)
+        elif task == "predict": # predict on test set
+            run_predictions(estimators)
         else:
             raise ValueError(f"Unknown task_type: {task}")
     

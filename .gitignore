@@ -179,3 +179,5 @@ secrets.toml
 
 # MLflow
 mlruns/
+
+*.joblib

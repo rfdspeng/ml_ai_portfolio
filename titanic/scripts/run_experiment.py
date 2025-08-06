@@ -32,13 +32,8 @@ def main():
         raise KeyError("'grid' task (hyperparameter tuning) specified but config does not contain 'param_grid'.")
     
     estimators = build_estimators(config)
-    print("Built estimators.")
+    print(f"Built estimators. Running {config["experiment_name"]}.")
 
-    if "scoring" in config:
-        estimators["scoring"] = config["scoring"]
-    if "target" in config:
-        estimators["target"] = config["target"]
-        
     for task in args.task:
         if task == "cv": # sklearn cross validation
             run_cross_validation(estimators)
@@ -49,7 +44,7 @@ def main():
         # elif task == "cal": # calibration curves
         #     run_calibration_curve(estimators)
         elif task == "grid": # hyperparameter tuning with grid search
-            estimators["param_grid"] = deepcopy(config["param_grid"])
+            # estimators["param_grid"] = deepcopy(config["param_grid"])
             run_hyperparameter_tuning(estimators)
         elif task == "train": # train on full training set
             run_training(estimators)

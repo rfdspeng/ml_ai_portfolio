@@ -132,7 +132,7 @@ def run_predictions(config):
     model = joblib.load(model_path)
     _, _, X_test = load_titanic_data(load_test=True)
     print("Running predictions.")
-    y_proba = model.predict_proba(X_test)
+    y_proba = model.predict_proba(X_test) # for regression, there is no predict_proba
     y_pred = model.predict(X_test)
     print(f"Finished predictions. Predicted survival rate = {sum(y_pred)/len(y_pred)}.")
 

@@ -1,3 +1,4 @@
+from typing import Callable
 from pathlib import Path
 import re
 import numpy as np
@@ -5,9 +6,10 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 from pandas.core.series import Series
 from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin, clone
-from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, StandardScaler, MinMaxScaler
+from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, StandardScaler, MinMaxScaler, KBinsDiscretizer
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.utils.validation import check_is_fitted
 from src.utils import DATA_PATHS, load_titanic_data
 
@@ -74,14 +76,14 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
                  deck_kwargs: dict | None = None,
                  extract_sexpclassage=False, 
                  sexpclassage_kwargs: dict | None = None,
-                 age_imputer_model: BaseEstimator | None = None, 
                  impute_age_kwargs: dict | None = None,
                  numeric_columns: list[str] | None = None,
                  numeric_transformations: dict | None = None,
                  onehot_columns: list[str] | None = None,
                  onehot_transformations: dict | None = None,
                  ordinal_columns: list[str] | None = None,
-                 ordinal_transformations: dict | None = None
+                 ordinal_transformations: dict | None = None,
+                #  build_estimator_fn: Callable | None = None,
                  ):
         
         self.extract_fam = extract_fam
@@ -92,7 +94,6 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         self.deck_kwargs = deck_kwargs
         self.extract_sexpclassage = extract_sexpclassage
         self.sexpclassage_kwargs = sexpclassage_kwargs
-        self.age_imputer_model = age_imputer_model
         self.impute_age_kwargs = impute_age_kwargs
         self.numeric_columns = numeric_columns
         self.numeric_transformations = numeric_transformations
@@ -100,14 +101,18 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         self.onehot_transformations = onehot_transformations
         self.ordinal_columns = ordinal_columns
         self.ordinal_transformations = ordinal_transformations
+        # self.build_estimator_fn = build_estimator_fn
     
     @staticmethod
-    def clone_estimator_dict(d: dict) -> dict:
+    def clone_estimator_dict(d: dict | None) -> dict:
         """
         Input argument is a dictionary
         Each value is either an estimator or an immutable Python type
         This function returns a new dictionary with cloned estimators
         """
+        if not d:
+            return {}
+        
         d_copy = {}
         for k, v in d.items():
             try:
@@ -115,6 +120,28 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
             except TypeError:
                 d_copy[k] = v
         return d_copy
+ 
+    # def _resolve_transformers(self, transformations: dict | None):
+    #     if not transformations:
+    #         return {}
+    #     built = {}
+    #     for feature, tf in transformations.items():
+    #         if isinstance(tf, str):  # "passthrough", "drop"
+    #             built[feature] = tf
+    #         elif isinstance(tf, BaseEstimator):
+    #             built[feature] = clone(tf)
+    #         elif isinstance(tf, dict):
+    #             if self.build_estimator_fn is None:
+    #                 raise ValueError("build_estimator_fn required to resolve transformations from YAML-like config.")
+    #             if "type" not in tf:
+    #                 raise KeyError(f"Missing 'type' key in transformer config for feature '{feature}'.")
+    #             built[feature] = self.build_estimator_fn(tf)
+    #         else:
+    #             raise ValueError(
+    #                 f"Invalid transformation type for feature '{feature}': {type(tf)}. "
+    #                 "Expected str, sklearn estimator, or YAML-like config (dict with 'type')."
+    #             )
+    #     return built
     
     def fit(self, X: DataFrame, y=None):
         # Instantiate extractors
@@ -135,20 +162,25 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         sexpclassage = SexPclassAgeExtractor(**sexpclassage_kwargs)
 
         impute_age_kwargs = self.impute_age_kwargs.copy() if self.impute_age_kwargs is not None else {}
-        impute_age_kwargs["model"] = clone(self.age_imputer_model) if self.age_imputer_model is not None else None
         age_imputer = AgeImputer(**impute_age_kwargs)
 
         numeric_columns = self.numeric_columns.copy() if self.numeric_columns is not None else ["Age", "Pclass", "Fare"]
-        numeric_transformations = DynamicDataPrepPipeline.clone_estimator_dict(self.numeric_transformations) if self.numeric_transformations is not None else {}
+        # numeric_transformations = DynamicDataPrepPipeline.clone_estimator_dict(self.numeric_transformations) if self.numeric_transformations is not None else {}
+        self.numeric_transformations_ = DynamicDataPrepPipeline.clone_estimator_dict(self.numeric_transformations)
+        # self.numeric_transformations_ = self._resolve_transformers(self.numeric_transformations)
 
         onehot_columns = self.onehot_columns.copy() if self.onehot_columns is not None else ["Sex"]
-        onehot_transformations = DynamicDataPrepPipeline.clone_estimator_dict(self.onehot_transformations) if self.onehot_transformations is not None else {}
-        onehot_transformations.setdefault("Sex", get_default_encoding("Sex"))
-        onehot_transformations.setdefault("Title", get_default_encoding("Title"))
+        # onehot_transformations = DynamicDataPrepPipeline.clone_estimator_dict(self.onehot_transformations) if self.onehot_transformations is not None else {}
+        # self.onehot_transformations_ = self._resolve_transformers(self.onehot_transformations)
+        self.onehot_transformations_ = DynamicDataPrepPipeline.clone_estimator_dict(self.onehot_transformations)
+        self.onehot_transformations_.setdefault("Sex", get_default_encoding("Sex"))
+        self.onehot_transformations_.setdefault("Title", get_default_encoding("Title"))
 
         ordinal_columns = self.ordinal_columns.copy() if self.ordinal_columns is not None else []
-        ordinal_transformations = DynamicDataPrepPipeline.clone_estimator_dict(self.ordinal_transformations) if self.ordinal_transformations is not None else {}
-        ordinal_transformations.setdefault("Deck", get_default_encoding("Deck"))
+        # ordinal_transformations = DynamicDataPrepPipeline.clone_estimator_dict(self.ordinal_transformations) if self.ordinal_transformations is not None else {}
+        # self.ordinal_transformations_ = self._resolve_transformers(self.ordinal_transformations)
+        self.ordinal_transformations_ = DynamicDataPrepPipeline.clone_estimator_dict(self.ordinal_transformations)
+        self.ordinal_transformations_.setdefault("Deck", get_default_encoding("Deck"))
 
         # Build extractor pipeline
         self.feature_extractor_ = Pipeline([
@@ -189,11 +221,11 @@ class DynamicDataPrepPipeline(BaseEstimator, TransformerMixin):
         self.feature_names_out_.extend(onehot.copy())
 
         self.col_tf_ = build_column_transformer(numeric=numeric, 
-                                                numeric_transformations=numeric_transformations,
+                                                numeric_transformations=self.numeric_transformations_,
                                                 onehot=onehot, 
-                                                onehot_transformations=onehot_transformations,
+                                                onehot_transformations=self.onehot_transformations_,
                                                 ordinal=ordinal,
-                                                ordinal_transformations=ordinal_transformations)
+                                                ordinal_transformations=self.ordinal_transformations_)
 
         # Final full pipeline
         self.pipeline_ = Pipeline([
@@ -438,51 +470,60 @@ class SexPclassAgeExtractor(BaseEstimator, TransformerMixin):
 
 # Age imputation
 class AgeImputer(BaseEstimator, TransformerMixin):
-    def __init__(self, model=None, 
-                 feature_names={
-                     "numeric": {"FamilySize", "SibSp", "Pclass", "FareTransformed"}, 
-                     "ordinal": {"Sex"}, 
-                     "onehot": {"Title"}}, 
-                     add_indicator=False, 
-                     target_name="Age"):
+    def __init__(self, impute=False, 
+                 add_indicator=False,
+                 target_name="Age"):
         
-        self.feature_names = feature_names
+        self.impute = impute
         self.target_name = target_name
-        self.model = model
         self.add_indicator = add_indicator
-    
+
     def fit(self, X: DataFrame, y=None):
-        if not(self.model == None):
+        if self.impute:
+            self.model_ = RandomForestRegressor(max_depth=4, n_estimators=50, random_state=0)
+            numeric = ['SibSp', 'Pclass', 'Fare', 'FamilySize']
+            ordinal = ['Sex']
+            onehot = ['Title']
+
             X = X.dropna(subset=[self.target_name]) # drop missing rows
             columns = set(X.columns)
-            numeric = list(columns & self.feature_names["numeric"])
-            ordinal = list(columns & self.feature_names["ordinal"])
+
+            numeric = list(columns & set(numeric))
+            numeric_transformations = {
+                "default": "passthrough",
+                "Fare": KBinsDiscretizer(n_bins=4, encode="ordinal"),
+            }
+
+            ordinal = list(columns & set(ordinal))
             ordinal_transformations = {"Deck": get_default_encoding("Deck")}
-            onehot = list(columns & self.feature_names["onehot"])
+
+            onehot = list(columns & set(onehot))
             onehot_transformations = {"Sex": get_default_encoding("Sex"), "Title": get_default_encoding("Title")}
-            col_tf = build_column_transformer(numeric=numeric, onehot=onehot, onehot_transformations=onehot_transformations, ordinal=ordinal, ordinal_transformations=ordinal_transformations)
+
+            self.col_tf_ = build_column_transformer(numeric=numeric, numeric_transformations=numeric_transformations, onehot=onehot, onehot_transformations=onehot_transformations, ordinal=ordinal, ordinal_transformations=ordinal_transformations)
             self.pipeline_ = Pipeline([
-                ("col_tf", col_tf),
-                ("model", self.model),
+                ("col_tf", self.col_tf_),
+                ("model", self.model_),
             ])
             self.pipeline_.fit(X.drop(columns=[self.target_name], errors="ignore"), X[self.target_name])
             self.feature_names_in_ = numeric.copy()
             self.feature_names_in_.extend(ordinal)
             self.feature_names_in_.extend(onehot)
+
         self.is_fitted_ = True
         return self
     
     def transform(self, X: DataFrame) -> DataFrame:
         check_is_fitted(self)
         X_out = X.copy()
-        if (not self.add_indicator) and (self.model == None):
+        if not(self.impute or self.add_indicator):
             return X_out
         
         missing_mask = X_out[self.target_name].isna()
         if self.add_indicator:
             X_out[self.target_name + "_Missing"] = missing_mask
 
-        if not(self.model == None):
+        if self.impute:
             if missing_mask.any():
                 y_pred = self.pipeline_.predict(X_out.loc[missing_mask, self.feature_names_in_])
                 X_out[self.target_name] = X_out[self.target_name].fillna(pd.Series(y_pred, index=missing_mask.loc[missing_mask].index))
@@ -491,6 +532,61 @@ class AgeImputer(BaseEstimator, TransformerMixin):
 
     def get_feature_names_out(self):
         return self.feature_names_in_
+    
+# class AgeImputer(BaseEstimator, TransformerMixin):
+#     def __init__(self, model=None, 
+#                  feature_names={
+#                      "numeric": {"FamilySize", "SibSp", "Pclass", "FareTransformed"}, 
+#                      "ordinal": {"Sex"}, 
+#                      "onehot": {"Title"}}, 
+#                      add_indicator=False, 
+#                      target_name="Age"):
+        
+#         self.feature_names = feature_names
+#         self.target_name = target_name
+#         self.model = model
+#         self.add_indicator = add_indicator
+    
+#     def fit(self, X: DataFrame, y=None):
+#         if not(self.model == None):
+#             X = X.dropna(subset=[self.target_name]) # drop missing rows
+#             columns = set(X.columns)
+#             numeric = list(columns & self.feature_names["numeric"])
+#             ordinal = list(columns & self.feature_names["ordinal"])
+#             ordinal_transformations = {"Deck": get_default_encoding("Deck")}
+#             onehot = list(columns & self.feature_names["onehot"])
+#             onehot_transformations = {"Sex": get_default_encoding("Sex"), "Title": get_default_encoding("Title")}
+#             col_tf = build_column_transformer(numeric=numeric, onehot=onehot, onehot_transformations=onehot_transformations, ordinal=ordinal, ordinal_transformations=ordinal_transformations)
+#             self.pipeline_ = Pipeline([
+#                 ("col_tf", col_tf),
+#                 ("model", self.model),
+#             ])
+#             self.pipeline_.fit(X.drop(columns=[self.target_name], errors="ignore"), X[self.target_name])
+#             self.feature_names_in_ = numeric.copy()
+#             self.feature_names_in_.extend(ordinal)
+#             self.feature_names_in_.extend(onehot)
+#         self.is_fitted_ = True
+#         return self
+    
+#     def transform(self, X: DataFrame) -> DataFrame:
+#         check_is_fitted(self)
+#         X_out = X.copy()
+#         if (not self.add_indicator) and (self.model == None):
+#             return X_out
+        
+#         missing_mask = X_out[self.target_name].isna()
+#         if self.add_indicator:
+#             X_out[self.target_name + "_Missing"] = missing_mask
+
+#         if not(self.model == None):
+#             if missing_mask.any():
+#                 y_pred = self.pipeline_.predict(X_out.loc[missing_mask, self.feature_names_in_])
+#                 X_out[self.target_name] = X_out[self.target_name].fillna(pd.Series(y_pred, index=missing_mask.loc[missing_mask].index))
+
+#         return X_out
+
+#     def get_feature_names_out(self):
+#         return self.feature_names_in_
 
 # Pre-age imputation encoder
 class ImputationEncoder(BaseEstimator, TransformerMixin):

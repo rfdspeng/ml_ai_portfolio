@@ -1,0 +1,7 @@
+Run,Train (Mean),Train (Std),Test (Mean),Test (Std),Params
+0,46.35,0.23,42.17,1.12,{'model__n_estimators': 60}
+1,46.34,0.23,42.14,1.14,{'model__n_estimators': 50}
+2,46.28,0.22,42.03,1.17,{'model__n_estimators': 40}
+3,46.24,0.23,42.04,1.1,{'model__n_estimators': 30}
+4,46.21,0.2,42.05,1.06,{'model__n_estimators': 20}
+5,45.76,0.27,41.29,0.98,{'model__n_estimators': 10}

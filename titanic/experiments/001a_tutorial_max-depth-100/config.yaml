@@ -1,22 +1,20 @@
-experiment_name: 003b_rfc_cv
+experiment_name: 001a_tutorial_max-depth-100
 data_prep:
   type: DynamicDataPrepPipeline
   params:
     ordinal_columns:
     - Sex
     numeric_columns:
-    - Age
     - Pclass
-    - Fare
+    - SibSp
+    - Parch
     onehot_columns: []
     numeric_transformations:
       default: passthrough
-    extract_title: true
-    extract_fam: true
 model:
   type: RandomForestClassifier
   params:
-    max_depth: 7
+    max_depth: 100
     random_state: 0
 splitter:
   type: StratifiedKFold

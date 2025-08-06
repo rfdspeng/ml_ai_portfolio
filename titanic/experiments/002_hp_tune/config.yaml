@@ -1,0 +1,56 @@
+experiment_name: 002_hp_tune
+data_prep:
+  type: DynamicDataPrepPipeline
+  params:
+    ordinal_columns:
+    - Sex
+    numeric_columns:
+    - Pclass
+    - SibSp
+    - Parch
+    onehot_columns: []
+    numeric_transformations:
+      default: passthrough
+model:
+  type: RandomForestClassifier
+  params:
+    max_depth: 20
+    random_state: 0
+splitter:
+  type: StratifiedKFold
+  params:
+    n_splits: 5
+    shuffle: true
+    random_state: 0
+param_grid:
+- data_prep__ordinal_columns:
+  - - Sex
+  data_prep__numeric_columns:
+  - - Pclass
+    - SibSp
+    - Parch
+  - - SibSp
+    - Parch
+  - - Pclass
+  - []
+  model__max_depth:
+  - 5
+  - 20
+- data_prep__ordinal_columns:
+  - - Sex
+  data_prep__numeric_columns:
+  - - Pclass
+  data_prep__extract_fam:
+  - true
+  model__max_depth:
+  - 5
+  - 20
+- data_prep__ordinal_columns:
+  - []
+  data_prep__numeric_columns:
+  - - Pclass
+    - SibSp
+    - Parch
+  model__max_depth:
+  - 5
+  - 20

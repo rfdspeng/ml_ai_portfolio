@@ -1,0 +1,63 @@
+experiment_name: 004_hp_tune_age_imputer
+data_prep:
+  type: DynamicDataPrepPipeline
+  params:
+    extract_title: true
+    extract_fam: true
+    numeric_columns:
+    - SibSp
+    - Pclass
+    - Fare
+    ordinal_columns:
+    - Sex
+    onehot_columns: []
+    numeric_transformations:
+      default: passthrough
+model:
+  type: RandomForestRegressor
+  params:
+    max_depth: 20
+    random_state: 0
+splitter:
+  type: KFold
+  params:
+    n_splits: 5
+    shuffle: true
+    random_state: 0
+param_grid:
+- model__max_depth:
+  - 5
+  - 10
+  - 15
+  - 20
+  model__n_estimators:
+  - 100
+  - 75
+  - 50
+  - 25
+  - 10
+  data_prep__numeric_transformations:
+  - default: passthrough
+    Fare: passthrough
+  - default: passthrough
+    Fare:
+      type: Pipeline
+      steps:
+      - name: bin
+        transformer:
+          type: KBinsDiscretizer
+          params:
+            n_bins: 4
+            encode: ordinal
+      - name: scale
+        transformer:
+          type: MinMaxScaler
+  - default: passthrough
+    Fare:
+      type: QuantileTransformer
+  - default: passthrough
+    Fare:
+      type: QuantileTransformer
+      params:
+        output_distribution: normal
+target: Age

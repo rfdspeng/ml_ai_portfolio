@@ -1,0 +1,101 @@
+Run,Train (Mean),Train (Std),Test (Mean),Test (Std),Params
+0,51.5,0.27,40.72,1.92,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 5, 'model__n_estimators': 100}"
+1,51.46,0.28,40.76,1.87,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 5, 'model__n_estimators': 75}"
+2,51.41,0.28,40.6,1.96,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 5, 'model__n_estimators': 50}"
+3,51.3,0.29,40.56,2.08,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 5, 'model__n_estimators': 25}"
+4,50.54,0.25,39.5,2.04,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 5, 'model__n_estimators': 10}"
+5,69.15,0.6,34.29,2.84,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 10, 'model__n_estimators': 100}"
+6,69.03,0.58,34.28,2.83,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 10, 'model__n_estimators': 75}"
+7,68.75,0.57,34.51,3.06,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 10, 'model__n_estimators': 50}"
+8,68.39,0.55,33.92,3.05,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 10, 'model__n_estimators': 25}"
+9,67.24,0.62,32.76,3.85,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 10, 'model__n_estimators': 10}"
+10,73.74,0.65,30.09,3.21,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 15, 'model__n_estimators': 100}"
+11,73.62,0.64,30.22,3.12,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 15, 'model__n_estimators': 75}"
+12,73.51,0.62,30.35,3.29,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 15, 'model__n_estimators': 50}"
+13,73.05,0.58,30.21,3.02,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 15, 'model__n_estimators': 25}"
+14,71.76,0.57,28.46,3.44,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 15, 'model__n_estimators': 10}"
+15,74.12,0.66,29.18,3.37,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 20, 'model__n_estimators': 100}"
+16,74.02,0.65,29.31,3.22,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 20, 'model__n_estimators': 75}"
+17,73.9,0.65,29.28,3.57,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 20, 'model__n_estimators': 50}"
+18,73.43,0.6,28.96,3.42,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 20, 'model__n_estimators': 25}"
+19,71.98,0.59,27.04,4.24,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': 'passthrough'}, 'model__max_depth': 20, 'model__n_estimators': 10}"
+20,49.34,0.29,41.99,1.52,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 5, 'model__n_estimators': 100}"
+21,49.33,0.29,42.07,1.51,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 5, 'model__n_estimators': 75}"
+22,49.29,0.28,41.95,1.5,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 5, 'model__n_estimators': 50}"
+23,49.14,0.28,41.77,1.59,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 5, 'model__n_estimators': 25}"
+24,48.67,0.27,40.94,1.53,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 5, 'model__n_estimators': 10}"
+25,56.36,0.32,38.91,2.18,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 10, 'model__n_estimators': 100}"
+26,56.3,0.32,39.08,2.12,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 10, 'model__n_estimators': 75}"
+27,56.27,0.32,39.04,2.15,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 10, 'model__n_estimators': 50}"
+28,56.04,0.32,39.29,2.14,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 10, 'model__n_estimators': 25}"
+29,55.4,0.22,38.66,1.73,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 10, 'model__n_estimators': 10}"
+30,56.72,0.34,37.6,2.27,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 15, 'model__n_estimators': 100}"
+31,56.68,0.34,37.75,2.2,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 15, 'model__n_estimators': 75}"
+32,56.65,0.35,37.53,2.36,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 15, 'model__n_estimators': 50}"
+33,56.44,0.36,37.43,2.46,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 15, 'model__n_estimators': 25}"
+34,55.86,0.27,36.52,1.94,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 15, 'model__n_estimators': 10}"
+35,56.72,0.34,37.58,2.28,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 20, 'model__n_estimators': 100}"
+36,56.68,0.34,37.73,2.21,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 20, 'model__n_estimators': 75}"
+37,56.65,0.35,37.49,2.38,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 20, 'model__n_estimators': 50}"
+38,56.44,0.36,37.41,2.45,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 20, 'model__n_estimators': 25}"
+39,55.85,0.27,36.54,1.93,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': Pipeline(steps=[('bin', KBinsDiscretizer(encode='ordinal', n_bins=4)),
+                ('scale', MinMaxScaler())])}, 'model__max_depth': 20, 'model__n_estimators': 10}"
+40,51.5,0.28,40.68,1.96,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 5, 'model__n_estimators': 100}"
+41,51.46,0.28,40.74,1.89,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 5, 'model__n_estimators': 75}"
+42,51.4,0.28,40.58,1.99,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 5, 'model__n_estimators': 50}"
+43,51.27,0.3,40.5,2.09,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 5, 'model__n_estimators': 25}"
+44,50.57,0.29,39.56,2.02,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 5, 'model__n_estimators': 10}"
+45,69.09,0.63,34.53,2.72,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 10, 'model__n_estimators': 100}"
+46,68.99,0.61,34.63,2.67,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 10, 'model__n_estimators': 75}"
+47,68.68,0.61,34.74,2.85,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 10, 'model__n_estimators': 50}"
+48,68.31,0.6,34.19,2.8,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 10, 'model__n_estimators': 25}"
+49,67.17,0.72,32.9,3.4,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 10, 'model__n_estimators': 10}"
+50,73.59,0.68,30.11,3.03,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 15, 'model__n_estimators': 100}"
+51,73.48,0.67,30.39,2.88,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 15, 'model__n_estimators': 75}"
+52,73.36,0.65,30.44,3.03,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 15, 'model__n_estimators': 50}"
+53,72.88,0.64,30.2,2.68,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 15, 'model__n_estimators': 25}"
+54,71.65,0.64,28.58,2.98,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 15, 'model__n_estimators': 10}"
+55,73.96,0.69,29.05,3.18,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 20, 'model__n_estimators': 100}"
+56,73.88,0.68,29.29,2.99,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 20, 'model__n_estimators': 75}"
+57,73.75,0.67,29.21,3.28,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 20, 'model__n_estimators': 50}"
+58,73.25,0.65,28.8,2.98,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 20, 'model__n_estimators': 25}"
+59,71.87,0.66,27.04,3.56,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer()}, 'model__max_depth': 20, 'model__n_estimators': 10}"
+60,51.5,0.28,40.65,1.96,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 5, 'model__n_estimators': 100}"
+61,51.46,0.28,40.72,1.9,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 5, 'model__n_estimators': 75}"
+62,51.4,0.28,40.58,2.0,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 5, 'model__n_estimators': 50}"
+63,51.26,0.3,40.52,2.12,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 5, 'model__n_estimators': 25}"
+64,50.56,0.28,39.51,2.03,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 5, 'model__n_estimators': 10}"
+65,69.1,0.63,34.38,2.72,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 10, 'model__n_estimators': 100}"
+66,69.0,0.61,34.48,2.68,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 10, 'model__n_estimators': 75}"
+67,68.7,0.59,34.64,2.86,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 10, 'model__n_estimators': 50}"
+68,68.33,0.58,34.1,2.81,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 10, 'model__n_estimators': 25}"
+69,67.25,0.67,32.73,3.41,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 10, 'model__n_estimators': 10}"
+70,73.61,0.68,29.89,3.01,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 15, 'model__n_estimators': 100}"
+71,73.5,0.67,30.13,2.87,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 15, 'model__n_estimators': 75}"
+72,73.38,0.64,30.22,3.01,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 15, 'model__n_estimators': 50}"
+73,72.92,0.63,30.01,2.67,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 15, 'model__n_estimators': 25}"
+74,71.73,0.64,28.31,2.99,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 15, 'model__n_estimators': 10}"
+75,73.98,0.69,28.83,3.15,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 20, 'model__n_estimators': 100}"
+76,73.9,0.68,29.04,2.96,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 20, 'model__n_estimators': 75}"
+77,73.78,0.67,29.0,3.25,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 20, 'model__n_estimators': 50}"
+78,73.29,0.65,28.63,2.96,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 20, 'model__n_estimators': 25}"
+79,71.97,0.66,26.76,3.54,"{'data_prep__numeric_transformations': {'default': 'passthrough', 'Fare': QuantileTransformer(output_distribution='normal')}, 'model__max_depth': 20, 'model__n_estimators': 10}"

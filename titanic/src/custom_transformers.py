@@ -475,6 +475,9 @@ class AgeImputer(BaseEstimator, TransformerMixin):
     def transform(self, X: DataFrame) -> DataFrame:
         check_is_fitted(self)
         X_out = X.copy()
+        if (not self.add_indicator) and (self.model == None):
+            return X_out
+        
         missing_mask = X_out[self.target_name].isna()
         if self.add_indicator:
             X_out[self.target_name + "_Missing"] = missing_mask

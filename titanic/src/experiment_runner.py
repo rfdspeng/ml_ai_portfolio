@@ -20,7 +20,10 @@ def make_output_dir(experiment_name):
     return out_dir
 
 def run_cross_validation(config, custom=False):
-    X, y, _ = load_titanic_data()
+    X, y, _ = load_titanic_data(target=config.get("target", "Survived"))
+    missing = y.isna() # use case: missing value imputation
+    X = X.loc[~missing]
+    y = y[~missing]
     
     pipeline = config["ml_pipe"]
     cv = config["splitter"]
@@ -29,7 +32,7 @@ def run_cross_validation(config, custom=False):
 
     if not custom:
         print("Running cross-validation.")
-        cv_results = cross_validate(pipeline, X, y=y, cv=cv, return_train_score=True)
+        cv_results = cross_validate(pipeline, X, y=y, cv=cv, scoring=config.get("scoring", None), return_train_score=True)
         pd.DataFrame(cv_results).to_csv(experiments_subdir / "cv_results.csv", index=False)
         print(f"Finished cross-validation. Results saved to {str(experiments_subdir / "cv_results.csv")}.")
     else:
@@ -41,7 +44,10 @@ def run_cross_validation(config, custom=False):
         print(f"Finished custom cross-validation. Results saved to {str(experiments_subdir / "ccv_results.csv")}.")
 
 def run_learning_curve(config):
-    X, y, _ = load_titanic_data()
+    X, y, _ = load_titanic_data(target=config.get("target", "Survived"))
+    missing = y.isna() # use case: missing value imputation
+    X = X.loc[~missing]
+    y = y[~missing]
 
     pipeline = config["ml_pipe"]
     cv = config["splitter"]
@@ -59,7 +65,7 @@ def run_learning_curve(config):
         # "n_jobs": 4,
         "line_kw": {"marker": "o"},
         "std_display_style": "fill_between",
-        "score_name": "Accuracy",
+        "scoring": config.get("scoring", None)
     }
 
     print("Generating learning curve.")
@@ -72,7 +78,10 @@ def run_learning_curve(config):
     print(f"Finished generating learning curve. Results saved to {str(experiments_subdir / "learning_curve.png")}.")
 
 def run_hyperparameter_tuning(config, search_type="grid"):
-    X, y, _ = load_titanic_data()
+    X, y, _ = load_titanic_data(target=config.get("target", "Survived"))
+    missing = y.isna() # use case: missing value imputation
+    X = X.loc[~missing]
+    y = y[~missing]
 
     pipeline = config["ml_pipe"]
     cv = config["splitter"]
@@ -83,7 +92,7 @@ def run_hyperparameter_tuning(config, search_type="grid"):
         hp_searcher = GridSearchCV(
             pipeline,
             param_grid=config["param_grid"],
-            scoring=config.get("scoring", "accuracy"),
+            scoring=config.get("scoring", None),
             cv=cv,
             return_train_score=True,
         )
@@ -102,7 +111,10 @@ def run_hyperparameter_tuning(config, search_type="grid"):
     print(f"Finished {search_type} search. Results saved to {str(experiments_subdir / f"{search_type}_results.csv")}.")
 
 def run_training(config):
-    X, y, _ = load_titanic_data()
+    X, y, _ = load_titanic_data(target=config.get("target", "Survived"))
+    missing = y.isna() # use case: missing value imputation
+    X = X.loc[~missing]
+    y = y[~missing]
 
     pipeline = config["ml_pipe"]
 

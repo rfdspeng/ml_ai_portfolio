@@ -5,7 +5,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, HistGradientBoostingClassifier
 from xgboost import XGBClassifier
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.preprocessing import KBinsDiscretizer, QuantileTransformer, PowerTransformer, MinMaxScaler, StandardScaler
 from sklearn.pipeline import Pipeline
 from src.custom_transformers import DynamicDataPrepPipeline
@@ -33,6 +33,7 @@ REGISTRY = {
     "RandomForestRegressor": RandomForestRegressor,
 
     # Model selection
+    "KFold": KFold,
     "StratifiedKFold": StratifiedKFold,
 }
 

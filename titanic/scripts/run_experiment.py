@@ -34,6 +34,11 @@ def main():
     estimators = build_estimators(config)
     print("Built estimators.")
 
+    if "scoring" in config:
+        estimators["scoring"] = config["scoring"]
+    if "target" in config:
+        estimators["target"] = config["target"]
+        
     for task in args.task:
         if task == "cv": # sklearn cross validation
             run_cross_validation(estimators)

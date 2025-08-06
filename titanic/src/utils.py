@@ -19,11 +19,11 @@ DATA_PATHS = {
     "train": DATA_DIR / "train.csv",
     "test": DATA_DIR / "test.csv",
     "submit": DATA_DIR / "submission.csv",
-    "train_extracted": DATA_DIR / "train_extracted.csv",
+    "train_extracted": DATA_DIR / "train_extracted.csv", # features extracted
     "test_extracted": DATA_DIR / "test_extracted.csv",
 }
 
-def load_titanic_data(load_X_y=True, extracted=False, load_test=False):
+def load_titanic_data(load_X_y=True, extracted=False, load_test=False, target="Survived"):
     suffix = ""
     if extracted:
         suffix = "_extracted"
@@ -35,8 +35,8 @@ def load_titanic_data(load_X_y=True, extracted=False, load_test=False):
         raise
 
     if load_X_y:
-        X = train.drop(columns="Survived")
-        y = train["Survived"]
+        X = train.drop(columns=target)
+        y = train[target]
     else:
         X = train
         y = None

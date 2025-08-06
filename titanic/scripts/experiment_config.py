@@ -1,72 +1,35 @@
 CONFIG = {
-    "experiment_name": "000_example",
+    "experiment_name": "004b_age_imputer_cv",
     "data_prep": {
         "type": "DynamicDataPrepPipeline",
         "params": {
-            "ordinal_columns": ["Sex"],
-            "numeric_columns": ["Age", "Pclass", "Fare"],
             "extract_title": True,
             "extract_fam": True,
-            "extract_deck": True,
-            "extract_sexpclassage": True,
+            "numeric_columns": ["SibSp", "Pclass", "Fare"],
         }    
     },
+    "numeric_transformations": {"default": "passthrough"},
     "model": {
-        "type": "RandomForestClassifier",
+        "type": "RandomForestRegressor",
         "params": {
-            "max_depth": 20,
+            "max_depth": 4,
+            "n_estimators": 10,
             "random_state": 0,
         }
     },
     "splitter": {
-        "type": "StratifiedKFold",
+        "type": "KFold",
         "params": {
             "n_splits": 5,
             "shuffle": True,
             "random_state": 0,
         }
     },
-    "numeric_transformations": {
-        "Fare": {
-            "type": "Pipeline",
-            "steps": [
-                {
-                    "name": "bin",
-                    "transformer": {
-                        "type": "KBinsDiscretizer",
-                        "params": {
-                            "n_bins": 4,
-                            "encode": "ordinal"
-                        }
-                    }
-                },
-                {
-                    "name": "scale",
-                    "transformer": {
-                        "type": "MinMaxScaler"
-                    }
-                }
-            ]
-        },
-        "Pclass": {
-            "type": "MinMaxScaler"
-        },
-    },
-    "age_imputer_model": {
-        "type": "RandomForestRegressor",
-        "params": {
-            "max_depth": 20
-        }
-    },
-    "param_grid": [
-        {
-            "data_prep__ordinal_columns": [["Sex"]],
-            "data_prep__numeric_columns": [["Age", "Pclass", "Fare"]],
-            "data_prep__extract_title": [False, True],
-            "data_prep__extract_fam": [False, True],
-            "data_prep__extract_deck": [False, True],
-            "data_prep__extract_sexpclassage": [False, True],
-            "model__max_depth": [5, 20],
-        },
-    ]
+    # "param_grid": [
+    #     {
+    #         "model__max_depth": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    #         "model__n_estimators": [1, 5, 10],
+    #     },
+    # ],
+    "target": "Age"
 }
